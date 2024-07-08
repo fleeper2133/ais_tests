@@ -1,0 +1,53 @@
+@import '/src/sass/colors.scss';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: #333333;
+    transition: .2s;
+}
+
+html,body {
+    width: 100%;
+    height: 100%;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+// copied
+.fw-bold {
+    font-weight: bold;
+  }
+  .fw-medium {
+    font-weight: 400;
+  }
+  .main-blue {
+    color: $main-blue !important;
+  }
+  .grey-text {
+    color: $main-grey;
+  }
+  
+  .fs-14 {
+    font-size: 14px;
+  }
+  .fs-18 {
+    font-size: 18px;
+  }
+  .fs-20 {
+    font-size: 20px;
+  }
+  .fs-24 {
+    font-size: 24px;
+  }
+  // copied
+  
