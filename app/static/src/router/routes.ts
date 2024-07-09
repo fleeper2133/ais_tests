@@ -3,6 +3,8 @@ import Authentication from "../components/ProjectAuthentication.vue"
 import Courses from "../components/CourseChoosing.vue"
 import SelectedCourse from '../components/SelectedCourse.vue'
 import CourseInfo from '../components/CourseInfo.vue'
+import AllQuestions from '../components/AllQuestions.vue'
+import TicketSelection from '../components/TicketSelection.vue'
 
 const routes = [
     {
@@ -24,6 +26,16 @@ const routes = [
       path: '/course-info',
       name: 'CourseInfo',
       component: CourseInfo
+    },
+    {
+      path: '/all-questions',
+      name: 'AllQuestions',
+      component: AllQuestions
+    },
+    {
+      path: '/ticket-selection',
+      name: 'TicketSelection',
+      component: TicketSelection
     }
 ]
 
