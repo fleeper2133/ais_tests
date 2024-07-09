@@ -3,6 +3,6 @@ from inertia import render
 
 def index(request):
     props = {
-        
+        "title": "title"
     }
-    return render(request, "CourseChoosing", props=props)
+    return render(request, "App", props=props)

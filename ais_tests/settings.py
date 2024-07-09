@@ -70,8 +70,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4173",
-    "http://127.0.0.1:4173",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 ROOT_URLCONF = "ais_tests.urls"
@@ -191,7 +191,7 @@ DJANGO_VITE_ASSETS_PATH = BASE_DIR / "app" / "static" / "dist"
 
 
 # Vite 3 defaults to 5173. Default for django-vite is 3000, which is the default for Vite 2.
-DJANGO_VITE_DEV_SERVER_PORT = 4173
+DJANGO_VITE_DEV_SERVER_PORT = 5173
 
 
 # Static files (CSS, JavaScript, Images)

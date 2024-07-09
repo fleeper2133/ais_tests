@@ -14,7 +14,7 @@
 </script>
 
 <style lang="scss"scoped>
-@import '/src/sass/main.scss';
+@import '../sass/main.scss';
 
 .footer {
     display: flex;

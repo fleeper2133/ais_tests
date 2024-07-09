@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <img src="/src/assets/images/logo.png" alt="logo">
+        <img src="../assets/images/logo.png" alt="logo">
         <router-link to="/">
             <div class="header__icon">
                 <svg class="header__png" width="24px" height="24px" viewBox="0 0 24 24" fill="none">
@@ -17,7 +17,7 @@
 
 <style lang="scss" scoped>
 
-@import '/src/sass/main.scss';
+@import '../sass/main.scss';
 
 .header {
     display: flex;

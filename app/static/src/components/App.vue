@@ -7,7 +7,7 @@
 </script>
 
 <style lang="scss">
-@import '/src/sass/main.scss';
+@import '../sass/main.scss';
 
 .button {
   cursor: pointer;

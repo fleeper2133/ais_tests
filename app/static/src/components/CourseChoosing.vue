@@ -301,7 +301,7 @@ import Footer from './Footer.vue';
 
 <style lang="scss" scoped>
 
-@import '/src/sass/main.scss';
+@import '../sass/main.scss';
 
 .container {
   padding: 0 10vw;

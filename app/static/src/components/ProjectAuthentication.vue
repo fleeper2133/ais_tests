@@ -4,7 +4,7 @@
             <div class="general general--margin">
                 <div class="general__info">
                     <div class="logo">
-                        <img src="/src/assets/images/logo.png" alt="logo">
+                        <img src="../assets/images/logo.png" alt="logo">
                         <p class="logo__text fs-14">Автоматизированная информационная система по подготовке к экзамену по профессиональной квалификации</p>
                     </div>
                     <div class="general__info-text">
@@ -15,12 +15,12 @@
                             <h2 class="fw-medium">• По промышленной безопасности</h2>
                         </div>
                     </div>
-                    <img class="auth-img" src="/src/assets/images/auth-img.png" alt="auth-img">
+                    <img class="auth-img" src="../assets/images/auth-img.png" alt="auth-img">
                 </div>
                 <div class="login-panel" @submit.prevent>
                     <div class="greeting">
                         <p class="fs-20 fw-bold">Добро пожаловать в </p>
-                        <img src="/src/assets/images/logo.png" alt="logo">
+                        <img src="../assets/images/logo.png" alt="logo">
                     </div>
                     <form class="form">
                         <div class="form__input">
@@ -58,7 +58,7 @@
                         <p>Скоро в</p>
                         <p class="fw-bold">App store</p>
                     </div>
-                    <img class="store-qr" src="/src/assets/images/app-store.png" alt="app-store">
+                    <img class="store-qr" src="../assets/images/app-store.png" alt="app-store">
                 </a>
                 <a class="app-link">
                     <svg width="56" height="56" viewBox="0 0 50 50" fill="none">
@@ -72,7 +72,7 @@
                         <p>Скоро в</p>
                         <p class="fw-bold">Goggle Play</p>
                     </div>
-                    <img class="store-qr" src="/src/assets/images/play-market.png" alt="play-market">
+                    <img class="store-qr" src="../assets/images/play-market.png" alt="play-market">
                 </a>
             </div>
         </div>
@@ -86,7 +86,7 @@ import Footer from './Footer.vue';
 </script>
 
 <style lang="scss" scoped>
-@import '/src/sass/main.scss';
+@import '../sass/main.scss';
 
 .content {
     height: 100%;

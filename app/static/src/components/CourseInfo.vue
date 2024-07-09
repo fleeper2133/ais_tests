@@ -59,7 +59,7 @@ import Footer from './Footer.vue'
 
 <style scoped lang="scss">
 
-@import '/src/sass/main.scss';
+@import '../sass/main.scss';
 
 .content {
     height: 100%;

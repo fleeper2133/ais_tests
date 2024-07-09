@@ -32,15 +32,15 @@
                     </div>
                     <div class="info__buttons">
                         <button class="button info__button">
-                            <img class="info__button-img" src="/src/assets/images/star.png" alt="star">
+                            <img class="info__button-img" src="../assets/images/star.png" alt="star">
                             <p>Избранные вопросы</p>
                         </button>
                         <button class="button info__button">
-                            <img class="info__button-img" src="/src/assets/images/star.png" alt="star">
+                            <img class="info__button-img" src="../assets/images/star.png" alt="star">
                             <p>Ошибки</p>
                         </button>
                         <button class="button info__button">
-                            <img class="info__button-img" src="/src/assets/images/star.png" alt="star">
+                            <img class="info__button-img" src="../assets/images/star.png" alt="star">
                             <p>История прохождения</p>
                         </button>
                     </div>
@@ -176,7 +176,7 @@ const dropper = ref(false)
 
 <style scoped lang="scss">
 
-@import '/src/sass/main.scss';
+@import '../sass/main.scss';
 
 //circle 
 
