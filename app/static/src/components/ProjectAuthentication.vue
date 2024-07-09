@@ -22,17 +22,17 @@
                         <p class="fs-20 fw-bold">Добро пожаловать в </p>
                         <img src="../assets/images/logo.png" alt="logo">
                     </div>
-                    <form class="form">
+                    <form class="form" @submit.prevent="login">
                         <div class="form__input">
                             <p class="fw-bold">Логин</p>
-                            <input class="input" type="login" placeholder="Введите электронную почту..">
+                            <input class="input" v-model="email" type="login" placeholder="Введите электронную почту..">
                         </div>
                         <div class="form__input">
                             <p class="fw-bold">Пароль</p>
-                            <input class="input" type="password" placeholder="Введите пароль..">
+                            <input class="input" v-model="password" type="password" placeholder="Введите пароль..">
                         </div>
                         <div class="buttons">
-                            <button class="button button__enter">Войти</button>
+                            <button class="button button__enter" type="submit">Войти</button>
                             <router-link to="/courses">
                                 <button class="button button__demo">Запустить демо</button>
                             </router-link>
@@ -82,6 +82,24 @@
 
 <script setup lang="ts">
 import Footer from './Footer.vue';
+import { Login, Registration, useTasksStore } from "../taskStore";
+import { computed, ref, onMounted } from "vue";
+
+
+const tasksStore = useTasksStore()
+
+const email = ref('');
+const password = ref('');
+
+function login() {
+    const data: Login = {
+        "email": email.value,
+        "password": password.value,
+    }
+    // debugger;
+    tasksStore.login(data);
+    
+}
 
 </script>
 

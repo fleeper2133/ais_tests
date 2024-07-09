@@ -5,14 +5,16 @@ import App from './components/App.vue'
 import 'primevue/resources/themes/aura-light-green/theme.css'
 import router from './router/routes'
 import ConfirmationService from 'primevue/confirmationservice';
+import { createPinia } from 'pinia';
 
 import './eventBus.ts';
 import './settings.ts';
 
-
+const pinia = createPinia();
 const app = createApp(App)
 
 app.use(router)
 app.use(PrimeVue);
+app.use(pinia);
 app.use(ConfirmationService);
 app.mount('#app')
