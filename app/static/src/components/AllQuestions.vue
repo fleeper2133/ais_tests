@@ -12,10 +12,13 @@
                     </button>
                 </router-link>
                 <div>
-                    <div class="search" @click="makeFocus">
-                        <input class="search__input" type="text" ref="searchInput">
-                        <svg class="magnifier" viewBox="0 0 24 24" fill="none">
+                    <div class="search" @click.stop="makeFocus">
+                        <input class="search__input" type="text" ref="searchInput" v-model="inputText">
+                        <svg v-if="inputText.length === 0" class="svg-icon magnifier" viewBox="0 0 24 24" fill="none">
                             <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <svg v-else class="svg-icon clear" viewBox="0 0 1024 1024" @click="clearSearch()">
+                            <path fill="#000000" d="M195.2 195.2a64 64 0 0 1 90.496 0L512 421.504 738.304 195.2a64 64 0 0 1 90.496 90.496L602.496 512 828.8 738.304a64 64 0 0 1-90.496 90.496L512 602.496 285.696 828.8a64 64 0 0 1-90.496-90.496L421.504 512 195.2 285.696a64 64 0 0 1 0-90.496z"/>
                         </svg>
                     </div>
                     <div class="questions">
@@ -55,6 +58,13 @@ const questionsList = [
     {id: 3, title: 'Эксперты какой категории имеют право нии экспертизы промышленной безопасности опасных производственных объектов II класса опасности?', description: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est! Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est! Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est!'},
     {id: 4, title: 'Эксперты какой категории имеют право участвовать в ости опасных производственных опасности?', description: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est! Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est! Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est!'},
 ]
+
+const inputText = ref('')
+function clearSearch() {
+    if(this.inputText !== undefined ) {
+        this.inputText = ''
+    }
+}
 
 const selectedQuestion = ref<number | null>(null)
 
@@ -101,13 +111,18 @@ function makeFocus() {
 }
 .search__input {
     width: 100%;
-    height: 100%;
+    height: 30px;
     background: none;
 }
 .magnifier {
-    right: 30px;
-    width: 30px;
+    right: 25px;
+    width: 25px;
     stroke: $main-grey;
+}
+.clear {
+    cursor: pointer;
+    right: 20px;
+    width: 20px;
 }
 
 .questions {
@@ -132,10 +147,10 @@ function makeFocus() {
     justify-content: space-between;
 }
 .question__title {
-    padding-right: 40px;
+    padding-right: 2.5rem;
 }
 .question__desc {
-    padding-right: 60px
+    padding-right: 3.75rem;
 }
 
 .line {
@@ -149,6 +164,12 @@ function makeFocus() {
 @media (max-width: 600px) {
     .container {
         padding: 0 4vw;
+    }
+    .question__title {
+        padding-right: 1.5rem;
+    }
+    .question__desc {
+        padding-right: 1rem;
     }
 }
 </style>

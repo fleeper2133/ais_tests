@@ -5,6 +5,7 @@ import SelectedCourse from '../components/SelectedCourse.vue'
 import CourseInfo from '../components/CourseInfo.vue'
 import AllQuestions from '../components/AllQuestions.vue'
 import TicketSelection from '../components/TicketSelection.vue'
+import Testing from '../components/Testing.vue'
 
 const routes = [
     {
@@ -36,6 +37,11 @@ const routes = [
       path: '/ticket-selection',
       name: 'TicketSelection',
       component: TicketSelection
+    },
+    {
+      path: '/testing',
+      name: 'Testing',
+      component: Testing
     }
 ]
 
