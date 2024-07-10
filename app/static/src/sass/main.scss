@@ -25,29 +25,67 @@ html,body {
 
 // copied
 .fw-bold {
-    font-weight: bold;
+  font-weight: bold;
+}
+.fw-medium {
+  font-weight: 400;
+}
+.main-blue {
+  color: $main-blue !important;
+}
+.grey-text {
+  color: $main-grey;
+}
+
+// Button back
+.button-back {
+    display: flex;
+    gap: 0.625rem;
+    align-items: center;
+}
+.button-bac__arrow {
+    fill: $main-blue;
+}
+.button-back__text {
+    color: $main-blue;
+    text-decoration: underline;
+    text-align: start;
+}
+// Button back
+
+// Star (Избранное)
+.star {
+  cursor: pointer;
+  stroke: $yellow;
+  transition: .2s;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+
+  &:hover {
+      opacity: 0.8;
+      fill: $yellow;
+      transition: .2s;
   }
-  .fw-medium {
-    font-weight: 400;
-  }
-  .main-blue {
-    color: $main-blue !important;
-  }
-  .grey-text {
-    color: $main-grey;
-  }
-  
-  .fs-14 {
-    font-size: 14px;
-  }
-  .fs-18 {
-    font-size: 18px;
-  }
-  .fs-20 {
-    font-size: 20px;
-  }
-  .fs-24 {
-    font-size: 24px;
-  }
-  // copied
+}
+.star--filled {
+  fill: $yellow;
+}
+// Star end
+
+
+
+.fs-14 {
+  font-size: 14px;
+}
+.fs-18 {
+  font-size: 18px;
+}
+.fs-20 {
+  font-size: 20px;
+}
+.fs-24 {
+  font-size: 24px;
+}
+// copied
   

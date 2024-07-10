@@ -152,7 +152,9 @@
                                         <p class="dropper__item">Легко</p>
                                     </div>
                                 </div>
-                                <button class="selector__button">Пройти</button>
+                                <router-link to="/all-questions">
+                                    <button class="selector__button">Смотреть</button>
+                                </router-link>
                             </div>
                         </div>
                     </div>

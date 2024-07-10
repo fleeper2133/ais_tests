@@ -42,7 +42,11 @@
                             </svg>
                         </div>
                     </div>
-                    <button class="button">Начать</button>
+                    <div class="button-position">
+                        <router-link to="/ticket-selection">
+                            <button class="button">Начать (tickets)</button>
+                        </router-link>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,20 +75,6 @@ import Footer from './Footer.vue'
 .container {
   padding: 0 10vw;
   width: 100%;
-}
-
-.button-back {
-    display: flex;
-    gap: 0.625rem;
-    align-items: center;
-}
-.button-bac__arrow {
-    fill: $main-blue;
-}
-.button-back__text {
-    color: $main-blue;
-    text-decoration: underline;
-    text-align: start;
 }
 
 .card {
@@ -133,11 +123,14 @@ import Footer from './Footer.vue'
 }
 
 .button {
-    margin: 0 auto;
     max-width: 300px;
+    padding: 0 80px;
     background-color: $main-blue;
     height: 3rem;
     color: white;
+}
+.button-position {
+    margin: 0 auto;
 }
 
 
