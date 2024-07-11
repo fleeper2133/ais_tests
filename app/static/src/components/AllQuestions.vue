@@ -13,7 +13,7 @@
                 </router-link>
                 <div>
                     <div class="search" @click.stop="makeFocus">
-                        <input class="search__input" type="text" ref="searchInput" v-model="inputText">
+                        <input class="search__input" type="text" ref="searchInput" placeholder="Введите текст вопроса" v-model="inputText">
                         <svg v-if="inputText.length === 0" class="svg-icon magnifier" viewBox="0 0 24 24" fill="none">
                             <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -89,7 +89,7 @@ function makeFocus() {
     justify-content: space-between;
 }
 .container {
-  padding: 0 10vw;
+  padding: 0 20vw;
   width: 100%;
 }
 
@@ -103,7 +103,7 @@ function makeFocus() {
     padding: 10px 30px;
     max-width: 50rem;
     border-radius: 0.375rem;
-    border: 1px solid $light-blue;
+    border: 1px solid $border;
 
     &:focus-within {
         border: 1px solid $main-grey;

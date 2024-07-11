@@ -32,16 +32,20 @@
                     </div>
                     <div class="info__buttons">
                         <button class="button info__button">
-                            <img class="info__button-img" src="../assets/images/star.png" alt="star">
+                            <img class="info__button-img" src="../assets/images/star.png" alt="favorite">
                             <p>Избранные вопросы</p>
                         </button>
                         <button class="button info__button">
-                            <img class="info__button-img" src="../assets/images/star.png" alt="star">
-                            <p>Ошибки</p>
+                            <img class="info__button-img" src="../assets/images/error.svg" alt="errors">
+                            <p>Частые ошибки</p>
                         </button>
                         <button class="button info__button">
-                            <img class="info__button-img" src="../assets/images/star.png" alt="star">
+                            <img class="info__button-img" src="../assets/images/calendar.svg" alt="history">
                             <p>История прохождения</p>
+                        </button>
+                        <button class="button info__button" @click="courseInfo">
+                            <img class="info__button-img" src="../assets/images/info.svg" alt="info">
+                            <p>Информация</p>
                         </button>
                     </div>
                 </div>
@@ -49,7 +53,7 @@
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Пройти тестрирование</p>
+                                <p class="selector__title fw-bold">Проверить себя</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Билетов:</p>
@@ -90,11 +94,7 @@
                                 <p class="selector__title fw-bold">Пройти тестрирование</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
-                                        <p class="fs-14 main-blue">Билетов:</p>
-                                        <p class="fs-14 main-blue fw-bold">9</p>
-                                    </div>
-                                    <div class="selector__data">
-                                        <p class="fs-14 main-blue">Вопросов:</p>
+                                        <p class="fs-14 main-blue">Вопросы:</p>
                                         <p class="fs-14 main-blue fw-bold">20 случайных</p>
                                     </div>
                                 </div>
@@ -116,24 +116,18 @@
                                         <p class="dropper__item">Легко</p>
                                     </div>
                                 </div>
-                                <router-link to="/course-info">
-                                    <button class="selector__button">Начать</button>
-                                </router-link>
+                                <button class="selector__button" @click="goToTickets">Начать</button>
                             </div>
                         </div>
                     </div>
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Пройти тестрирование</p>
+                                <p class="selector__title fw-bold">Все вопросы курса</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
-                                        <p class="fs-14 main-blue">Билетов:</p>
-                                        <p class="fs-14 main-blue fw-bold">9</p>
-                                    </div>
-                                    <div class="selector__data">
-                                        <p class="fs-14 main-blue">Вопросов:</p>
-                                        <p class="fs-14 main-blue fw-bold">20 случайных</p>
+                                        <p class="fs-14 main-blue">Всего вопросов:</p>
+                                        <p class="fs-14 main-blue fw-bold">199</p>
                                     </div>
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы.</p>
@@ -173,8 +167,19 @@ import Header from './Header.vue'
 import Footer from './Footer.vue'
 
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function goToTickets() {
+    router.push('/ticket-selection')
+}
+function courseInfo() {
+    router.push('/course-info')
+}
 
 const dropper = ref(false)
+
 
 </script>
 
@@ -235,7 +240,7 @@ const dropper = ref(false)
 
 
 .container {
-  padding: 0 10vw;
+  padding: 0 20vw;
   width: 100%;
 }
 .container__flex {

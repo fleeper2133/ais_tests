@@ -14,14 +14,14 @@
                 <div class="tickets tickets--margin">
                     <p class="fw-bold fs-20">Выберите билет</p>
                     <div class="tickets__list">
-                        <div v-for="ticket in allTickets" class="ticket">
-                            <p class="fw-bold fs-18">{{ticket.name}}</p>
+                        <div v-for="(ticket, index) in allTickets" class="ticket" :class="{ selected : index === selectedTicket }" @click="select(index)">
+                            <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">{{ticket.name}}</p>
                             <div class="ticket__progress" :style="`background-color: ${chooseBackgroundColor(ticket.status)};`">
                                 {{ticket.status}}
                             </div>
                         </div>
                     </div>
-                    <div class="button-position">
+                    <div :disabled="selectedTicket === null" class="button-position" :class="{ disabled : selectedTicket === null }">
                         <button disabled class="button tickets__button">Начать</button>
                     </div>
                 </div>
@@ -58,6 +58,12 @@ function chooseBackgroundColor(status) {
     }
 }
 
+const selectedTicket = ref(null)    
+
+function select(ticket) {
+    selectedTicket.value = ticket;
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -72,7 +78,7 @@ function chooseBackgroundColor(status) {
     justify-content: space-between;
 }
 .container {
-  padding: 0 10vw;
+  padding: 0 20vw;
   width: 100%;
 }
 
@@ -105,6 +111,14 @@ function chooseBackgroundColor(status) {
         box-shadow: 0px 0px 20px $border;
     }
 }
+
+.selected {
+    background-color: $main-blue;
+}
+.disabled {
+    opacity: 0.4;
+}
+
 .ticket__progress {
     display: flex;
     justify-content: center;

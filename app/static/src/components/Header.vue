@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <img src="../assets/images/logo.png" alt="logo">
+        <img class="logo" src="../assets/images/logo.png" alt="logo">
         <router-link to="/">
             <div class="header__icon">
                 <svg class="header__png" width="24px" height="24px" viewBox="0 0 24 24" fill="none">
@@ -30,11 +30,14 @@ const email = computed(() => {
 
 @import '../sass/main.scss';
 
+.logo {
+  cursor: pointer;
+}
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 10vw;
+    padding: 1.25rem 20vw;
 }
 .header__icon {
     display: flex;
@@ -56,33 +59,4 @@ const email = computed(() => {
       padding: 1.25rem 4vw;
     }
 }
-
-// copied
-.fw-bold {
-  font-weight: bold;
-}
-.fw-medium {
-  font-weight: medium;
-}
-.main-blue {
-  color: $main-blue !important;
-}
-.grey-text {
-  color: $main-grey;
-}
-
-.fs-14 {
-  font-size: 14px;
-}
-.fs-18 {
-  font-size: 18px;
-}
-.fs-20 {
-  font-size: 20px;
-}
-.fs-24 {
-  font-size: 24px;
-}
-// copied
-
 </style>

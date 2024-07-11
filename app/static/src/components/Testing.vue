@@ -38,7 +38,10 @@
             </div>
             <div class="container__bg">
                 <div class="container answers">
-                    <h1 class="title">На какие организации распространяются нормы Федерального закона от 21.07.1997 № 116 -ФЗ «О промышленной безопасности опасных производственных объектов»?</h1>
+                    <div class="title">
+                        <p class="grey-text">Вопрос <span class="grey-text">1</span></p>
+                        <h1 class="fs-18" >На какие организации распространяются нормы Федерального закона от 21.07.1997 № 116 -ФЗ «О промышленной безопасности опасных производственных объектов»?</h1>
+                    </div>
                     <div 
                         v-for="(answer, index) in answersList" 
                         class="answer" 
@@ -47,7 +50,21 @@
                     >
                         {{ answer.text }}
                     </div>
-                    <button :disabled="selectedAnswer === null" class="button answers__button" :class="{ disabled : selectedAnswer === null }">Ответить</button>
+                    <div class="buttons-panel">
+                        <button class="button-back">
+                            <svg class="button-bac__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
+                                <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
+                            </svg>
+                            <p class="button-back__text fw-bold">Предыдущий вопрос</p>
+                        </button>
+                        <button :disabled="selectedAnswer === null" class="button answers__button" :class="{ disabled : selectedAnswer === null }">Ответить</button>
+                        <button class="button-back">
+                            <p class="button-back__text fw-bold">Следующий вопрос</p>
+                            <svg class="button-bac__arrow buttons-panel__svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
+                                <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,7 +110,7 @@ const answersList = [
 const selectedAnswer = ref(null)    
 
 function selectAnswer(answer) {
-      this.selectedAnswer = answer;
+    selectedAnswer.value = answer;
 }
 
 </script>
@@ -110,7 +127,7 @@ function selectAnswer(answer) {
     justify-content: space-between;
 }
 .container {
-  padding: 0 10vw;
+  padding: 0 20vw;
   width: 100%;
 }
 .container__bg {
@@ -169,10 +186,11 @@ function selectAnswer(answer) {
     padding-bottom: 1.875rem;
 }
 .title {
-    text-align: center;
-    font-size: 1.125rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 1.875rem;
+    padding-right: 1.875rem;
 }
 .answer {
     cursor: pointer;
@@ -188,6 +206,15 @@ function selectAnswer(answer) {
 .answers__button {
     width: 300px;
     margin: 0 auto;
+}
+
+.buttons-panel {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.buttons-panel__svg {
+    transform: rotate(180deg)
 }
 
 .selected {
@@ -217,6 +244,14 @@ function selectAnswer(answer) {
     }
     .answers__button {
         width: 100%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .buttons-panel {
+        gap: 20px;
+        align-items: center;
+        justify-content: center
     }
 }
 </style>
