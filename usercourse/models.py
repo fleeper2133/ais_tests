@@ -20,7 +20,7 @@ from datetime import timedelta
     
 # Курсы пользователя
 class UserCourse(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, db_index=True, null=True, blank=True)
     start_date = models.DateField()
     progress = models.PositiveIntegerField()
@@ -43,7 +43,7 @@ class UserCourse(models.Model):
 
 # Вопросы по заданию от пользователя
 class TaskQuestion(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     message = models.TextField()
 
@@ -57,7 +57,7 @@ class UserQuestion(models.Model):
         ('Excellent', 'Блистательно'),
     ]
     
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     memorization = models.CharField(max_length=255, choices=degree, default='New')
     selected = models.BooleanField()  # как избранный
@@ -116,7 +116,7 @@ class UserTicket(models.Model):
         ('Done','Сдан'),
         ('Failed','Не сдан'),
     ]
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, db_index=True)
     status = models.CharField(max_length=255, choices=variety, default='Not started')
     attempt_count = models.PositiveIntegerField() #номер попытки
@@ -156,7 +156,7 @@ class UserTicket(models.Model):
 
 # Ответ пользователя
 class UserAnswer(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True)
     correct = models.FloatField(default=0.0) #1 - полностью правильно
     answer_time = models.DurationField()
@@ -206,7 +206,7 @@ class QuestionTicket(models.Model):
 
 # Проверка знаний пользователя (check your self)
 class UserCheckSkills(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     question_count = models.PositiveIntegerField()  # Число выбранных вопросов
