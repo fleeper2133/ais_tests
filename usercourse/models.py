@@ -4,27 +4,22 @@ from django.contrib.auth.models import User
 from course.models import Course, Testing, Ticket, QuestionList, Question, Varient
 from django.utils import timezone
 from datetime import timedelta
-
-# Профиль пользователя
-# class Profile(models.Model):
-#     USER_TYPES = [
-#         ('User', 'Пользователь'),
-#         ('Teacher', 'Преподаватель'),
-#         ('Admin', 'Админ'),
-#     ]
-#     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-#     avatar = models.ImageField(null=True, blank=True, upload_to="avatars/", default='avatars/default.png')
-#     phone = models.CharField(max_length=30)
-#     type = models.CharField(max_length=255, choices=USER_TYPES)
-    #rights = models.TextField() #права доступа
     
 # Курсы пользователя
 class UserCourse(models.Model):
+    stat = [
+        ('New', 'Новый'),
+        ('In progress', 'В процессе'),
+        ('Completed', 'Пройденный'),
+        ('Delayed', 'Отложенный'),
+    ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, db_index=True, null=True, blank=True)
     start_date = models.DateField()
     progress = models.PositiveIntegerField()
+    status = models.CharField(max_length=255, default='New', choices=stat, null=True, blank=True)
     #для отзыва по курсу
+    selected = models.BooleanField(default=False)  # как избранный
     review_text = models.TextField(null=True, blank=True)
     mark = models.PositiveIntegerField(null=True, blank=True)
 
