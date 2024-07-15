@@ -3,15 +3,13 @@
         <div>
             <Header />
             <div class="container container__bg">
-                <div class="manage margin-top">
-                    <router-link to="/courses">
-                        <button class="manage__button">
-                            <svg class="manage__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
-                                <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
-                            </svg>
-                            <p class="manage__button-text fs-18 fw-bold">Вернуться обратно</p>
-                        </button>
-                    </router-link>
+                <div class="manage link-line">
+                    <button class="button-back" @click="goBack">
+                        <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
+                            <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
+                        </svg>
+                        <p class="button-back__text fw-bold">Назад</p>
+                    </button>
                     <div class="fs-18 fw-bold">A.1 Основы промышленной безопасности</div>
                 </div>
             </div>
@@ -22,7 +20,7 @@
                         <div class="circle-big">
                             <div class="circle-big__text">
                                 20%
-                                <div class="small">прогресс</div>
+                                <div class="circle-big__text-progress">прогресс</div>
                             </div>
                             <svg>
                                 <circle class="bg" cx="57" cy="57" r="52"></circle>
@@ -35,11 +33,11 @@
                             <img class="info__button-img" src="../assets/images/star.png" alt="favorite">
                             <p>Избранные вопросы</p>
                         </button>
-                        <button class="button info__button">
+                        <button class="button info__button" @click="openMistakes">
                             <img class="info__button-img" src="../assets/images/error.svg" alt="errors">
                             <p>Частые ошибки</p>
                         </button>
-                        <button class="button info__button">
+                        <button class="button info__button" @click="openHistory">
                             <img class="info__button-img" src="../assets/images/calendar.svg" alt="history">
                             <p>История прохождения</p>
                         </button>
@@ -140,14 +138,6 @@
                         </div>
                         <div class="selector__action">
                             <div class="selector__buttons">
-                                <div class="dropper">
-                                    <div class="dropper__title" @click.stop="dropper = true">Выбрать сложность</div>
-                                    <div v-show="dropper === true" class="dropper__list">
-                                        <p class="dropper__item">Сложно</p>
-                                        <p class="dropper__item">Средне</p>
-                                        <p class="dropper__item">Легко</p>
-                                    </div>
-                                </div>
                                 <router-link to="/all-questions">
                                     <button class="selector__button">Смотреть</button>
                                 </router-link>
@@ -178,8 +168,18 @@ function courseInfo() {
     router.push('/course-info')
 }
 
+function openHistory() {
+    router.push('/history')
+}
+
 const dropper = ref(false)
 
+function goBack() {
+    router.push('/courses')
+}
+function openMistakes() {
+    router.push('/mistakes')
+}
 
 </script>
 
@@ -220,12 +220,15 @@ const dropper = ref(false)
     position: absolute;
     width: 100%;
     top: 37px;
-    font-size: 24px;
+    font-size: 20px;
     text-align: center;
     line-height: 22px;
 }
 .circle-big__text {
     color: $main-blue;
+}
+.circle-big__text-progress {
+    font-size: 14px;
 }
 
 @keyframes big {
@@ -257,34 +260,16 @@ const dropper = ref(false)
     flex-direction: column;
     justify-content: space-between;
 }
+
+.link-line {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
 .margin-top {
     margin-top: 1.5rem;
-}
-
-.manage {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    padding: 20px 0;
-}
-.manage__button {
-    cursor: pointer;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    transition: .2s;
-
-    &:hover {
-        transition: .2s;
-        opacity: 0.8;
-    }
-}
-.manage__button-text {
-    color: $main-blue;
-    text-decoration: underline;
-}
-.manage__arrow {
-    fill: $main-blue;
 }
 
 .selectors {
