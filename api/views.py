@@ -2,7 +2,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Course
+from course.models import Course
 from .serializers import CourseSerializer
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 

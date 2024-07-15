@@ -7,7 +7,7 @@ import json
 # Квалификация
 class Qualification(models.Model):
     title = models.TextField()
-    code = models.CharField(max_length=10)
+    code = models.CharField(max_length=15)
     level = models.PositiveIntegerField()
 
 # Блоки вопросов
@@ -23,7 +23,7 @@ class NormativeDocument(models.Model):
     
 # Курсы
 class Course(models.Model):
-    name = models.CharField(max_length=255, db_index=True)
+    name = models.TextField(db_index=True)
     description = models.TextField()
     version = models.CharField(max_length=255)
     available_until = models.DateField()
