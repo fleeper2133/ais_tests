@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "users",
     "course",
     "usercourse",
+    "api",
 ]
 
 # LOGIN_REDIRECT_URL = '/login/'

@@ -34,6 +34,9 @@ class Course(models.Model):
     user_marks = models.PositiveIntegerField(default=0)
     qualification = models.OneToOneField('Qualification', on_delete=models.SET_NULL, blank=True, null=True)
     
+    def __str__(self):
+        return self.name
+    
     # функция по вычислению оценки курса
     def update_course_mark(self):
         from usercourse.models import UserCourse
