@@ -7,7 +7,7 @@ from .serializers import CourseSerializer
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
+    queryset = Course.objects.exclude(name='удалена')
     serializer_class = CourseSerializer
 
     @action(detail=False, methods=['get'], url_path='user-courses')
