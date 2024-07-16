@@ -5,23 +5,23 @@
             <div class="container">
                 <router-link to="/course">
                     <button class="button-back">
-                        <svg class="button-bac__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
+                        <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                             <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                         </svg>
-                        <p class="button-back__text fw-bold">Вернуться обратно</p>
+                        <p class="button-back__text fw-bold">Назад</p>
                     </button>
                 </router-link>
                 <div class="tickets tickets--margin">
                     <p class="fw-bold fs-20">Выберите билет</p>
                     <div class="tickets__list">
-                        <div v-for="ticket in allTickets" class="ticket">
-                            <p class="fw-bold fs-18">{{ticket.name}}</p>
+                        <div v-for="(ticket, index) in allTickets" class="ticket" :class="{ selected : index === selectedTicket }" @click="select(index)">
+                            <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">{{ticket.name}}</p>
                             <div class="ticket__progress" :style="`background-color: ${chooseBackgroundColor(ticket.status)};`">
                                 {{ticket.status}}
                             </div>
                         </div>
                     </div>
-                    <div class="button-position">
+                    <div :disabled="selectedTicket === null" class="button-position" :class="{ disabled : selectedTicket === null }">
                         <button disabled class="button tickets__button">Начать</button>
                     </div>
                 </div>
@@ -58,6 +58,12 @@ function chooseBackgroundColor(status) {
     }
 }
 
+const selectedTicket = ref(null)    
+
+function select(ticket) {
+    selectedTicket.value = ticket;
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -72,7 +78,7 @@ function chooseBackgroundColor(status) {
     justify-content: space-between;
 }
 .container {
-  padding: 0 10vw;
+  padding: 0 20vw;
   width: 100%;
 }
 
@@ -105,6 +111,14 @@ function chooseBackgroundColor(status) {
         box-shadow: 0px 0px 20px $border;
     }
 }
+
+.selected {
+    background-color: $main-blue;
+}
+.disabled {
+    opacity: 0.4;
+}
+
 .ticket__progress {
     display: flex;
     justify-content: center;

@@ -113,7 +113,7 @@ function login() {
     justify-content: space-between;
 }
 .container {
-    padding: 0 10vw;
+    padding: 0 20vw;
 }
 
 

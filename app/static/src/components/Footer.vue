@@ -19,7 +19,7 @@
 .footer {
     display: flex;
     justify-content: space-between;
-    padding: 1.25rem 10vw;
+    padding: 1.25rem 20vw;
     flex-wrap: wrap;
     gap: 10px;
 }
@@ -43,32 +43,4 @@
       padding: 1.25rem 4vw;
     }
 }
-
-// copied
-.fw-bold {
-  font-weight: bold;
-}
-.fw-medium {
-  font-weight: medium;
-}
-.main-blue {
-  color: $main-blue !important;
-}
-.grey-text {
-  color: $main-grey;
-}
-
-.fs-14 {
-  font-size: 14px;
-}
-.fs-18 {
-  font-size: 18px;
-}
-.fs-20 {
-  font-size: 20px;
-}
-.fs-24 {
-  font-size: 24px;
-}
-// copied
 </style>

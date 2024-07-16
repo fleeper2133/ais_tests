@@ -6,14 +6,12 @@
                 <div class="card">
                     <div class="card__text">
                         <div class="card__content">
-                        <router-link to="/course">
-                            <button class="button-back">
-                                <svg class="button-bac__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
-                                    <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
-                                </svg>
-                                <p class="button-back__text fw-bold">Вернуться к выбору курса</p>
-                            </button>
-                        </router-link>
+                        <button class="button-back" @click="goBack">
+                            <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
+                                <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
+                            </svg>
+                            <p class="button-back__text fw-bold">Назад</p>
+                        </button>
                         <h1 class="fs-20">A.1 Основы промышленной безопасности</h1>
                         <h1 class="grey-text fw-medium">Программа разработана на основании нормативно-правовых актов, нормативных и методических документов, используемых при составлении вопросов тестирования в Ростехнадзоре.</h1>
                         <div class="card__desc">
@@ -43,9 +41,7 @@
                         </div>
                     </div>
                     <div class="button-position">
-                        <router-link to="/ticket-selection">
-                            <button class="button">Начать (tickets)</button>
-                        </router-link>
+                        <button class="button" @click="startCourse">Начать</button>
                     </div>
                 </div>
             </div>
@@ -58,6 +54,17 @@
 
 import Header from './Header.vue'
 import Footer from './Footer.vue'
+
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function goBack() {
+    router.push('/courses')
+}
+function startCourse() {
+    router.push('/course')
+}
 
 </script>
 
@@ -73,7 +80,7 @@ import Footer from './Footer.vue'
     justify-content: space-between;
 }
 .container {
-  padding: 0 10vw;
+  padding: 0 20vw;
   width: 100%;
 }
 

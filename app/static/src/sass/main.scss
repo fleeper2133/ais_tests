@@ -40,17 +40,30 @@ html,body {
 
 // Button back
 .button-back {
+  cursor: pointer;
     display: flex;
     gap: 0.625rem;
     align-items: center;
+    transition: .2s;
+
+    &:hover .button-back__text {
+      transition: .2s;
+      color: $border;
+    }
+    &:hover .button-back__arrow {
+      transition: .2s;
+      fill: $border;
+    }
 }
-.button-bac__arrow {
+.button-back__arrow {
     fill: $main-blue;
+    transition: .2s;
 }
 .button-back__text {
     color: $main-blue;
     text-decoration: underline;
     text-align: start;
+    transition: .2s;
 }
 // Button back
 

@@ -3,17 +3,15 @@
         <div>
             <Header />
             <div class="container">
-                <router-link to="/course">
-                    <button class="button-back">
-                        <svg class="button-bac__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
-                            <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
-                        </svg>
-                        <p class="button-back__text fw-bold">Вернуться обратно</p>
-                    </button>
-                </router-link>
+                <button class="button-back" @click="goBack">
+                    <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
+                        <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
+                    </svg>
+                    <p class="button-back__text fw-bold">Назад</p>
+                </button>
                 <div>
                     <div class="search" @click.stop="makeFocus">
-                        <input class="search__input" type="text" ref="searchInput" v-model="inputText">
+                        <input class="search__input" type="text" ref="searchInput" placeholder="Введите текст вопроса" v-model="inputText">
                         <svg v-if="inputText.length === 0" class="svg-icon magnifier" viewBox="0 0 24 24" fill="none">
                             <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
@@ -25,7 +23,7 @@
                         <div 
                         class="question" 
                         :style="`border: ${selectedQuestion === index ? '1px solid #338DF4' : '1px solid rgb(193, 199, 224)'}`" 
-                        v-for="(question, index) in questionsList" 
+                        v-for="(question, index) in filterSearch"
                         @click="selectedQuestion = selectedQuestion === index ? null : index">
                             <div class="question__main">
                                 <div class="question__title fs-18 fw-bold">{{ question.title }}</div>
@@ -50,7 +48,10 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const questionsList = [
     {id: 1, title: 'Эксперты какой категории имеют право участвовать в проведении экспертизы промышленной безопасности опасных производственных объектов II класса опасности?', description: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est! Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est! Lorem, ipsum dolor sit amet consectetur adipisicing elit. Perferendis dolores recusandae aspernatur eligendi exercitationem quasi dolorem cum quibusdam architecto est!'},
@@ -65,6 +66,15 @@ function clearSearch() {
         this.inputText = ''
     }
 }
+const filterSearch = computed(() => {
+  if (!inputText.value) {
+    return questionsList;
+  }
+
+  return questionsList.filter((question) => {
+    return question.title.toLowerCase().includes(inputText.value.toLowerCase());
+  });
+});
 
 const selectedQuestion = ref<number | null>(null)
 
@@ -73,6 +83,10 @@ function makeFocus() {
     if (searchInput.value) {
         searchInput.value.focus();
     }
+}
+
+function goBack() {
+    router.push('/course')
 }
 
 </script>
@@ -89,7 +103,7 @@ function makeFocus() {
     justify-content: space-between;
 }
 .container {
-  padding: 0 10vw;
+  padding: 0 20vw;
   width: 100%;
 }
 
@@ -103,7 +117,7 @@ function makeFocus() {
     padding: 10px 30px;
     max-width: 50rem;
     border-radius: 0.375rem;
-    border: 1px solid $light-blue;
+    border: 1px solid $border;
 
     &:focus-within {
         border: 1px solid $main-grey;
