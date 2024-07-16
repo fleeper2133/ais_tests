@@ -37,6 +37,13 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = '__all__'
 
+class QuestionDetailSerializer(serializers.ModelSerializer):
+    normative_documents = NormativeDocumentSerializer(source='ndocument', read_only=True)
+
+    class Meta:
+        model = Question
+        fields = ['name', 'question_text', 'explanations', 'normative_documents']
+
 class VarientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Varient

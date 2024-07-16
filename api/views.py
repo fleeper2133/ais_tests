@@ -1,9 +1,8 @@
-# Course/views.py
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
-from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
+from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
 from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer
 
@@ -55,6 +54,41 @@ class TicketViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+
+    # получение детальной информации по вопросу
+    @action(detail=True, methods=['get'], url_path='detail')
+    def get_question_detail(self, request, pk=None):
+        question = self.get_object()
+        serializer = QuestionDetailSerializer(question)
+        return Response(serializer.data)
+    
+    # # проверка правильности (пока вопросов больше чем ответов)
+    # @action(detail=True, methods=['post'], url_path='check-answer')
+    # def check_answer(self, request, pk=None):
+    #     from datetime import timedelta
+    #     question = self.get_object()
+    #     answer_ids = request.data.get('answers', [])
+    #     correct_answers = Varient.objects.filter(question=question, correct=True).values_list('id', flat=True)
+
+    #     is_correct = set(answer_ids) == set(correct_answers)
+    #     user = request.user
+
+    #     # Обновление или создание объекта UserAnswer
+    #     user_answer, created = UserAnswer.objects.get_or_create(
+    #         user=user,
+    #         question=question,
+    #         defaults={'correct': is_correct, 'answer_time': timedelta(seconds=10)}  # Временное значение времени ответа
+    #     )
+    #     if not created:
+    #         user_answer.correct = is_correct
+    #         user_answer.save()
+
+    #     response_data = {'is_correct': is_correct,}
+
+    #     if not is_correct:
+    #         question_serializer = QuestionDetailSerializer(question)
+    #         response_data['details'] = question_serializer.data
+    #     return Response(response_data)
 
 class VarientViewSet(viewsets.ModelViewSet):
     queryset = Varient.objects.all()
@@ -143,6 +177,7 @@ class TaskQuestionViewSet(viewsets.ModelViewSet):
 class UserQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
+    permission_classes = [IsAuthenticated]
 
     #отметить вопрос, как избранный
     @action(detail=True, methods=['post'])
@@ -153,6 +188,22 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
         user_question.selected = True
         user_question.save()
         return Response({'status': 'question marked as favorite'})
+    
+    # получить избранные вопросы
+    @action(detail=False, methods=['get'], url_path='favorites')
+    def get_favorites(self, request):
+        user = request.user
+        favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
+        serializer = UserQuestionSerializer(favorite_questions, many=True)
+        return Response(serializer.data)
+
+    # получить вопросы с плохой степенью запоминания
+    @action(detail=False, methods=['get'], url_path='memorization/bad')
+    def get_bad_memorization(self, request):
+        user = request.user
+        bad_memorization_questions = UserQuestion.objects.filter(user=user, memorization='Bad')
+        serializer = UserQuestionSerializer(bad_memorization_questions, many=True)
+        return Response(serializer.data)
 
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
@@ -182,7 +233,7 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         question_count = request.data.get('question_count')
 
         if not difficulty or not question_count:
-            return Response({'detail': 'Please provide difficulty and question_count.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Пожалуйста укажите сложность и количество вопросов.'}, status=status.HTTP_400_BAD_REQUEST)
 
         available_questions = Question.objects.filter(difficulty=difficulty)
         selected_questions = available_questions.order_by('?')[:int(question_count)]
