@@ -7,6 +7,7 @@ from .serializers import QualificationSerializer, BlockSerializer, NormativeDocu
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
 from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer
 
+#допилить права на редактирование/удаление
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 class QualificationViewSet(viewsets.ModelViewSet):
@@ -24,6 +25,24 @@ class NormativeDocumentViewSet(viewsets.ModelViewSet):
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+
+    # При нажатии кнопки начать у курса создаём курс-пользователя
+    @action(detail=True, methods=['post'])
+    def start_course(self, request, pk=None):
+        from django.utils import timezone
+        user = request.user
+        course = self.get_object()
+        
+        user_course, created = UserCourse.objects.get_or_create(
+            user=user, 
+            course=course,
+            defaults={'start_date': timezone.now(), 'progress': 0, 'status': 'New'}
+        )
+        if not created:
+            return Response({'detail': 'Пользователь уже проходит этот курс.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = UserCourseSerializer(user_course)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class TestingViewSet(viewsets.ModelViewSet):
     queryset = Testing.objects.all()
@@ -125,6 +144,16 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
 
+    #отметить вопрос, как избранный
+    @action(detail=True, methods=['post'])
+    def mark_as_favorite(self, request, pk=None):
+        user = request.user
+        question = self.get_object()
+        user_question, created = UserQuestion.objects.get_or_create(user=user, question=question)
+        user_question.selected = True
+        user_question.save()
+        return Response({'status': 'question marked as favorite'})
+
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
     serializer_class = UserTicketSerializer
@@ -144,6 +173,33 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
 class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkills.objects.all()
     serializer_class = UserCheckSkillsSerializer
+
+    #Генерация тестирования по выбранной сложности для выбранного числа вопросов
+    @action(detail=True, methods=['post'])
+    def generate_questions(self, request, pk=None):
+        user_check_skills = self.get_object()
+        difficulty = request.data.get('difficulty')
+        question_count = request.data.get('question_count')
+
+        if not difficulty or not question_count:
+            return Response({'detail': 'Please provide difficulty and question_count.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        available_questions = Question.objects.filter(difficulty=difficulty)
+        selected_questions = available_questions.order_by('?')[:int(question_count)]
+
+        user_check_skills.question_count = len(selected_questions)
+        user_check_skills.save()
+
+        for index, question in enumerate(selected_questions):
+            UserCheckSkillsQuestion.objects.create(
+                user_check_skills=user_check_skills,
+                question=question,
+                number_in_check=index + 1,
+                status='Not Answered'
+            )
+
+        questions_serializer = UserCheckSkillsQuestionSerializer(selected_questions, many=True)
+        return Response(questions_serializer.data)
 
 class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkillsQuestion.objects.all()
