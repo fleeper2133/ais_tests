@@ -57,6 +57,10 @@ class ApiClient {
 
 
 
+  async getCourses() {
+    return this.get('/api/courses/');
+  }
+
 
   
 

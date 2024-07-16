@@ -6,7 +6,7 @@
                 <div class="container container__bg">
                     <div class="tabs">
                         <div class="fs-18 tabs__item">Все курсы</div>
-                        <div class="fs-18 tabs__item">Отложенные</div>
+                        <div class="fs-18 tabs__item">Начатые</div>
                         <div class="fs-18 tabs__item">Пройденные</div>
                     </div>
                 </div>
@@ -82,6 +82,7 @@
                 </div>
                 <div class="container container__courses">
                     <div class="fw-bold">Выберите курс:</div>
+                    <input class="input input-course" type="text" placeholder="Введите название курса..">
                     <div class="courses">
                         <div class="course">
                             <div class="course__icon">
@@ -377,6 +378,12 @@ function goToCourse() {
 }
 .star--filled {
     fill: $yellow;
+}
+
+
+.input-course {
+    width: 100%;
+    height: 30px;
 }
 
 @media (max-width: 360px) {
