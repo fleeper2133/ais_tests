@@ -102,4 +102,4 @@ class UserCheckSkillsSerializer(serializers.ModelSerializer):
 class UserCheckSkillsQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCheckSkillsQuestion
-        fields = '__all__'
+        fields = ['id', 'user_check_skills', 'question', 'number_in_check', 'user_answer', 'status']

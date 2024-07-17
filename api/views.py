@@ -5,6 +5,8 @@ from course.models import Qualification, Block, NormativeDocument, Course, Testi
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
 from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer
+import random
+# создание + прохождение билета покрыть в тестах.
 
 #допилить права на редактирование/удаление
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -62,33 +64,33 @@ class QuestionViewSet(viewsets.ModelViewSet):
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data)
     
-    # # проверка правильности (пока вопросов больше чем ответов)
-    # @action(detail=True, methods=['post'], url_path='check-answer')
-    # def check_answer(self, request, pk=None):
-    #     from datetime import timedelta
-    #     question = self.get_object()
-    #     answer_ids = request.data.get('answers', [])
-    #     correct_answers = Varient.objects.filter(question=question, correct=True).values_list('id', flat=True)
+    # проверка правильности (пока вопросов больше чем ответов)
+    @action(detail=True, methods=['post'], url_path='check-answer')
+    def check_answer(self, request, pk=None):
+        from datetime import timedelta
+        question = self.get_object()
+        answer_ids = request.data.get('answers', [])
+        correct_answers = Varient.objects.filter(question=question, correct=True).values_list('id', flat=True)
 
-    #     is_correct = set(answer_ids) == set(correct_answers)
-    #     user = request.user
+        is_correct = set(answer_ids) == set(correct_answers)
+        user = request.user
 
-    #     # Обновление или создание объекта UserAnswer
-    #     user_answer, created = UserAnswer.objects.get_or_create(
-    #         user=user,
-    #         question=question,
-    #         defaults={'correct': is_correct, 'answer_time': timedelta(seconds=10)}  # Временное значение времени ответа
-    #     )
-    #     if not created:
-    #         user_answer.correct = is_correct
-    #         user_answer.save()
+        # Обновление или создание объекта UserAnswer
+        user_answer, created = UserAnswer.objects.get_or_create(
+            user=user,
+            question=question,
+            defaults={'correct': is_correct, 'answer_time': timedelta(seconds=10)}  # Временное значение времени ответа
+        )
+        if not created:
+            user_answer.correct = is_correct
+            user_answer.save()
 
-    #     response_data = {'is_correct': is_correct,}
+        response_data = {'is_correct': is_correct,}
 
-    #     if not is_correct:
-    #         question_serializer = QuestionDetailSerializer(question)
-    #         response_data['details'] = question_serializer.data
-    #     return Response(response_data)
+        if not is_correct:
+            question_serializer = QuestionDetailSerializer(question)
+            response_data['details'] = question_serializer.data
+        return Response(response_data)
 
 class VarientViewSet(viewsets.ModelViewSet):
     queryset = Varient.objects.all()
@@ -209,6 +211,56 @@ class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
     serializer_class = UserTicketSerializer
 
+    @action(detail=False, methods=['post'])
+    def generate_random_ticket(self, request):
+        from django.utils import timezone
+        from django.db import transaction
+
+        user = request.user
+        course_id = request.data.get('course_id')
+        if not course_id:
+            return Response({'detail': 'курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
+        new_questions = Question.objects.filter(course_id=course_id).exclude(id__in=user_questions.values('question_id')).order_by('?')
+        good_questions = user_questions.filter(memorization__in=['Good', 'Excellent']).order_by('?')
+        bad_satisfy_questions = user_questions.filter(memorization__in=['Bad', 'Satisfy']).order_by('?')
+
+        random.shuffle(new_questions)
+        random.shuffle(good_questions)
+        random.shuffle(bad_satisfy_questions)
+
+        # Определяем количество вопросов по уровням
+        total_questions_count = 40
+        new_questions_count = int(total_questions_count * 0.2)
+        good_questions_count = int(total_questions_count * 0.1)
+        bad_satisfy_questions_count = total_questions_count - new_questions_count - good_questions_count
+
+        selected_new_questions = new_questions[:new_questions_count]
+        selected_good_questions = good_questions[:good_questions_count]
+        selected_bad_satisfy_questions = bad_satisfy_questions[:bad_satisfy_questions_count]
+
+        if len(selected_new_questions) < new_questions_count or \
+           len(selected_good_questions) < good_questions_count or \
+           len(selected_bad_satisfy_questions) < bad_satisfy_questions_count:
+            return Response({'detail': 'Недостаточно вопросов для генерации билета.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        selected_questions = list(selected_new_questions) + list(selected_good_questions) + list(selected_bad_satisfy_questions)
+        random.shuffle(selected_questions)
+
+        # Создаем билет и список вопросов в транзакции (для будущего анализа и поддержания согласованности в бд)
+        with transaction.atomic():
+            user_ticket = UserTicket.objects.create(user=user, course_id=course_id, created_at=timezone.now())
+            ticket = Ticket.objects.create(course_id=course_id, title=f"Random Ticket for {course_id}", created_at=timezone.now())
+            question_list = QuestionList.objects.create(ticket=ticket, title=f"Question List for {course_id}")
+
+            for index, question in enumerate(selected_questions):
+                QuestionTicket.objects.create(user_ticket=user_ticket, question=question if isinstance(question, Question) else question.question)
+                question_list.questions.add(question if isinstance(question, Question) else question.question)
+
+        serializer = UserTicketSerializer(user_ticket)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class UserAnswerViewSet(viewsets.ModelViewSet):
     queryset = UserAnswer.objects.all()
     serializer_class = UserAnswerSerializer
@@ -225,32 +277,87 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkills.objects.all()
     serializer_class = UserCheckSkillsSerializer
 
-    #Генерация тестирования по выбранной сложности для выбранного числа вопросов
     @action(detail=True, methods=['post'])
-    def generate_questions(self, request, pk=None):
+    def smart_generate_check(self, request, pk=None):
         user_check_skills = self.get_object()
-        difficulty = request.data.get('difficulty')
-        question_count = request.data.get('question_count')
+        course_id = request.data.get('course_id')
+        difficulty = request.data.get('difficulty', 'Medium')
+        question_count = int(request.data.get('question_count', 20))
 
-        if not difficulty or not question_count:
-            return Response({'detail': 'Пожалуйста укажите сложность и количество вопросов.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not course_id:
+            return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        available_questions = Question.objects.filter(difficulty=difficulty)
-        selected_questions = available_questions.order_by('?')[:int(question_count)]
-
+        user = request.user
+        user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
+        answered_questions_count = user_questions.count()
+        
+        # Если пользователь не отвечал на вопросы, возвращаем 100% новых вопросов
+        if answered_questions_count <= int(question_count / 2):
+            new_questions = Question.objects.filter(course_id=course_id).order_by('?')[:question_count]
+            selected_questions = list(new_questions)
+        else:
+            # Делим вопросы по уровню запоминания
+            bad_questions = user_questions.filter(memorization='Bad')
+            satisfy_questions = user_questions.filter(memorization='Satisfy')
+            good_questions = user_questions.filter(memorization='Good')
+            
+            # Берем 50% новых вопросов
+            new_questions = Question.objects.filter(course_id=course_id).exclude(id__in=user_questions.values('question_id')).order_by('?')
+            new_questions_count = min(question_count // 2, len(new_questions))
+            new_questions = new_questions[:new_questions_count]
+            
+            remaining_count = question_count - new_questions_count
+            # Оставшиеся 50% делим между "Bad", "Satisfy" и "Good" вопросами с учетом сложности
+            if difficulty == 'Easy':
+                bad_count = int(remaining_count * 0.2)
+                satisfy_count = int(remaining_count * 0.3)
+                good_count = remaining_count - bad_count - satisfy_count
+            elif difficulty == 'Hard':
+                bad_count = int(remaining_count * 0.6)
+                satisfy_count = int(remaining_count * 0.3)
+                good_count = remaining_count - bad_count - satisfy_count
+            else:  # Medium
+                bad_count = int(remaining_count * 0.4)
+                satisfy_count = int(remaining_count * 0.4)
+                good_count = remaining_count - bad_count - satisfy_count
+            
+            selected_bad_questions = bad_questions.order_by('?')[:bad_count]
+            selected_satisfy_questions = satisfy_questions.order_by('?')[:satisfy_count]
+            selected_good_questions = good_questions.order_by('?')[:good_count]
+            
+            selected_questions = list(new_questions) + list(selected_bad_questions) + list(selected_satisfy_questions) + list(selected_good_questions)
+            random.shuffle(selected_questions)
+        
         user_check_skills.question_count = len(selected_questions)
         user_check_skills.save()
-
+        created_questions = []
         for index, question in enumerate(selected_questions):
-            UserCheckSkillsQuestion.objects.create(
+            if isinstance(question, UserQuestion):
+                question = question.question
+            created_question = UserCheckSkillsQuestion.objects.create(
                 user_check_skills=user_check_skills,
                 question=question,
                 number_in_check=index + 1,
                 status='Not Answered'
             )
-
-        questions_serializer = UserCheckSkillsQuestionSerializer(selected_questions, many=True)
-        return Response(questions_serializer.data)
+            created_questions.append(created_question)
+            
+        questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
+        #return Response(questions_serializer.data)
+    
+        questions_to_return = []
+        for question in selected_questions:
+            if isinstance(question, UserQuestion):
+                question = question.question
+            questions_to_return.append({
+                'id': question.id,
+                'text': question.text,  # Замените на реальное поле из модели Question
+                'course_id': question.course_id  # Замените на реальное поле из модели Question
+                # Добавьте другие необходимые поля вопроса
+            })
+        
+        # Возвращаем ответ с полем 'questions'
+        return Response({'questions': questions_to_return})
 
 class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkillsQuestion.objects.all()
