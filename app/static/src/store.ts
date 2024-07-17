@@ -1,7 +1,7 @@
 import { ref, computed } from "vue";
 import { api } from "../api/base";
 import { defineStore } from "pinia";
-import router from "../src/router/routes"
+import router from "./router/routes"
 
 
 export interface Login {

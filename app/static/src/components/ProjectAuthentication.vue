@@ -82,11 +82,11 @@
 
 <script setup lang="ts">
 import Footer from './Footer.vue';
-import { Login, Registration, useStore } from "../taskStore";
+import { Login, Registration, useStore } from "../store";
 import { computed, ref, onMounted } from "vue";
 
 
-const tasksStore = useStore()
+const aisStore = useStore()
 
 const email = ref('');
 const password = ref('');
@@ -97,7 +97,7 @@ function login() {
         "password": password.value,
     }
     // debugger;
-    tasksStore.login(data);
+    aisStore.login(data);
     
 }
 

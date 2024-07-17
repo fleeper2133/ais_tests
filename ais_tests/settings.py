@@ -50,7 +50,10 @@ INSTALLED_APPS = [
     "ckeditor_uploader",
     "inertia",
     "app",
-    "users"
+    "users",
+    "course",
+    "usercourse",
+    "api",
 ]
 
 # LOGIN_REDIRECT_URL = '/login/'
