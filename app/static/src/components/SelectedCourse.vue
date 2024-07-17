@@ -10,11 +10,13 @@
                         </svg>
                         <p class="button-back__text fw-bold">Назад</p>
                     </button>
-                    <div class="fs-18 fw-bold">A.1 Основы промышленной безопасности</div>
                 </div>
             </div>
+            <div class="container container__name">
+                <h1 class="fs-18 fw-bold">{{courseName}}</h1>
+            </div>
             <div class="container container__flex">
-                <div class="info margin-top">
+                <div class="info">
                     <div class="progress-bar">
                         <p class="fw-bold">Ваш прогресс</p>
                         <div class="circle-big">
@@ -47,11 +49,11 @@
                         </button>
                     </div>
                 </div>
-                <div class="selectors margin-top">
+                <div class="selectors">
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Проверить себя</p>
+                                <p class="selector__title fw-bold">Пройти тестрирование</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Билетов:</p>
@@ -81,7 +83,7 @@
                                     </div>
                                 </div>
                                 <router-link to="/testing">
-                                    <button class="selector__button">Пройти</button>
+                                    <button class="selector__button">Начать</button>
                                 </router-link>
                             </div>
                         </div>
@@ -89,7 +91,7 @@
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Пройти тестрирование</p>
+                                <p class="selector__title fw-bold">Проверить себя</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Вопросы:</p>
@@ -114,7 +116,7 @@
                                         <p class="dropper__item">Легко</p>
                                     </div>
                                 </div>
-                                <button class="selector__button" @click="goToTickets">Начать</button>
+                                <button class="selector__button" @click="goToTickets">Пройти</button>
                             </div>
                         </div>
                     </div>
@@ -138,9 +140,7 @@
                         </div>
                         <div class="selector__action">
                             <div class="selector__buttons">
-                                <router-link to="/all-questions">
-                                    <button class="selector__button">Смотреть</button>
-                                </router-link>
+                                <button class="selector__button" @click="openCourseQuestions">Смотреть</button>
                             </div>
                         </div>
                     </div>
@@ -156,10 +156,12 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from "../store"
 
-const router = useRouter();
+const router = useRouter()
+const aisStore = useStore()
 
 function goToTickets() {
     router.push('/ticket-selection')
@@ -179,6 +181,17 @@ function goBack() {
 }
 function openMistakes() {
     router.push('/mistakes')
+}
+
+const courseName = computed(() => {
+    if (aisStore.allCourses !== undefined) {
+        const course = aisStore.allCourses.filter(c => c.id === aisStore.selectedCourseId)
+        return course[0].name   
+    }
+})
+
+function openCourseQuestions() {
+    router.push('/all-questions')
 }
 
 </script>
@@ -253,6 +266,10 @@ function openMistakes() {
 .container__bg {
     background-color: $light-blue;
 }
+.container__name {
+    margin: 26px 0;
+}
+
 .content {
     height: 100%;
     width: 100%;

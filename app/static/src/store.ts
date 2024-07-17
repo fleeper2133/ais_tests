@@ -48,13 +48,30 @@ export interface Course {
   qualification: number
 }
 
+export interface Question {
+  id: number
+  name: string
+  question_text: string
+  topic: string
+  difficulty: string
+  explanations: string
+  right_answer_count: number
+  answer_count: number
+  course: number
+  explanation_material: number
+  ndocumen: number
+  block: number
+}
+
+
 
 export const useStore = defineStore("tasks", () => {
 
 // Variables
 
-const allCourses = ref<Course[]>([])
-const selectedCourse = ref<number | undefined>(undefined)
+const allCourses = ref<Course[] | undefined>([])
+const selectedCourseId = ref<number | undefined>(undefined)
+const courseQuestions = ref<Question[] | undefined>([])
 
 // Variables end
 
@@ -65,6 +82,14 @@ function getCourses() {
     allCourses.value = courses;
   })
 }
+
+function getQuestions() {
+  return api.getQuestions()
+  .then((questions: Question[]) => {
+    courseQuestions.value = questions.filter(course => course.course === selectedCourseId.value)
+  })
+}
+
 
 
 // Authentication
@@ -119,8 +144,10 @@ function sendMail(data: SendMail){
 
   return {
     allCourses,
-    selectedCourse,
+    selectedCourseId,
     getCourses,
+    getQuestions,
+    courseQuestions,
     logout,
     sendMail,
     login,
