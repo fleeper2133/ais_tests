@@ -343,21 +343,7 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
             created_questions.append(created_question)
             
         questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
-        #return Response(questions_serializer.data)
-    
-        questions_to_return = []
-        for question in selected_questions:
-            if isinstance(question, UserQuestion):
-                question = question.question
-            questions_to_return.append({
-                'id': question.id,
-                'text': question.text,  # Замените на реальное поле из модели Question
-                'course_id': question.course_id  # Замените на реальное поле из модели Question
-                # Добавьте другие необходимые поля вопроса
-            })
-        
-        # Возвращаем ответ с полем 'questions'
-        return Response({'questions': questions_to_return})
+        return Response(questions_serializer.data)
 
 class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkillsQuestion.objects.all()
