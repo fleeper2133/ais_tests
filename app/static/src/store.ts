@@ -69,9 +69,9 @@ export const useStore = defineStore("tasks", () => {
 
 // Variables
 
-const allCourses = ref<Course[] | undefined>([])
+const allCourses = ref<Course[]>([])
 const selectedCourseId = ref<number | undefined>(undefined)
-const courseQuestions = ref<Question[] | undefined>([])
+const courseQuestions = ref<Question[]>([])
 
 // Variables end
 
@@ -89,7 +89,6 @@ function getQuestions() {
     courseQuestions.value = questions.filter(course => course.course === selectedCourseId.value)
   })
 }
-
 
 
 // Authentication

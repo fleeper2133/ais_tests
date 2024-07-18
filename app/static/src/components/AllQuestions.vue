@@ -25,10 +25,11 @@
                     </div>
                     <div class="questions" v-if="filterSearch.length > 0">
                         <div 
-                        class="question" 
-                        :style="`border: ${selectedQuestion === index ? '1px solid #338DF4' : '1px solid rgb(193, 199, 224)'}`" 
-                        v-for="(question, index) in filterSearch"
-                        @click="selectedQuestion = selectedQuestion === index ? null : index">
+                            class="question" 
+                            :style="`border: ${selectedQuestion === index ? '1px solid #338DF4' : '1px solid rgb(193, 199, 224)'}`" 
+                            v-for="(question, index) in paginatedItems"
+                            @click="selectedQuestion = selectedQuestion === index ? null : index"
+                        >
                             <div class="question__main">
                                 <div class="question__title fs-18 fw-bold">{{ question.name }}</div>
                                 <svg class="star" viewBox="-0.5 0 25 25" fill="none">
@@ -40,6 +41,14 @@
                                 <p>{{ question.question_text }}</p>
                             </div>
                         </div>
+
+                        <Pagination
+                            class="pagination"
+                            :current-page="currentPage"
+                            :items-per-page="itemsPerPage"
+                            :total-items="totalItems"
+                            @update:currentPage="currentPage = $event"
+                        />
                     </div>
                     <div class="nothing-found"v-else>
                         По вашему запросу, ничего не найдено..
@@ -54,10 +63,11 @@
 <script setup lang="ts">
 import Header from './Header.vue'
 import Footer from './Footer.vue'
+import Pagination from './Pagination.vue'
 
-import { computed, onMounted, ref } from 'vue';
-import { useStore } from "../store";
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue'
+import { useStore } from "../store"
+import { useRouter } from 'vue-router'
 
 const router = useRouter();
 const aisStore = useStore()
@@ -69,7 +79,6 @@ function clearSearch() {
     }
 }
 const filterSearch = computed(() => {
-  if (aisStore.courseQuestions !== undefined) {
     if (!inputText.value) {
         return aisStore.courseQuestions;
     }
@@ -77,21 +86,40 @@ const filterSearch = computed(() => {
     return aisStore.courseQuestions.filter((question) => {
         return question.name.toLowerCase().includes(inputText.value.toLowerCase());
     });
-  }
 });
 
-const selectedQuestion = ref<number | null>(null)
+const selectedQuestion = ref<number | null>(0)
 
 const searchInput = ref<HTMLInputElement | null>(null);
 function makeFocus() {
     if (searchInput.value) {
-        searchInput.value.focus();
+        searchInput.value.focus()
     }
 }
 
 function goBack() {
     router.push('/course')
 }
+
+// Pagination
+
+const currentPage = ref(1);
+const itemsPerPage = 15;
+const totalItems = computed(() => filterSearch.value.length)
+
+const paginatedItems = computed(() =>
+    filterSearch.value.slice(
+        (currentPage.value - 1) * itemsPerPage,
+        currentPage.value * itemsPerPage
+    )
+);
+
+// Pagination end
+
+
+watch(inputText, () => {
+  currentPage.value = 1;
+});
 
 onMounted(async () => {
     await aisStore.getQuestions()
@@ -122,7 +150,6 @@ onMounted(async () => {
     align-items: center;
     gap: 20px;
     padding: 10px 30px;
-    max-width: 50rem;
     border-radius: 0.375rem;
     border: 1px solid $border;
 
