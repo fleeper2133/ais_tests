@@ -58,7 +58,7 @@ class UserQuestion(models.Model):
     selected = models.BooleanField()  # как избранный
     correct_count = models.PositiveIntegerField(default=0)
     incorrect_count = models.PositiveIntegerField(default=0)
-    average_answer_time = models.DurationField(default=timedelta())
+    average_answer_time = models.DurationField(default=timedelta()) #проверить на изменение при миграциях (удалить скобки при необходимости)
     force_downgrade_flag = models.BooleanField(default=False)
     consecutive_incorrect_count = models.PositiveIntegerField(default=0)
 

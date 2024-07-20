@@ -35,26 +35,27 @@ def create_test_data():
     difficulties = ['easy', 'medium', 'hard', 'extrem']
     questions = []
     
-    for i, difficulty in enumerate(difficulties):
-        for j in range(3 if difficulty != 'extrem' else 1):
-            question = Question.objects.create(
-                name=f'Question {i*3 + j + 1}',
-                question_text='Sample question text?',
-                topic='Sample Topic',
-                difficulty=difficulty,
-                course=course,
-                explanation_material=learning_material,
-                right_answer_count=1,
-                answer_count=4
-            )
-            for k in range(4):
-                Varient.objects.create(
-                    question=question,
-                    answer_number=k+1,
-                    answer_text=f'Answer {k+1}',
-                    correct=(k == 0)  # First answer is correct for simplicity
+    for _ in range(40):
+        for i, difficulty in enumerate(difficulties):
+            for j in range(3 if difficulty != 'extrem' else 1):
+                question = Question.objects.create(
+                    name=f'Question {i*3 + j + 1}',
+                    question_text='Sample question text?',
+                    topic='Sample Topic',
+                    difficulty=difficulty,
+                    course=course,
+                    explanation_material=learning_material,
+                    right_answer_count=1,
+                    answer_count=4
                 )
-            questions.append(question)
+                for k in range(4):
+                    Varient.objects.create(
+                        question=question,
+                        answer_number=k+1,
+                        answer_text=f'Answer {k+1}',
+                        correct=(k == 0)  # First answer is correct for simplicity
+                    )
+                questions.append(question)
     
     QuestionList.objects.create(ticket=ticket1, number_in_ticket=1, question=questions[0])
     QuestionList.objects.create(ticket=ticket1, number_in_ticket=2, question=questions[1])
