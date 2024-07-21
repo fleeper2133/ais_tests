@@ -181,7 +181,7 @@ class QuestionTicket(models.Model):
     ]
     user_ticket = models.ForeignKey(UserTicket, on_delete=models.CASCADE)
     number_in_ticket = models.PositiveIntegerField()
-    user_answer = models.ForeignKey(UserAnswer, on_delete=models.CASCADE)
+    user_answer = models.ForeignKey(UserAnswer, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=255, choices=variety, default='Not Answered')
 
     # подтягивать статус из последнего UserAnswer

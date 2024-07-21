@@ -4,7 +4,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 @pytest.mark.django_db
-def test_generate_ticket(create_test_data):
+def test_generate_random_ticket(create_test_data):
     data = create_test_data
     user = data['user']
     course = data['course']
