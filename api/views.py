@@ -260,25 +260,15 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         random.shuffle(selected_questions)
 
         with transaction.atomic():
-            #подразумевается, что уже существует и курс и объект "тестирование" к нему
+            #подкаиваем тестирование
             testing = Testing.objects.get(course=course)
 
+            #создаём билет
             ticket = Ticket.objects.create(
                 name=f"Random Ticket for {course_id}",
                 difficulty='medium',
                 question_count=len(selected_questions),
                 testing=testing
-            )
-
-            user_ticket = UserTicket.objects.create(
-                user=user,
-                ticket=ticket,
-                user_course = UserCourse.objects.filter(user=user, course=course),
-                #user_course=course, # Нужно достать UserCourse !
-                status='Not started',
-                attempt_count=1,
-                right_answers=0,
-                time_ticket=timedelta(minutes=30)
             )
 
             #создаём вопросы в билете
@@ -289,15 +279,30 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                     question=selected_questions[i]  
                 )
 
-            # создаём пользовательсую связь с вопросом при прохождении
-            for index, question in enumerate(selected_questions):
+            #получаем курс пользователя
+            user_course = UserCourse.objects.filter(user=user, course=course).first()
+            if not user_course:
+                return Response({'detail': 'UserCourse не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            #создаём его связь со сгенерированным билетом
+            user_ticket = UserTicket.objects.create(
+                user=user,
+                ticket=ticket,
+                user_course=user_course,
+                status='Not started',
+                attempt_count=1,
+                right_answers=0,
+                time_ticket=timedelta(minutes=30)
+            )
+
+            #создаём связь между пользовательским билетом и вопросами
+            for i, question in enumerate(selected_questions):
                 QuestionTicket.objects.create(
                     user_ticket=user_ticket,
-                    question=question if isinstance(question, Question) else question.question,
-                    number_in_ticket=index + 1,
-                    user_answer=None, # ждём до ответа, потом заполняем!
+                    question=question,
+                    number_in_ticket=i + 1,
+                    user_answer=None,
                 )
-                question_list.questions.add(question if isinstance(question, Question) else question.question)
 
         serializer = UserTicketSerializer(user_ticket)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
