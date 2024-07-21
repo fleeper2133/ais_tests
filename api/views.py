@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
@@ -8,24 +9,25 @@ from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuest
 import random
 # создание + прохождение билета покрыть в тестах.
 
-#допилить права на редактирование/удаление
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-
 class QualificationViewSet(viewsets.ModelViewSet):
     queryset = Qualification.objects.all()
     serializer_class = QualificationSerializer
+    #permission_classes = [IsAdminUser]
 
 class BlockViewSet(viewsets.ModelViewSet):
     queryset = Block.objects.all()
     serializer_class = BlockSerializer
+    #permission_classes = [IsAdminUser]
 
 class NormativeDocumentViewSet(viewsets.ModelViewSet):
     queryset = NormativeDocument.objects.all()
     serializer_class = NormativeDocumentSerializer
+    #permission_classes = [IsAdminUser]
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    #permission_classes = [IsAuthenticated]
 
     # При нажатии кнопки начать у курса создаём курс-пользователя
     @action(detail=True, methods=['post'])
@@ -218,6 +220,9 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         from django.db import transaction
 
         user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
         course_id = request.data.get('course_id')
         if not course_id:
             return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -311,6 +316,26 @@ class UserAnswerViewSet(viewsets.ModelViewSet):
     queryset = UserAnswer.objects.all()
     serializer_class = UserAnswerSerializer
 
+    # Создать или обновить ответ пользователя
+    @action(detail=False, methods=['post'])
+    def create_or_update(self, request):
+        user = request.user
+        question_id = request.data.get('question_id')
+        #продумать ответы! слабое место
+        answer_ids = request.data.get('answer_ids')
+        is_correct = request.data.get('is_correct')
+        
+        if not question_id:
+            return Response({'detail': 'Question ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user_answer, created = UserAnswer.objects.get_or_create(user=user, question_id=question_id)
+        user_answer.answer_ids = answer_ids
+        user_answer.correct = is_correct
+        user_answer.save()
+
+        serializer = UserAnswerSerializer(user_answer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class UserAnswerItemViewSet(viewsets.ModelViewSet):
     queryset = UserAnswerItem.objects.all()
     serializer_class = UserAnswerItemSerializer
@@ -332,7 +357,11 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         course_id = request.data.get('course_id')
         difficulty = request.data.get('difficulty', 'Medium')
         question_count = int(request.data.get('question_count', 20))
-
+        
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
         if not course_id:
             return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -388,13 +417,16 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
                 question=question,
                 number_in_check=index + 1,
                 status='Not Answered',
-                user_answer=None, #ответы пользователей добавляются при прохождении
+                user_answer=None,
             )
             created_questions.append(created_question)
-            
-        questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
-        return Response(questions_serializer.data)
 
+        questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
+        response_data = {
+            'check_skills': questions_serializer.data
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+    
 class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkillsQuestion.objects.all()
     serializer_class = UserCheckSkillsQuestionSerializer
