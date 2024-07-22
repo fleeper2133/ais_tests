@@ -353,17 +353,21 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     def smart_generate_check(self, request, pk=None):
         # получаем объект
         user_check_skills = self.get_object()
-
-        course_id = request.data.get('course_id')
+        
+        user_course_id = request.data.get('user_course_id')
         difficulty = request.data.get('difficulty', 'Medium')
         question_count = int(request.data.get('question_count', 20))
+
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id)
+            course_id = user_course.course.id
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        user = request.user
-        if not user.is_authenticated: 
-            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        if not course_id:
-            return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Временно уберём провверку на авторизацию
+        # user = request.user
+        # if not user.is_authenticated: 
+        #     return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = request.user
         user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
