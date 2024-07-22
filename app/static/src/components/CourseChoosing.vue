@@ -83,7 +83,7 @@
                 <div class="container container__courses">
                     <div 
                         class="search" 
-                        :style="`border: ${filterSearch.length > 0 ? '1px solid rgb(193, 199, 224)' : '1px solid #ff1d4e'}`" 
+                        :style="`border: ${condition};`" 
                         @click.stop="makeFocus"
                     >
                         <input class="search__input" type="text" ref="searchInput" placeholder="Введите название курса.." v-model="inputText">
@@ -115,14 +115,16 @@
                                             <p class="main-blue fw-bold">{{  }}</p>
                                             <p class="main-blue">вопросов</p>
                                         </div>
+                                        
                                         <!-- До того как курс не начать, прогресс не отображается -->
+
                                         <!-- <div class="info-text__stats">
                                             <p class="main-blue fw-bold">0%</p>
                                             <p class="main-blue">прогресс</p>
                                             <div></div>
                                         </div> -->
                                     </div>
-                                    <button class="button course__button" @click="aisStore.courseQuestionsValue.length">Выбрать</button>
+                                    <button class="button course__button" @click="goToCourseInfo(course.id)">Выбрать</button>
                                 </div>
                             </div>
                         </div>
@@ -187,6 +189,11 @@ function makeFocus() {
         searchInput.value.focus();
     }
 }
+const condition = computed(() => {
+    if (filterSearch.value.length === 0) {
+        return '1px solid #ff1d4e'
+    }
+})
 // Search end
 
 // Pagination
@@ -339,7 +346,7 @@ onMounted(async () => {
 }
 .course {
     position: relative;
-    height: 12rem;
+    height: 100%;
     width: 100%;
     display: flex;
     border: 1px solid $border;
@@ -378,14 +385,11 @@ onMounted(async () => {
 .course__text {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-}
-.course__title {
-    max-width: 31.25rem;
+    gap: 14px;
+    max-width: 90%;
 }
 .course__subtitle {
     color: $main-grey;
-    max-width: 35rem;
 }
 .course__info {
     display: flex;
@@ -427,11 +431,16 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 10px 30px;
+    padding: 16px 30px;
     border-radius: 0.375rem;
+    background-color: #e3e6ef;
+    border: 1px solid white;
 
     &:focus-within {
         border: 1px solid $main-grey;
+    }
+    &:focus-within {
+        background-color: white;
     }
 }
 .search__input {

@@ -9,11 +9,11 @@
                     </svg>
                     <p class="button-back__text fw-bold">Назад</p>
                 </button>
-                <div>
+                <div class="content__items">
                     <div 
                         class="search" 
                         @click.stop="makeFocus"
-                        :style="`border: ${filterSearch.length > 0 ? '1px solid rgb(193, 199, 224)' : '1px solid #ff1d4e'}`"
+                        :style="`border: ${condition}`"
                     >
                         <input class="search__input" type="text" ref="searchInput" placeholder="Введите текст вопроса" v-model="inputText">
                         <svg v-if="inputText.length === 0" class="svg-icon magnifier" viewBox="0 0 24 24" fill="none">
@@ -101,6 +101,12 @@ function goBack() {
     router.push('/course')
 }
 
+const condition = computed(() => {
+    if (filterSearch.value.length === 0) {
+        return '1px solid #ff1d4e'
+    }
+})
+
 // Pagination
 
 const currentPage = ref(1);
@@ -137,24 +143,33 @@ onMounted(async () => {
     flex-direction: column;
     justify-content: space-between;
 }
+.content__items {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 .container {
   padding: 0 20vw;
   width: 100%;
 }
 
 .search {
-    margin: 0 auto;
     margin-top: 40px;
     cursor: text;
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 10px 30px;
+    padding: 16px 30px;
     border-radius: 0.375rem;
-    border: 1px solid $border;
+    background-color: #e3e6ef;
+    border: 1px solid white;
 
     &:focus-within {
         border: 1px solid $main-grey;
+    }
+    &:focus-within {
+        background-color: white;
     }
 }
 .search__input {
@@ -174,13 +189,11 @@ onMounted(async () => {
 }
 
 .questions {
-    margin-top: 1.875rem;
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
     height: 100%;
-    // overflow-y: scroll;
 }
 .question {
     cursor: pointer;
