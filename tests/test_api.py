@@ -9,11 +9,11 @@ from rest_framework import status
 def test_generate_random_ticket(create_test_data):
     data = create_test_data
     user = data['user']
-    course = data['course']
+    user_course = data['user_course']
     client = APIClient()
     client.force_authenticate(user=user)
     url = reverse('userticket-generate-random-ticket')
-    response = client.post(url, {'course_id': course.id}, format='json')
+    response = client.post(url, {'user_course_id': user_course.id}, format='json')
 
     assert response.status_code == status.HTTP_201_CREATED
     assert 'id' in response.data 
@@ -34,10 +34,10 @@ def test_smart_generate_check(create_test_data):
 @pytest.mark.django_db
 def test_generate_ticket_unauthenticated(create_test_data):
     data = create_test_data
-    course = data['course']
+    user_course = data['user_course']
     client = APIClient()
     url = reverse('userticket-generate-random-ticket')  
-    response = client.post(url, {'course_id': course.id}, format='json')
+    response = client.post(url, {'course_id': user_course.id}, format='json')
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 

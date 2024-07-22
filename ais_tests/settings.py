@@ -31,6 +31,13 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+#CELERY_ACCEPT JSONType = "application/json"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
@@ -54,6 +61,7 @@ INSTALLED_APPS = [
     "course",
     "usercourse",
     "api",
+    'django_celery_beat',
 ]
 
 # LOGIN_REDIRECT_URL = '/login/'

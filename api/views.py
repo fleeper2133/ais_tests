@@ -112,6 +112,44 @@ class UserCourseViewSet(viewsets.ModelViewSet):
     queryset = UserCourse.objects.all()
     serializer_class = UserCourseSerializer
 
+    #история прохождения тестирования и проверок себя
+    @action(detail=True, methods=['get'])
+    def course_history(self, request, pk=None):
+        user_course = self.get_object()
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        check_skills = UserCheckSkills.objects.filter(user=user, user_course=user_course)
+        tickets = UserTicket.objects.filter(user=user, user_course=user_course)
+
+        # Собираем события в один список и сортируем по времени
+        events = []
+        for check in check_skills:
+            events.append({
+                'type': 'check_skill',
+                'id': check.id,
+                'created_at': check.created_at,
+                'status': check.status,
+                'difficulty': check.difficulty,
+                'question_count': check.question_count
+            })
+
+        for ticket in tickets:
+            events.append({
+                'type': 'ticket',
+                'id': ticket.id,
+                'created_at': ticket.created_at,
+                'status': ticket.status,
+                'attempt_count': ticket.attempt_count,
+                'right_answers': ticket.right_answers,
+                'time_ticket': ticket.time_ticket
+            })
+
+        # Сортируем события по времени создания
+        events = sorted(events, key=lambda x: x['created_at'])
+        return Response(events, status=status.HTTP_200_OK)
+
     #для страницы "все курсы" (Все курсы пользователя + 3 любых новых)
     @action(detail=False, methods=['get'])
     def user_courses(self, request):
@@ -127,7 +165,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         }
         return Response(response_data)
     
-     # Получение последних 10 курсов пользователя
+    # Получение последних 10 курсов пользователя
     @action(detail=False, methods=['get'])
     def last_ten_courses(self, request):
         user = request.user
@@ -223,10 +261,13 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
         
-        course_id = request.data.get('course_id')
-        if not course_id:
-            return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
-
+        user_course_id = request.data.get('user_course_id')
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id)
+            course_id = user_course.course.id
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             course = Course.objects.get(id=course_id)
         except Course.DoesNotExist:
@@ -284,10 +325,10 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                     question=selected_questions[i]  
                 )
 
-            #получаем курс пользователя
-            user_course = UserCourse.objects.filter(user=user, course=course).first()
-            if not user_course:
-                return Response({'detail': 'UserCourse не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+            # #получаем курс пользователя
+            # user_course = UserCourse.objects.filter(user=user, course=course).first()
+            # if not user_course:
+            #     return Response({'detail': 'UserCourse не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
             #создаём его связь со сгенерированным билетом
             user_ticket = UserTicket.objects.create(
@@ -365,9 +406,9 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Временно уберём провверку на авторизацию
-        # user = request.user
-        # if not user.is_authenticated: 
-        #     return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = request.user
         user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)

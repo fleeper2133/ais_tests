@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from course.models import Course, Testing, Ticket, QuestionList, Question, Varient
 from django.utils import timezone
 from datetime import timedelta
+from datetime import datetime
     
 # Курсы пользователя
 class UserCourse(models.Model):
@@ -117,6 +118,7 @@ class UserTicket(models.Model):
     attempt_count = models.PositiveIntegerField() #номер попытки
     right_answers = models.PositiveIntegerField(default=0) #количество правильных ответов в билете
     time_ticket = models.DurationField(default=timedelta())
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user_course = models.ForeignKey(UserCourse, on_delete=models.CASCADE)
     
@@ -155,6 +157,7 @@ class UserAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True)
     correct = models.FloatField(default=0.0) #1 - полностью правильно
     answer_time = models.DurationField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     #написать функцию, которая автоматически определяет правильность, обращаться к UserAnswerItem и Varient
     def check_correctness(self):
