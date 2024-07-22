@@ -58,7 +58,7 @@ class UserQuestion(models.Model):
     selected = models.BooleanField()  # как избранный
     correct_count = models.PositiveIntegerField(default=0)
     incorrect_count = models.PositiveIntegerField(default=0)
-    average_answer_time = models.DurationField(default=timedelta())
+    average_answer_time = models.DurationField(default=timedelta()) #проверить на изменение при миграциях (удалить скобки при необходимости)
     force_downgrade_flag = models.BooleanField(default=False)
     consecutive_incorrect_count = models.PositiveIntegerField(default=0)
 
@@ -181,7 +181,7 @@ class QuestionTicket(models.Model):
     ]
     user_ticket = models.ForeignKey(UserTicket, on_delete=models.CASCADE)
     number_in_ticket = models.PositiveIntegerField()
-    user_answer = models.ForeignKey(UserAnswer, on_delete=models.CASCADE)
+    user_answer = models.ForeignKey(UserAnswer, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=255, choices=variety, default='Not Answered')
 
     # подтягивать статус из последнего UserAnswer
