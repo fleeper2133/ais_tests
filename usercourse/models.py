@@ -201,11 +201,19 @@ class QuestionTicket(models.Model):
 
 # Проверка знаний пользователя (check your self)
 class UserCheckSkills(models.Model):
+    variety = [
+        ('Easy', 'Легко'),
+        ('Medium', 'Средне'),
+        ('Hard', 'Сложно'),
+        ('Extrem', 'Невозможно'),
+    ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     question_count = models.PositiveIntegerField()  # Число выбранных вопросов
     status = models.CharField(max_length=255, choices=[('In Progress', 'В процессе'), ('Completed', 'Завершено')])
+    difficulty = models.CharField(max_length=255, choices=variety, default='Medium', null=True, blank=True)
+    user_course = models.ForeignKey(UserCourse, on_delete=models.CASCADE, null=True, blank=True)
 
     def update_status(self):
         # Проверка, все ли вопросы были отвечены
