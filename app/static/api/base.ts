@@ -65,6 +65,14 @@ class ApiClient {
     return this.get('/api/questions/');
   }
 
+  async getUserCourses() {
+    return this.get('/api/user-courses/');
+  }
+
+  async setUserCourse(body) {
+    return this.post('/api/user-courses/', body);
+  }
+
 
   
 

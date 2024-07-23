@@ -112,19 +112,24 @@
                                 <div class="course__info">
                                     <div class="info-text">
                                         <div class="info-text__stats">
-                                            <p class="main-blue fw-bold">{{  }}</p>
+                                            <p class="main-blue fw-bold">{{ course.question_count }}</p>
                                             <p class="main-blue">вопросов</p>
                                         </div>
                                         
                                         <!-- До того как курс не начать, прогресс не отображается -->
 
-                                        <!-- <div class="info-text__stats">
-                                            <p class="main-blue fw-bold">0%</p>
+                                        <div v-if="aisStore.startedCourses.find(c => c.id === course.id)" class="info-text__stats">
+                                            <p class="main-blue fw-bold">{{ showProgress(course.id) + '%' }}</p>
                                             <p class="main-blue">прогресс</p>
                                             <div></div>
-                                        </div> -->
+                                        </div>
                                     </div>
-                                    <button class="button course__button" @click="goToCourseInfo(course.id)">Выбрать</button>
+                                    <button 
+                                        :style="{ backgroundColor: whatStatus(course.id) }" 
+                                        class="button course__button" @click="goToCourseInfo(course.id)"
+                                    >
+                                        {{whatTextShow(course.id)}}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -160,11 +165,17 @@ const router = useRouter()
 const aisStore = useStore()
 
 function goToCourseInfo(id) {
-    aisStore.selectedCourseId = id
-    router.push('/course-info')
-}
-function goToCourse() {
-    router.push('/course')
+    const course = aisStore.allCourses.filter(c => c.id === id)
+    aisStore.selectedCourse = course
+    const whatCourseSelected = aisStore.startedCourses.find(c => c.id === aisStore.selectedCourse[0].id)
+
+    aisStore.showCourseInfoButton = true
+
+    if (whatCourseSelected) {
+        return router.push('/course')
+    } else {
+        return router.push('/course-info')
+    }
 }
 
 // Search
@@ -211,6 +222,28 @@ const paginatedItems = computed(() =>
 
 // Pagination end
 
+function showProgress(id: number) {
+    const course = aisStore.startedCourses.find(c => c.id === id)
+    if (course) {
+        return course.progress
+    }
+}
+function whatTextShow(id: number) {
+    const course = aisStore.startedCourses.find(c => c.id === id)
+    if (course) {
+        return 'Продолжить'
+    } else {
+        return 'Выбрать'
+    }
+}
+const whatStatus = (id: number) => {
+    const course = aisStore.startedCourses.find(c => c.id === id);
+
+    if (course && course.status === 'New') {
+        return '#0075ff';
+    }
+        return '#338DF4';
+};
 
 watch(inputText, () => {
   currentPage.value = 1;
@@ -218,6 +251,7 @@ watch(inputText, () => {
 
 onMounted(async () => {
     await aisStore.getCourses()
+    await aisStore.getUserCourses() 
 });
 </script>
 
@@ -373,7 +407,6 @@ onMounted(async () => {
 }
 .course__button {
     max-width: 300px;
-    background-color: $main-blue;
     height: 3rem;
     color: white;
 }

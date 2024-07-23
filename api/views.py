@@ -406,12 +406,6 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     serializer_class = UserCheckSkillsSerializer
         
     # создаём "умное тестирование", которое даёт 50% новых вопросов
-<<<<<<< HEAD
-    # @action(detail=True, methods=['post'])
-    def post(self, request, pk=None):
-        from django.db import transaction
-
-=======
     @action(detail=False, methods=['post'], url_path='smart-generate-check')
     def smart_generate_check(self, request):
         from django.db import transaction
@@ -420,7 +414,6 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         user_id = request.data.get('user_id')
         user = CustomUser.objects.get(id=user_id)
 
->>>>>>> malkov
         user_course_id = request.data.get('user_course_id')
         difficulty = request.data.get('difficulty', 'Medium')
         question_count = int(request.data.get('question_count', 20))
@@ -435,23 +428,6 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         # user = request.user
         # if not user.is_authenticated: 
         #     return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-<<<<<<< HEAD
-
-        # Получаем не по сессии, а по айди!
-        user_id = request.data.get('user_id')
-        user = CustomUser.objects.get(id=user_id)
-
-        # получаем объект
-        #user_check_skills = self.get_object()
-        user_check_skills = UserCheckSkills.objects.create(
-            user=user,
-            question_count=question_count,
-            status="In Progress",
-            difficulty=difficulty,
-            user_course=user_course,
-        )
-=======
->>>>>>> malkov
         
         user_check_skills = UserCheckSkills.objects.create(
             user=user,
@@ -524,6 +500,7 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
 
         user_check_skills.question_count = len(selected_questions)
         user_check_skills.save()
+
         with transaction.atomic():
             created_questions = []
             for index, question in enumerate(selected_questions):
@@ -545,10 +522,7 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
                     question=new_questions[index],
                     user=user,
                     selected=False,
-<<<<<<< HEAD
-=======
                     memorization='New',
->>>>>>> malkov
                 )
 
         questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)

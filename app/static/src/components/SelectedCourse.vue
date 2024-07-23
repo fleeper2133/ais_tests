@@ -13,7 +13,7 @@
                 </div>
             </div>
             <div class="container container__name">
-                <h1 class="fs-18 fw-bold">{{courseName}}</h1>
+                <h1 class="fs-18 fw-bold">{{aisStore.selectedCourse[0].name}}</h1>
             </div>
             <div class="container container__flex">
                 <div class="info">
@@ -53,14 +53,10 @@
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Пройти тестрирование</p>
+                                <p class="selector__title fw-bold">Проверить себя</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
-                                        <p class="fs-14 main-blue">Билетов:</p>
-                                        <p class="fs-14 main-blue fw-bold">9</p>
-                                    </div>
-                                    <div class="selector__data">
-                                        <p class="fs-14 main-blue">Вопросов:</p>
+                                        <p class="fs-14 main-blue">Вопросы:</p>
                                         <p class="fs-14 main-blue fw-bold">20 случайных</p>
                                     </div>
                                 </div>
@@ -74,12 +70,23 @@
                         </div>
                         <div class="selector__action">
                             <div class="selector__buttons">
-                                <div class="dropper">
-                                    <div class="dropper__title" @click.stop="dropper = true">Выбрать сложность</div>
-                                    <div v-show="dropper === true" class="dropper__list">
-                                        <p class="dropper__item">Сложно</p>
-                                        <p class="dropper__item">Средне</p>
-                                        <p class="dropper__item">Легко</p>
+                                <div class="droppers">
+                                    <div class="dropper">
+                                        <div class="dropper__title" @click.stop="dropper = true">Количество вопросов</div>
+                                        <div v-show="dropper === true" class="dropper__list">
+                                            <p class="dropper__item">10 вопросов</p>
+                                            <p class="dropper__item">20 вопросов</p>
+                                            <p class="dropper__item">30 вопросов</p>
+                                            <p class="dropper__item">40 вопросов</p>
+                                        </div>
+                                    </div>
+                                    <div class="dropper">
+                                        <div class="dropper__title" @click.stop="dropper = true">Сложность</div>
+                                        <div v-show="dropper === true" class="dropper__list">
+                                            <p class="dropper__item">Сложно</p>
+                                            <p class="dropper__item">Средне</p>
+                                            <p class="dropper__item">Легко</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <router-link to="/testing">
@@ -91,8 +98,12 @@
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Проверить себя</p>
+                                <p class="selector__title fw-bold">Пройти тестрирование</p>
                                 <div class="selector__info">
+                                    <div class="selector__data">
+                                        <p class="fs-14 main-blue">Билеты:</p>
+                                        <p class="fs-14 main-blue fw-bold">9</p>
+                                    </div>
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Вопросы:</p>
                                         <p class="fs-14 main-blue fw-bold">20 случайных</p>
@@ -109,7 +120,7 @@
                         <div class="selector__action">
                             <div class="selector__buttons">
                                 <div class="dropper">
-                                    <div class="dropper__title" @click.stop="dropper = true">Выбрать сложность</div>
+                                    <div class="dropper__title" @click.stop="dropper = true">Сложность</div>
                                     <div v-show="dropper === true" class="dropper__list">
                                         <p class="dropper__item">Сложно</p>
                                         <p class="dropper__item">Средне</p>
@@ -127,7 +138,7 @@
                                 <div class="selector__info">
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Всего вопросов:</p>
-                                        <p class="fs-14 main-blue fw-bold">199</p>
+                                        <p class="fs-14 main-blue fw-bold">{{ showQuestionCount() }}</p>
                                     </div>
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы.</p>
@@ -167,6 +178,8 @@ function goToTickets() {
     router.push('/ticket-selection')
 }
 function courseInfo() {
+    aisStore.showCourseInfoButton = false
+
     router.push('/course-info')
 }
 
@@ -183,15 +196,12 @@ function openMistakes() {
     router.push('/mistakes')
 }
 
-const courseName = computed(() => {
-    if (aisStore.allCourses !== undefined) {
-        const course = aisStore.allCourses.filter(c => c.id === aisStore.selectedCourseId)
-        return course[0].name   
-    }
-})
-
 function openCourseQuestions() {
     router.push('/all-questions')
+}
+
+function showQuestionCount() {
+    return aisStore.selectedCourse[0].question_count
 }
 
 </script>
@@ -335,6 +345,14 @@ function openCourseQuestions() {
 .selector__buttons {
     display: flex;
     gap: 20px;
+    flex-wrap: wrap;
+    justify-content: end;
+}
+.droppers {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: end;
 }
 .selector__button {
     height: 40px;

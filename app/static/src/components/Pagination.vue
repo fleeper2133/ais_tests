@@ -46,7 +46,6 @@ const visiblePages = computed(() => {
   const halfVisiblePagesCount = Math.floor(visiblePagesCount / 2);
   let startPage = props.currentPage - halfVisiblePagesCount;
   let endPage = props.currentPage + halfVisiblePagesCount;
-  console.log('start page1', startPage)
   if (startPage < 1) {
     endPage -= startPage - 1;
     startPage = 1;

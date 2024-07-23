@@ -63,6 +63,18 @@ export interface Question {
   block: number
 }
 
+export interface UserCourse {
+  id: number
+  start_date: string
+  progress: number
+  status: string
+  selected: boolean
+  review_text: string
+  mark: number
+  user: number
+  course: number
+}
+
 
 
 export const useStore = defineStore("tasks", () => {
@@ -71,7 +83,10 @@ export const useStore = defineStore("tasks", () => {
 
 const allCourses = ref<Course[]>([])
 const selectedCourseId = ref<number | undefined>(undefined)
+const selectedCourse = ref<Course[]>([])
+const showCourseInfoButton = ref<boolean>(false)
 const courseQuestions = ref<Question[]>([])
+const startedCourses = ref<UserCourse[]>([])
 
 // Variables end
 
@@ -88,6 +103,16 @@ function getQuestions() {
   .then((questions: Question[]) => {
     courseQuestions.value = questions.filter(course => course.course === selectedCourseId.value)
   })
+}
+
+function getUserCourses() {
+  return api.getUserCourses()
+  .then((courses: UserCourse[]) => {
+    return startedCourses.value = courses
+  })
+}
+function setUserCourse(courseData: UserCourse) {
+  return api.setUserCourse(courseData)
 }
 
 
@@ -144,6 +169,7 @@ function sendMail(data: SendMail){
   return {
     allCourses,
     selectedCourseId,
+    selectedCourse,
     getCourses,
     getQuestions,
     courseQuestions,
@@ -151,5 +177,9 @@ function sendMail(data: SendMail){
     sendMail,
     login,
     registration,
+    getUserCourses,
+    startedCourses,
+    setUserCourse,
+    showCourseInfoButton,
   }
 });

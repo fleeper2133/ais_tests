@@ -35,8 +35,8 @@
                         </div>
                         </div>
                     </div>
-                    <div class="button-position">
-                        <button class="button" @click="startCourse">Начать</button>
+                    <div v-if="aisStore.showCourseInfoButton" class="button-position">
+                        <button class="button" @click="startCourse()">Начать</button>
                     </div>
                 </div>
             </div>
@@ -52,24 +52,39 @@ import Footer from './Footer.vue'
 
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useStore } from "../store";
+import { useStore, UserCourse } from "../store";
 
 const router = useRouter();
 const aisStore = useStore()
 
 function goBack() {
-    if (aisStore.selectedCourseId === undefined) {
-        router.push('/courses')
-    } else {
+    if (!aisStore.showCourseInfoButton) {
         router.push('/course')
+    } else {
+        router.push('/courses')
     }
 }
-function startCourse() {
-    router.push('/course')
+function startCourse(id) {
+
+    if (aisStore.showCourseInfoButton) {
+        const c: UserCourse = {
+            "user": 1,
+            "start_date": "2024-07-23",
+            "progress": 0,
+            "course": aisStore.selectedCourse[0].id
+        }
+        aisStore.setUserCourse(c);
+        aisStore.getUserCourses()
+    }
+
+    aisStore.selectedCourseId = id
+    return router.push('/course')
+
+    // Вопросы по началу курса. Плохо начинается. Не берется нужный курс
 }
 
 const currentCourse = computed(() => {
-    return aisStore.allCourses.filter(c => c.id === aisStore.selectedCourseId)
+    return aisStore.selectedCourse
 })
 
 </script>
