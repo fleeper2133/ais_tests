@@ -386,10 +386,25 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
     queryset = QuestionTicket.objects.all()
     serializer_class = QuestionTicketSerializer
 
+def separate_questions(difficulty, remaining_count):
+        if difficulty == 'Easy':
+            bad_count = int(remaining_count * 0.2)
+            satisfy_count = int(remaining_count * 0.3)
+            good_count = remaining_count - bad_count - satisfy_count
+        elif ((difficulty == 'Hard') or (difficulty == 'Extrem')):
+            bad_count = int(remaining_count * 0.6)
+            satisfy_count = int(remaining_count * 0.3)
+            good_count = remaining_count - bad_count - satisfy_count
+        else:  # Medium
+            bad_count = int(remaining_count * 0.4)
+            satisfy_count = int(remaining_count * 0.4)
+            good_count = remaining_count - bad_count - satisfy_count
+        return [bad_count, satisfy_count, good_count]
+
 class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkills.objects.all()
     serializer_class = UserCheckSkillsSerializer
-
+        
     # создаём "умное тестирование", которое даёт 50% новых вопросов
     @action(detail=False, methods=['post'], url_path='smart-generate-check')
     def smart_generate_check(self, request):
@@ -425,51 +440,64 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
         answered_questions_count = len(user_questions)
         
-        # Если пользователь не отвечал на вопросы, возвращаем 100% новых вопросов
+        new_questions = list(Question.objects.filter(course_id=course_id).order_by('?'))
+        random.shuffle(new_questions)
+        new_questions = list(new_questions[:question_count])
+
+        # Делим вопросы по уровню запоминания
+        answ_new_questions = user_questions.filter(memorization='New')
+        bad_questions = user_questions.filter(memorization='Bad')
+        satisfy_questions = user_questions.filter(memorization='Satisfy')
+        good_questions = user_questions.filter(memorization='Good')
+
+        # Если пользователь не отвечал на вопросы, возвращаем просто вопросы
         if answered_questions_count <= int(question_count / 2):
-            new_questions = Question.objects.filter(course_id=course_id).order_by('?')[:question_count]
+            # считаем, что в курсе изначально хватает вопросов, но лучше сделать обработку!
             selected_questions = list(new_questions)
         else:
-            # Делим вопросы по уровню запоминания
-            new_questions = user_questions.filter(memorization='New')
-            bad_questions = user_questions.filter(memorization='Bad')
-            satisfy_questions = user_questions.filter(memorization='Satisfy')
-            good_questions = user_questions.filter(memorization='Good')
-            
-            # Берем 50% новых вопросов
             new_questions = Question.objects.filter(course_id=course_id).exclude(id__in=user_questions.values('question_id')).order_by('?')
-            new_questions_count = question_count // 2
+            if len(new_questions) >= int(question_count / 2): # Если хватает, берем 50% новых вопросов
+                new_questions_count = question_count // 2
+            else: # Или сколько есть
+                new_questions_count = len(new_questions)
 
             remaining_count = question_count - new_questions_count
             # Оставшиеся 50% делим между "Bad", "Satisfy" и "Good" вопросами с учетом сложности
-            if difficulty == 'Easy':
-                bad_count = int(remaining_count * 0.2)
-                satisfy_count = int(remaining_count * 0.3)
-                good_count = remaining_count - bad_count - satisfy_count
-            elif difficulty == 'Hard':
-                bad_count = int(remaining_count * 0.6)
-                satisfy_count = int(remaining_count * 0.3)
-                good_count = remaining_count - bad_count - satisfy_count
-            else:  # Medium
-                bad_count = int(remaining_count * 0.4)
-                satisfy_count = int(remaining_count * 0.4)
-                good_count = remaining_count - bad_count - satisfy_count
-            
-            if bad_count + satisfy_count + good_count < remaining_count:
-                new_count = remaining_count - (bad_count + satisfy_count + good_count)
-            
-            if bad_count + satisfy_count + good_count + new_count < question_count:
-                new_questions_count = question_count - (bad_count + satisfy_count + good_count + new_count)
+            bad_count, satisfy_count, good_count = separate_questions(difficulty, remaining_count)
 
-            new_questions = new_questions[:new_questions_count]
-            selected_new_questions = new_questions.order_by('?')[:new_count]
-            selected_bad_questions = bad_questions.order_by('?')[:bad_count]
-            selected_satisfy_questions = satisfy_questions.order_by('?')[:satisfy_count]
-            selected_good_questions = good_questions.order_by('?')[:good_count]
+            selected_bad_questions = list(bad_questions.order_by('?')[:bad_count])
+            selected_satisfy_questions = list(satisfy_questions.order_by('?')[:satisfy_count])
+            selected_good_questions = list(good_questions.order_by('?')[:good_count])
+
+            # добавляем вопросы, которые были оставлены без ответов при прохождении
+            answ_new_count = 0
+            if len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions) < remaining_count:
+                answ_new_count = remaining_count - (len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions))
+            selected_new_questions = answ_new_questions.order_by('?')[:answ_new_count]
             
-            selected_questions = list(new_questions) + list(selected_new_questions) +list(selected_bad_questions) + list(selected_satisfy_questions) + list(selected_good_questions)
+            # добавляем новые вопросы (которые ещё не встречались)
+            if len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions) + len(selected_new_questions) < question_count:
+                new_questions_count = question_count - (len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions) + len(selected_new_questions))
+            new_questions = new_questions[:new_questions_count]
+
+            selected_questions = list(new_questions) + list(selected_new_questions) + list(selected_bad_questions) + list(selected_satisfy_questions) + list(selected_good_questions)
+
+            #добавляем случай, когда надо добавить просто вопросы, чтобы сохранить +- пропорцию.
+            remaining_needed = question_count - len(selected_questions)
+            if remaining_needed > 0:
+                remaining_questions = list(user_questions.filter(memorization='Bad').exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
+                remaining_needed -= len(remaining_questions)
+                if remaining_needed > 0:
+                    more_questions = list(user_questions.filter(memorization='Satisfy').exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
+                    remaining_questions += more_questions
+                    remaining_needed -= len(more_questions)
+                    if remaining_needed > 0:
+                        more_questions = list(user_questions.filter(memorization='Good').exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
+                        remaining_questions += more_questions
+                        remaining_needed -= len(more_questions)
+                selected_questions += more_questions
             random.shuffle(selected_questions)
-        
+
         user_check_skills.question_count = len(selected_questions)
         user_check_skills.save()
 
@@ -494,6 +522,7 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
                     question=new_questions[index],
                     user=user,
                     selected=False,
+                    memorization='New',
                 )
 
         questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
