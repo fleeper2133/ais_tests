@@ -18,7 +18,48 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import login, logout
 from django.core.mail import EmailMessage
 from rest_framework import permissions
+from django.utils.crypto import get_random_string
+from .models import CustomUser
 
+#создание + авторизация демо-пользователя
+class CreateDemoUserAPIView(APIView):
+    def post(self, request):
+        # Генерируем случайное имя пользователя
+        username = 'demo_test_user_' + get_random_string(10)
+        # альтернативное создание (но не думаю, что 10 символов могут совпасть когда-нибудь)
+        # i = 1
+        # while True:
+        #     username = f"demo_test_user_{i}"
+        #     if not User.objects.filter(username=username).exists():
+        #         demo_user = User.objects.create_user(
+        #             username=username,
+        #             email=f"{username}@example.com",
+        #             password="temporary_password",
+        #         )
+        #         break
+        #     i += 1
+
+        email = f'{username}@example.com'
+        password = get_random_string(8)
+
+        demo_user = CustomUser.objects.create_user(username=username, email=email, password=password)
+        demo_user.save()
+
+        user = authenticate(email=email, password=password)
+        login(request, user)
+
+        # Create JWT tokens
+        refresh = RefreshToken.for_user(user)
+        refresh.payload.update({"user_id": user.id, "email": user.email})
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "user_id": user.id,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 class SendMail(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -82,14 +123,26 @@ class LoginAPIView(APIView):
         refresh = RefreshToken.for_user(user)
         refresh.payload.update({"user_id": user.id, "email": user.email})
 
+        user_data = UserSerializer(user).data
         return Response(
             {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
+                "user": user_data,
             },
             status=status.HTTP_200_OK,
         )
 
+class CurrentUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        responses=UserSerializer
+    )
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class RegistrationAPIView(APIView):
     @extend_schema(

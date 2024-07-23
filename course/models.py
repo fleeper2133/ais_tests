@@ -33,6 +33,7 @@ class Course(models.Model):
     image_link = models.ImageField(null=True, blank=True, upload_to="courses/", default='courses/default.png')
     user_marks = models.PositiveIntegerField(default=0)
     qualification = models.OneToOneField('Qualification', on_delete=models.SET_NULL, blank=True, null=True)
+    is_demo = models.BooleanField(default=False)
     
     def __str__(self):
         return self.name

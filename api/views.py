@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from users.models import CustomUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
@@ -112,6 +113,44 @@ class UserCourseViewSet(viewsets.ModelViewSet):
     queryset = UserCourse.objects.all()
     serializer_class = UserCourseSerializer
 
+    #история прохождения тестирования и проверок себя
+    @action(detail=True, methods=['get'])
+    def course_history(self, request, pk=None):
+        user_course = self.get_object()
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        check_skills = UserCheckSkills.objects.filter(user=user, user_course=user_course)
+        tickets = UserTicket.objects.filter(user=user, user_course=user_course)
+
+        # Собираем события в один список и сортируем по времени
+        events = []
+        for check in check_skills:
+            events.append({
+                'type': 'check_skill',
+                'id': check.id,
+                'created_at': check.created_at,
+                'status': check.status,
+                'difficulty': check.difficulty,
+                'question_count': check.question_count
+            })
+
+        for ticket in tickets:
+            events.append({
+                'type': 'ticket',
+                'id': ticket.id,
+                'created_at': ticket.created_at,
+                'status': ticket.status,
+                'attempt_count': ticket.attempt_count,
+                'right_answers': ticket.right_answers,
+                'time_ticket': ticket.time_ticket
+            })
+
+        # Сортируем события по времени создания
+        events = sorted(events, key=lambda x: x['created_at'])
+        return Response(events, status=status.HTTP_200_OK)
+
     #для страницы "все курсы" (Все курсы пользователя + 3 любых новых)
     @action(detail=False, methods=['get'])
     def user_courses(self, request):
@@ -127,7 +166,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         }
         return Response(response_data)
     
-     # Получение последних 10 курсов пользователя
+    # Получение последних 10 курсов пользователя
     @action(detail=False, methods=['get'])
     def last_ten_courses(self, request):
         user = request.user
@@ -223,10 +262,13 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
         
-        course_id = request.data.get('course_id')
-        if not course_id:
-            return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
-
+        user_course_id = request.data.get('user_course_id')
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id)
+            course_id = user_course.course.id
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             course = Course.objects.get(id=course_id)
         except Course.DoesNotExist:
@@ -284,10 +326,10 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                     question=selected_questions[i]  
                 )
 
-            #получаем курс пользователя
-            user_course = UserCourse.objects.filter(user=user, course=course).first()
-            if not user_course:
-                return Response({'detail': 'UserCourse не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+            # #получаем курс пользователя
+            # user_course = UserCourse.objects.filter(user=user, course=course).first()
+            # if not user_course:
+            #     return Response({'detail': 'UserCourse не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
             #создаём его связь со сгенерированным билетом
             user_ticket = UserTicket.objects.create(
@@ -351,12 +393,15 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     # создаём "умное тестирование", которое даёт 50% новых вопросов
     @action(detail=True, methods=['post'])
     def smart_generate_check(self, request, pk=None):
+        from django.db import transaction
+
         # получаем объект
         user_check_skills = self.get_object()
-
-        course_id = request.data.get('course_id')
+        
+        user_course_id = request.data.get('user_course_id')
         difficulty = request.data.get('difficulty', 'Medium')
         question_count = int(request.data.get('question_count', 20))
+<<<<<<< HEAD
         
         user = request.user
         # if not user.is_authenticated: 
@@ -364,8 +409,24 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         
         # if not course_id:
         #     return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+=======
+>>>>>>> malkov
 
-        user = request.user
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id)
+            course_id = user_course.course.id
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Временно уберём проверку на авторизацию
+        # user = request.user
+        # if not user.is_authenticated: 
+        #     return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Получаем не по сессии, а по айди!
+        user_id = request.data.get('user_id')
+        user = CustomUser.objects.get(id=user_id)
+        
         user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
         answered_questions_count = len(user_questions)
         
@@ -408,18 +469,29 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         
         user_check_skills.question_count = len(selected_questions)
         user_check_skills.save()
-        created_questions = []
-        for index, question in enumerate(selected_questions):
-            if isinstance(question, UserQuestion):
-                question = question.question
-            created_question = UserCheckSkillsQuestion.objects.create(
-                user_check_skills=user_check_skills,
-                question=question,
-                number_in_check=index + 1,
-                status='Not Answered',
-                user_answer=None,
-            )
-            created_questions.append(created_question)
+
+        with transaction.atomic():
+            created_questions = []
+            for index, question in enumerate(selected_questions):
+                if isinstance(question, UserQuestion):
+                    question = question.question
+                created_question = UserCheckSkillsQuestion.objects.create(
+                    user_check_skills=user_check_skills,
+                    question=question,
+                    number_in_check=index + 1,
+                    status='Not Answered',
+                    user_answer=None,
+                )
+                created_questions.append(created_question)
+
+            # создание UserQuestion
+            # Для новых вопросов необходимо создать отношение UserQuestion
+            # for index in range(len(new_questions)):
+            #     UserQuestion.objects.create(
+            #         question=new_questions[index],
+            #         user=user,
+            #         selected=False,
+            #     )
 
         questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
         response_data = {
