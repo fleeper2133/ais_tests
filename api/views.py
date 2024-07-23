@@ -391,13 +391,14 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     serializer_class = UserCheckSkillsSerializer
 
     # создаём "умное тестирование", которое даёт 50% новых вопросов
-    @action(detail=True, methods=['post'])
-    def smart_generate_check(self, request, pk=None):
+    @action(detail=False, methods=['post'], url_path='smart-generate-check')
+    def smart_generate_check(self, request):
         from django.db import transaction
 
-        # получаем объект
-        user_check_skills = self.get_object()
-        
+        # Получаем не по сессии, а по айди!
+        user_id = request.data.get('user_id')
+        user = CustomUser.objects.get(id=user_id)
+
         user_course_id = request.data.get('user_course_id')
         difficulty = request.data.get('difficulty', 'Medium')
         question_count = int(request.data.get('question_count', 20))
@@ -412,11 +413,15 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         # user = request.user
         # if not user.is_authenticated: 
         #     return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Получаем не по сессии, а по айди!
-        user_id = request.data.get('user_id')
-        user = CustomUser.objects.get(id=user_id)
         
+        user_check_skills = UserCheckSkills.objects.create(
+            user=user,
+            question_count=question_count,
+            status="In Progress",
+            difficulty=difficulty,
+            user_course=user_course,
+        )
+
         user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
         answered_questions_count = len(user_questions)
         
@@ -476,18 +481,15 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
 
             # создание UserQuestion
             # Для новых вопросов необходимо создать отношение UserQuestion
-            # for index in range(len(new_questions)):
-            #     UserQuestion.objects.create(
-            #         question=new_questions[index],
-            #         user=user,
-            #         selected=False,
-            #     )
+            for index in range(len(new_questions)):
+                UserQuestion.objects.create(
+                    question=new_questions[index],
+                    user=user,
+                    selected=False,
+                )
 
         questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
-        response_data = {
-            'check_skills': questions_serializer.data
-        }
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
     
 class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkillsQuestion.objects.all()
