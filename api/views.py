@@ -431,15 +431,15 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
             selected_questions = list(new_questions)
         else:
             # Делим вопросы по уровню запоминания
+            new_questions = user_questions.filter(memorization='New')
             bad_questions = user_questions.filter(memorization='Bad')
             satisfy_questions = user_questions.filter(memorization='Satisfy')
             good_questions = user_questions.filter(memorization='Good')
             
             # Берем 50% новых вопросов
             new_questions = Question.objects.filter(course_id=course_id).exclude(id__in=user_questions.values('question_id')).order_by('?')
-            new_questions_count = min(question_count // 2, len(new_questions))
-            new_questions = new_questions[:new_questions_count]
-            
+            new_questions_count = question_count // 2
+
             remaining_count = question_count - new_questions_count
             # Оставшиеся 50% делим между "Bad", "Satisfy" и "Good" вопросами с учетом сложности
             if difficulty == 'Easy':
@@ -455,11 +455,19 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
                 satisfy_count = int(remaining_count * 0.4)
                 good_count = remaining_count - bad_count - satisfy_count
             
+            if bad_count + satisfy_count + good_count < remaining_count:
+                new_count = remaining_count - (bad_count + satisfy_count + good_count)
+            
+            if bad_count + satisfy_count + good_count + new_count < question_count:
+                new_questions_count = question_count - (bad_count + satisfy_count + good_count + new_count)
+
+            new_questions = new_questions[:new_questions_count]
+            selected_new_questions = new_questions.order_by('?')[:new_count]
             selected_bad_questions = bad_questions.order_by('?')[:bad_count]
             selected_satisfy_questions = satisfy_questions.order_by('?')[:satisfy_count]
             selected_good_questions = good_questions.order_by('?')[:good_count]
             
-            selected_questions = list(new_questions) + list(selected_bad_questions) + list(selected_satisfy_questions) + list(selected_good_questions)
+            selected_questions = list(new_questions) + list(selected_new_questions) +list(selected_bad_questions) + list(selected_satisfy_questions) + list(selected_good_questions)
             random.shuffle(selected_questions)
         
         user_check_skills.question_count = len(selected_questions)
