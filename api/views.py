@@ -359,11 +359,11 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         question_count = int(request.data.get('question_count', 20))
         
         user = request.user
-        if not user.is_authenticated: 
-            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        # if not user.is_authenticated: 
+        #     return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
         
-        if not course_id:
-            return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        # if not course_id:
+        #     return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
         user = request.user
         user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
