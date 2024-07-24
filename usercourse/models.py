@@ -19,6 +19,7 @@ class UserCourse(models.Model):
     start_date = models.DateField()
     progress = models.PositiveIntegerField()
     status = models.CharField(max_length=255, default='New', choices=stat, null=True, blank=True)
+    last_visited = models.DateTimeField(default=timezone.now)
     #для отзыва по курсу
     selected = models.BooleanField(default=False)  # как избранный
     review_text = models.TextField(null=True, blank=True)

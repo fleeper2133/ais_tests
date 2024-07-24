@@ -174,18 +174,28 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(last_ten_courses, many=True)
         return Response(serializer.data)
 
-    # Получение последнего курса пользователя
-    @action(detail=False, methods=['get'])
+    # обновление последнего времени посещения курса при get запросе
+    def retrieve(self, request, pk=None):
+        from django.utils import timezone
+        user_course = self.get_object()
+        if user_course:
+            user_course.last_visited = timezone.now()
+            user_course.save()
+        serializer = self.get_serializer(user_course)
+        return Response(serializer.data)
+    
+    # Получение последнего посещённого курса пользователя 
+    @action(detail=False, methods=['get'], url_path='last-course')
     def last_course(self, request):
         user = request.user
-        try:
-            #cтоит брать по последнему вхождению, скорее всего, если идёт паралельно несколько курсов
-            last_course = UserCourse.objects.filter(user=user).order_by('-start_date').first()
-            serializer = self.get_serializer(last_course)
-            return Response(serializer.data)
-        except UserCourse.DoesNotExist:
-            return Response({'detail': 'Пользователь не записан на этот курс.'}, status=status.HTTP_404_NOT_FOUND)
+        last_course = UserCourse.objects.filter(user=user).order_by('-last_visited').first()
 
+        if last_course:
+            serializer = UserCourseSerializer(last_course)
+            return Response(serializer.data)
+        else:
+            return Response({'detail': 'Пользователь не записан ни на один курс.'}, status=status.HTTP_404_NOT_FOUND)
+    
     # Отметка курса как избранного
     @action(detail=True, methods=['post'])
     def mark_as_favorite(self, request, pk=None):
@@ -226,11 +236,10 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def mark_as_favorite(self, request, pk=None):
         user = request.user
-        question = self.get_object()
-        user_question, created = UserQuestion.objects.get_or_create(user=user, question=question)
+        user_question = self.get_object()
         user_question.selected = True
         user_question.save()
-        return Response({'status': 'question marked as favorite'})
+        return Response({'status': 'Вопрос отмечен как избранный'})
     
     # получить избранные вопросы
     @action(detail=False, methods=['get'], url_path='favorites')
