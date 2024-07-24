@@ -47,6 +47,25 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         serializer = UserCourseSerializer(user_course)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    # Отметка курса как отложенного
+    @action(detail=True, methods=['post'])
+    def mark_as_delayed(self, request, pk=None):
+        from django.utils import timezone
+        user = request.user
+        course = self.get_object()
+        
+        user_course, created = UserCourse.objects.get_or_create(
+            user=user, 
+            course=course,
+            defaults={'start_date': timezone.now().date(), 'progress': 0, 'status': 'Delayed'}
+        )
+        if not created:
+            user_course.status = "Delayed"
+            user_course.save()
+
+        serializer = UserCourseSerializer(user_course)
+        return Response({'status': 'Курс отмечен как отложенный', 'user_course': serializer.data}, status=status.HTTP_201_CREATED)
 
 class TestingViewSet(viewsets.ModelViewSet):
     queryset = Testing.objects.all()
@@ -222,7 +241,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         completed_courses = UserCourse.objects.filter(user=user, status='Completed')
         serializer = self.get_serializer(completed_courses, many=True)
         return Response(serializer.data)
-
+    
 class TaskQuestionViewSet(viewsets.ModelViewSet):
     queryset = TaskQuestion.objects.all()
     serializer_class = TaskQuestionSerializer
