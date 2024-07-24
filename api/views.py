@@ -40,7 +40,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         user_course, created = UserCourse.objects.get_or_create(
             user=user, 
             course=course,
-            defaults={'start_date': timezone.now(), 'progress': 0, 'status': 'New'}
+            defaults={'start_date': timezone.now().date(), 'progress': 0, 'status': 'New'}
         )
         if not created:
             return Response({'detail': 'Пользователь уже проходит этот курс.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -411,8 +411,12 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         from django.db import transaction
 
         # Получаем не по сессии, а по айди!
-        user_id = request.data.get('user_id')
-        user = CustomUser.objects.get(id=user_id)
+        # user_id = request.data.get('user_id')
+        # user = CustomUser.objects.get(id=user_id)
+        # Временно уберём проверку на авторизацию
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         user_course_id = request.data.get('user_course_id')
         difficulty = request.data.get('difficulty', 'Medium')
@@ -423,11 +427,6 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
             course_id = user_course.course.id
         except UserCourse.DoesNotExist:
             return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Временно уберём проверку на авторизацию
-        # user = request.user
-        # if not user.is_authenticated: 
-        #     return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
         
         user_check_skills = UserCheckSkills.objects.create(
             user=user,
