@@ -50,6 +50,11 @@ class Course(models.Model):
             self.user_marks = 0
         self.save()
 
+    def update_question_count(self):
+        question_count = Question.objects.filter(course=self).count()
+        self.question_count = question_count
+        self.save()
+
 # Тестирования
 class Testing(models.Model):
     course = models.OneToOneField(Course, on_delete=models.CASCADE)

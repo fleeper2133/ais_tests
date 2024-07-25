@@ -163,12 +163,17 @@ class UserAnswer(models.Model):
     #написать функцию, которая автоматически определяет правильность, обращаться к UserAnswerItem и Varient
     def check_correctness(self):
         correct_answers = self.question.varient_set.filter(correct=True)
-        selected_correct_count = self.useransweritem_set.filter(answer_varient__in=correct_answers).count()
         total_correct_count = correct_answers.count()
+        selected_correct_count = self.useransweritem_set.filter(answer_varient__in=correct_answers).count()
+        selected_answers_count = self.useransweritem_set.count()
+        incorrect_answers_count = selected_answers_count - selected_correct_count
+
         if total_correct_count > 0:
-            self.correct = selected_correct_count / total_correct_count
+            correctness_score = selected_correct_count / total_correct_count - incorrect_answers_count / selected_answers_count
+            self.correct = max(correctness_score, 0)  # Процент правильности не может быть отрицательным
         else:
             self.correct = 0.0
+
         self.save(update_fields=['correct'])
 
 class UserAnswerItem(models.Model):
@@ -185,13 +190,14 @@ class QuestionTicket(models.Model):
     ]
     user_ticket = models.ForeignKey(UserTicket, on_delete=models.CASCADE)
     number_in_ticket = models.PositiveIntegerField()
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True, null=True, blank=True)
     user_answer = models.ForeignKey(UserAnswer, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=255, choices=variety, default='Not Answered')
 
     # подтягивать статус из последнего UserAnswer
     def update_status(self):
         latest_user_answer = UserAnswer.objects.filter(user=self.user_ticket.user, question=self.user_answer.question).latest('id')
-        self.status = 'Right' if latest_user_answer.correct else 'Wrong'
+        self.status = 'Right' if latest_user_answer.correct == 1.0 else 'Wrong'
         self.save()
 
     # номер в билете брать из модели QuestionList
@@ -245,7 +251,7 @@ class UserCheckSkillsQuestion(models.Model):
     def update_status(self):
         try:
             latest_user_answer = UserAnswer.objects.filter(user=self.user_check_skills.user, question=self.question).latest('id')
-            self.status = 'Right' if latest_user_answer.correct else 'Wrong'
+            self.status = 'Right' if latest_user_answer.correct == 1.0 else 'Wrong'
             self.user_answer = latest_user_answer
             self.save()
         except UserAnswer.DoesNotExist:

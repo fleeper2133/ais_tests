@@ -83,6 +83,9 @@ class Command(BaseCommand):
             if not next_page:
                 break
             data = requests.get(next_page, headers=HEADERS).json()
+        courses = Course.objects.all()
+        for course in courses:
+            course.update_question_count()
 
     def parse_qualifications(self, url):
         #обработка ошибок?

@@ -85,34 +85,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
         question = self.get_object()
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data)
-    
-    # проверка правильности (пока вопросов больше чем ответов)
-    @action(detail=True, methods=['post'], url_path='check-answer')
-    def check_answer(self, request, pk=None):
-        from datetime import timedelta
-        question = self.get_object()
-        answer_ids = request.data.get('answers', [])
-        correct_answers = Varient.objects.filter(question=question, correct=True).values_list('id', flat=True)
-
-        is_correct = set(answer_ids) == set(correct_answers)
-        user = request.user
-
-        # Обновление или создание объекта UserAnswer
-        user_answer, created = UserAnswer.objects.get_or_create(
-            user=user,
-            question=question,
-            defaults={'correct': is_correct, 'answer_time': timedelta(seconds=10)}  # Временное значение времени ответа
-        )
-        if not created:
-            user_answer.correct = is_correct
-            user_answer.save()
-
-        response_data = {'is_correct': is_correct,}
-
-        if not is_correct:
-            question_serializer = QuestionDetailSerializer(question)
-            response_data['details'] = question_serializer.data
-        return Response(response_data)
 
 class VarientViewSet(viewsets.ModelViewSet):
     queryset = Varient.objects.all()
@@ -302,37 +274,15 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         except Course.DoesNotExist:
             return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        user_questions = UserQuestion.objects.filter(user=user, question__course=course)
-        new_questions = Question.objects.filter(course=course).exclude(id__in=user_questions.values('question_id')).order_by('?')
-        good_questions = user_questions.filter(memorization__in=['Good', 'Excellent']).order_by('?')
-        bad_satisfy_questions = user_questions.filter(memorization__in=['Bad', 'Satisfy']).order_by('?')
+        questions = list(Question.objects.filter(course=course).order_by('?'))
+        random.shuffle(questions)
 
-        new_questions = list(new_questions)
-        good_questions = list(good_questions)
-        bad_satisfy_questions = list(bad_satisfy_questions)
+        total_questions_count = 5
 
-        random.shuffle(new_questions)
-        random.shuffle(good_questions)
-        random.shuffle(bad_satisfy_questions)
-
-        total_questions_count = 40
-
-        new_questions_count = int(total_questions_count * 0.1)
-        good_questions_count = int(total_questions_count * 0.3)
-        bad_satisfy_questions_count = total_questions_count - new_questions_count - good_questions_count
-        
-        if (good_questions_count + bad_satisfy_questions_count) < 36:
-            new_questions_count = 40 - (good_questions_count + bad_satisfy_questions_count)
-
-        if (new_questions_count + good_questions_count + bad_satisfy_questions_count) < total_questions_count:
+        if (len(questions)) < total_questions_count:
             return Response({'detail': 'Недостаточно вопросов для генерации билета.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        selected_new_questions = new_questions[:new_questions_count]
-        selected_good_questions = good_questions[:good_questions_count]
-        selected_bad_satisfy_questions = bad_satisfy_questions[:bad_satisfy_questions_count]
-
-        selected_questions = selected_new_questions + selected_good_questions + selected_bad_satisfy_questions
-        random.shuffle(selected_questions)
+        selected_questions = questions[:total_questions_count]
 
         with transaction.atomic():
             #подкаиваем тестирование
@@ -350,14 +300,9 @@ class UserTicketViewSet(viewsets.ModelViewSet):
             for i in range(len(selected_questions)):
                 question_list = QuestionList.objects.create(
                     ticket=ticket,
-                    number_in_ticket=i,  
+                    number_in_ticket=i + 1,  
                     question=selected_questions[i]  
                 )
-
-            # #получаем курс пользователя
-            # user_course = UserCourse.objects.filter(user=user, course=course).first()
-            # if not user_course:
-            #     return Response({'detail': 'UserCourse не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
             #создаём его связь со сгенерированным билетом
             user_ticket = UserTicket.objects.create(
@@ -369,42 +314,24 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                 right_answers=0,
                 time_ticket=timedelta(minutes=30)
             )
-
+            mass =[]
             #создаём связь между пользовательским билетом и вопросами
             for i, question in enumerate(selected_questions):
-                QuestionTicket.objects.create(
+                temp = QuestionTicket.objects.create(
                     user_ticket=user_ticket,
                     question=question,
                     number_in_ticket=i + 1,
                     user_answer=None,
+                    status='Not Answered',
                 )
+                mass.append(temp)
 
-        serializer = UserTicketSerializer(user_ticket)
+        serializer = QuestionTicketSerializer(mass, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserAnswerViewSet(viewsets.ModelViewSet):
     queryset = UserAnswer.objects.all()
     serializer_class = UserAnswerSerializer
-
-    # Создать или обновить ответ пользователя
-    @action(detail=False, methods=['post'])
-    def create_or_update(self, request):
-        user = request.user
-        question_id = request.data.get('question_id')
-        #продумать ответы! слабое место
-        answer_ids = request.data.get('answer_ids')
-        is_correct = request.data.get('is_correct')
-        
-        if not question_id:
-            return Response({'detail': 'Question ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        user_answer, created = UserAnswer.objects.get_or_create(user=user, question_id=question_id)
-        user_answer.answer_ids = answer_ids
-        user_answer.correct = is_correct
-        user_answer.save()
-
-        serializer = UserAnswerSerializer(user_answer)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserAnswerItemViewSet(viewsets.ModelViewSet):
     queryset = UserAnswerItem.objects.all()
@@ -414,20 +341,53 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
     queryset = QuestionTicket.objects.all()
     serializer_class = QuestionTicketSerializer
 
+    # создаём ответ на вопрос тестирования
+    @action(detail=True, methods=['post'], url_path='create_answer')
+    def create_answer(self, request, pk=None):
+        from django.db import transaction
+        from datetime import timedelta
+
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        question_ticket = self.get_object()
+        user_answer_items = request.data.get('answer_items')
+
+        with transaction.atomic():
+            user_answer = UserAnswer.objects.create(
+                question=question_ticket.question,
+                user=user,
+                answer_time=timedelta(seconds=50),
+                correct=0.0,
+            )
+            question_ticket.user_answer = user_answer
+            for index, item in enumerate(user_answer_items):
+                UserAnswerItem.objects.create(
+                    user_answer=user_answer,
+                    answer_varient=Varient.objects.filter(question=question_ticket.question, answer_number=item).first(),
+                    order_answer=index,
+                )
+            user_answer.check_correctness()
+            question_ticket.update_status()
+
+        questions_serializer = QuestionTicketSerializer(question_ticket, many=False)
+        return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
+
 def separate_questions(difficulty, remaining_count):
-        if difficulty == 'Easy':
-            bad_count = int(remaining_count * 0.2)
-            satisfy_count = int(remaining_count * 0.3)
-            good_count = remaining_count - bad_count - satisfy_count
-        elif ((difficulty == 'Hard') or (difficulty == 'Extrem')):
-            bad_count = int(remaining_count * 0.6)
-            satisfy_count = int(remaining_count * 0.3)
-            good_count = remaining_count - bad_count - satisfy_count
-        else:  # Medium
-            bad_count = int(remaining_count * 0.4)
-            satisfy_count = int(remaining_count * 0.4)
-            good_count = remaining_count - bad_count - satisfy_count
-        return [bad_count, satisfy_count, good_count]
+    if difficulty == 'Easy':
+        bad_count = int(remaining_count * 0.2)
+        satisfy_count = int(remaining_count * 0.3)
+        good_count = remaining_count - bad_count - satisfy_count
+    elif ((difficulty == 'Hard') or (difficulty == 'Extrem')):
+        bad_count = int(remaining_count * 0.6)
+        satisfy_count = int(remaining_count * 0.3)
+        good_count = remaining_count - bad_count - satisfy_count
+    else:  # Medium
+        bad_count = int(remaining_count * 0.4)
+        satisfy_count = int(remaining_count * 0.4)
+        good_count = remaining_count - bad_count - satisfy_count
+    return [bad_count, satisfy_count, good_count]
 
 class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkills.objects.all()
@@ -438,10 +398,6 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     def smart_generate_check(self, request):
         from django.db import transaction
 
-        # Получаем не по сессии, а по айди!
-        # user_id = request.data.get('user_id')
-        # user = CustomUser.objects.get(id=user_id)
-        # Временно уберём проверку на авторизацию
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -558,3 +514,37 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
 class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkillsQuestion.objects.all()
     serializer_class = UserCheckSkillsQuestionSerializer
+
+    # создаём ответ на вопрос проверки себя
+    @action(detail=True, methods=['post'], url_path='create_answer')
+    def create_answer(self, request, pk=None):
+        from django.db import transaction
+        from datetime import timedelta
+
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_check_skills_question = self.get_object()
+
+        user_answer_items = request.data.get('answer_items')
+
+        with transaction.atomic():
+            user_answer = UserAnswer.objects.create(
+                question=user_check_skills_question.question,
+                user=user,
+                answer_time=timedelta(seconds=50),
+                correct=0.0,
+            )
+            user_check_skills_question.user_answer = user_answer
+            for index, item in enumerate(user_answer_items):
+                UserAnswerItem.objects.create(
+                    user_answer=user_answer,
+                    answer_varient=Varient.objects.filter(question=user_check_skills_question.question, answer_number=item).first(),
+                    order_answer=index,
+                )
+            user_answer.check_correctness()
+            user_check_skills_question.update_status()
+
+        questions_serializer = UserCheckSkillsQuestionSerializer(user_check_skills_question, many=False)
+        return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
