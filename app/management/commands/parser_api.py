@@ -2,7 +2,7 @@ import os
 import json
 import django
 from django.core.management.base import BaseCommand
-from course.models import Question, Varient, Course, Qualification, Block, NormativeDocument
+from course.models import Question, Varient, Course, Qualification, Block, NormativeDocument, Testing
 import requests
 import datetime
 import logging
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 try:
                     block = Block.objects.get(pk=block_id)
                     qualification = Qualification.objects.get(pk=block.qualification_id)
-                    course, _ = Course.objects.get_or_create(
+                    course, created = Course.objects.get_or_create(
                         qualification=qualification,
                         defaults={
                             'name': qualification.title,
@@ -51,7 +51,12 @@ class Command(BaseCommand):
                             'available_until': datetime.datetime.today() + datetime.timedelta(days=365), #Иначе курс не доступен)
                         }
                     )
-
+                    if created:
+                        Testing.objects.create(
+                            course=course,
+                            description=f"Testing for {course}",
+                            price=0,
+                        )
                     main_question, _ = Question.objects.update_or_create(
                         pk=int(question["id"]),
                         defaults={
@@ -83,6 +88,9 @@ class Command(BaseCommand):
             if not next_page:
                 break
             data = requests.get(next_page, headers=HEADERS).json()
+        courses = Course.objects.all()
+        for course in courses:
+            course.update_question_count()
 
     def parse_qualifications(self, url):
         #обработка ошибок?
@@ -112,10 +120,16 @@ class Command(BaseCommand):
                         'question_count': 0,
                         'available_until': datetime.datetime.today() + datetime.timedelta(days=365),
                     }
-                    Course.objects.get_or_create(
+                    course, created_c = Course.objects.get_or_create(
                         qualification=qualification,
                         defaults=course_defaults
                     )
+                    if created_c:
+                        Testing.objects.create(
+                            course=course,
+                            description=f"Testing for {course}",
+                            price=0,
+                        )
 
             next_page = data.get("next")
             print(next_page)
