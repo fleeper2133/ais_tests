@@ -1,5 +1,5 @@
 <template>
-    <div class="content" @click="dropper = false">
+    <div class="content" @click="closeAllDroppers">
         <div>
             <Header />
             <div class="container container__bg">
@@ -72,20 +72,20 @@
                             <div class="selector__buttons">
                                 <div class="droppers">
                                     <div class="dropper">
-                                        <div class="dropper__title" @click.stop="dropper = true">Количество вопросов</div>
-                                        <div v-show="dropper === true" class="dropper__list">
-                                            <p class="dropper__item">10 вопросов</p>
-                                            <p class="dropper__item">20 вопросов</p>
-                                            <p class="dropper__item">30 вопросов</p>
-                                            <p class="dropper__item">40 вопросов</p>
+                                        <div class="dropper__title" @click.stop="toggleDropper('questions')">Вопросы: {{ questionCount }}</div>
+                                        <div v-show="dropperStates.questions" class="dropper__list">
+                                            <p class="dropper__item" @click.stop="selectQuestion(10)">10 вопросов</p>
+                                            <p class="dropper__item" @click.stop="selectQuestion(20)">20 вопросов</p>
+                                            <p class="dropper__item" @click.stop="selectQuestion(30)">30 вопросов</p>
+                                            <p class="dropper__item" @click.stop="selectQuestion(40)">40 вопросов</p>
                                         </div>
                                     </div>
                                     <div class="dropper">
-                                        <div class="dropper__title" @click.stop="dropper = true">Сложность</div>
-                                        <div v-show="dropper === true" class="dropper__list">
-                                            <p class="dropper__item">Сложно</p>
-                                            <p class="dropper__item">Средне</p>
-                                            <p class="dropper__item">Легко</p>
+                                        <div class="dropper__title" @click.stop="toggleDropper('difficulty1')">Сложность: {{ difficultyText1 }}</div>
+                                        <div v-show="dropperStates.difficulty1" class="dropper__list">
+                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Легко')">Легко</p>
+                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Средне')">Средне</p>
+                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Сложно')">Сложно</p>
                                         </div>
                                     </div>
                                 </div>
@@ -120,11 +120,11 @@
                         <div class="selector__action">
                             <div class="selector__buttons">
                                 <div class="dropper">
-                                    <div class="dropper__title" @click.stop="dropper = true">Сложность</div>
-                                    <div v-show="dropper === true" class="dropper__list">
-                                        <p class="dropper__item">Сложно</p>
-                                        <p class="dropper__item">Средне</p>
-                                        <p class="dropper__item">Легко</p>
+                                    <div class="dropper__title" @click.stop="toggleDropper('difficulty2')">Сложность: {{ difficultyText2 }}</div>
+                                    <div v-show="dropperStates.difficulty2" class="dropper__list">
+                                        <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Легко')">Легко</p>
+                                        <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Средне')">Средне</p>
+                                        <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Сложно')">Сложно</p>
                                     </div>
                                 </div>
                                 <button class="selector__button" @click="goToTickets">Пройти</button>
@@ -167,7 +167,7 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from "../store"
 
@@ -186,7 +186,46 @@ function openHistory(): void {
     router.push('/history')
 }
 
-const dropper = ref(false)
+// Dropper
+
+const dropperStates = reactive({
+    questions: false,
+    difficulty1: false,
+    difficulty2: false,
+});
+
+const questionCount = ref(20);
+const difficultyText1 = ref('Легко');
+const difficultyText2 = ref('Легко');
+
+const toggleDropper = (dropper: keyof typeof dropperStates) => {
+    closeAllDroppers();
+    dropperStates[dropper] = true;
+};
+
+const closeAllDroppers = () => {
+    dropperStates.questions = false;
+    dropperStates.difficulty1 = false;
+    dropperStates.difficulty2 = false;
+};
+
+const selectQuestion = (count: number) => {
+    questionCount.value = count;
+    closeAllDroppers();
+};
+
+const selectDifficulty = (dropper: 'difficulty1' | 'difficulty2', difficulty: string) => {
+    if (dropper === 'difficulty1') {
+        difficultyText1.value = difficulty;
+    } else if (dropper === 'difficulty2') {
+        difficultyText2.value = difficulty;
+    }
+
+    closeAllDroppers();
+};
+
+
+// Dropper end
 
 function goBack(): void {
     router.push('/courses')
