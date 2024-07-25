@@ -112,16 +112,12 @@
                                 <div class="course__info">
                                     <div class="info-text">
                                         <div class="info-text__stats">
+                                            <p class="main-blue fs-14">Вопросов:</p>
                                             <p class="main-blue fw-bold">{{ course.question_count }}</p>
-                                            <p class="main-blue">вопросов</p>
                                         </div>
-                                        
-                                        <!-- До того как курс не начать, прогресс не отображается -->
-
-                                        <div v-if="aisStore.startedCourses.find(c => c.id === course.id)" class="info-text__stats">
+                                        <div v-if="aisStore.startedCourses.find(c => c.course === course.id)" class="info-text__stats">
+                                            <p class="main-blue fs-14">Прогресс:</p>
                                             <p class="main-blue fw-bold">{{ showProgress(course.id) + '%' }}</p>
-                                            <p class="main-blue">прогресс</p>
-                                            <div></div>
                                         </div>
                                     </div>
                                     <button 
@@ -164,17 +160,18 @@ import Pagination from './Pagination.vue'
 const router = useRouter()
 const aisStore = useStore()
 
-function goToCourseInfo(id) {
+function goToCourseInfo(id): void {
     const course = aisStore.allCourses.filter(c => c.id === id)
     aisStore.selectedCourse = course
-    const whatCourseSelected = aisStore.startedCourses.find(c => c.id === aisStore.selectedCourse[0].id)
+    aisStore.selectedCourseId = aisStore.selectedCourse[0].id
+    const whatCourseSelected = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
 
     aisStore.showCourseInfoButton = true
 
     if (whatCourseSelected) {
-        return router.push('/course')
+        router.push('/course')
     } else {
-        return router.push('/course-info')
+        router.push('/course-info')
     }
 }
 
@@ -182,7 +179,7 @@ function goToCourseInfo(id) {
 const inputText = ref('')
 function clearSearch() {
     if(this.inputText !== undefined ) {
-        this.inputText = ''
+        return this.inputText = ''
     }
 }
 const filterSearch = computed(() => {
@@ -195,7 +192,7 @@ const filterSearch = computed(() => {
     });
 });
 const searchInput = ref<HTMLInputElement | null>(null);
-function makeFocus() {
+function makeFocus(): void {
     if (searchInput.value) {
         searchInput.value.focus();
     }
@@ -222,14 +219,15 @@ const paginatedItems = computed(() =>
 
 // Pagination end
 
+
 function showProgress(id: number) {
-    const course = aisStore.startedCourses.find(c => c.id === id)
+    const course = aisStore.startedCourses.find(c => c.course === id)
     if (course) {
         return course.progress
     }
 }
 function whatTextShow(id: number) {
-    const course = aisStore.startedCourses.find(c => c.id === id)
+    const course = aisStore.startedCourses.find(c => c.course === id)
     if (course) {
         return 'Продолжить'
     } else {
@@ -237,12 +235,13 @@ function whatTextShow(id: number) {
     }
 }
 const whatStatus = (id: number) => {
-    const course = aisStore.startedCourses.find(c => c.id === id);
+    const course = aisStore.startedCourses.find(c => c.course === id);
 
     if (course && course.status === 'New') {
         return '#0075ff';
     }
-        return '#338DF4';
+
+    return '#338DF4';
 };
 
 watch(inputText, () => {
@@ -251,7 +250,7 @@ watch(inputText, () => {
 
 onMounted(async () => {
     await aisStore.getCourses()
-    await aisStore.getUserCourses() 
+    await aisStore.getUserCourses()
 });
 </script>
 
@@ -438,6 +437,7 @@ onMounted(async () => {
 }
 .info-text__stats {
     display: flex;
+    align-items: end;
     gap: 0.5rem;
 }
 .star {

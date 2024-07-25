@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     <div v-if="aisStore.showCourseInfoButton" class="button-position">
-                        <button class="button" @click="startCourse()">Начать</button>
+                        <button class="button" @click="startCourse">Начать</button>
                     </div>
                 </div>
             </div>
@@ -59,9 +59,9 @@ const aisStore = useStore()
 
 function goBack() {
     if (!aisStore.showCourseInfoButton) {
-        router.push('/course')
+        return router.push('/course')
     } else {
-        router.push('/courses')
+        return router.push('/courses')
     }
 }
 function startCourse(id) {
@@ -73,14 +73,11 @@ function startCourse(id) {
             "progress": 0,
             "course": aisStore.selectedCourse[0].id
         }
-        aisStore.setUserCourse(c);
+        aisStore.setUserCourse(c)
         aisStore.getUserCourses()
     }
 
-    aisStore.selectedCourseId = id
     return router.push('/course')
-
-    // Вопросы по началу курса. Плохо начинается. Не берется нужный курс
 }
 
 const currentCourse = computed(() => {

@@ -43,6 +43,7 @@
                         </div>
 
                         <Pagination
+                            v-if="totalItems > 15"
                             class="pagination"
                             :current-page="currentPage"
                             :items-per-page="itemsPerPage"
@@ -97,7 +98,7 @@ function makeFocus() {
     }
 }
 
-function goBack() {
+function goBack(): void {
     router.push('/course')
 }
 
@@ -128,6 +129,8 @@ watch(inputText, () => {
 });
 
 onMounted(async () => {
+    console.log(aisStore.selectedCourse[0].id)
+    console.log(aisStore.getQuestions())
     await aisStore.getQuestions()
 });
 </script>

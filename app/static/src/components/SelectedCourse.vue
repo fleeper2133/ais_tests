@@ -174,29 +174,28 @@ import { useStore } from "../store"
 const router = useRouter()
 const aisStore = useStore()
 
-function goToTickets() {
+function goToTickets(): void {
     router.push('/ticket-selection')
 }
-function courseInfo() {
+function courseInfo(): void {
     aisStore.showCourseInfoButton = false
-
     router.push('/course-info')
 }
 
-function openHistory() {
+function openHistory(): void {
     router.push('/history')
 }
 
 const dropper = ref(false)
 
-function goBack() {
+function goBack(): void {
     router.push('/courses')
 }
-function openMistakes() {
+function openMistakes(): void {
     router.push('/mistakes')
 }
 
-function openCourseQuestions() {
+function openCourseQuestions(): void {
     router.push('/all-questions')
 }
 

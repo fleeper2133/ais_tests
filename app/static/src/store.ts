@@ -101,7 +101,7 @@ function getCourses() {
 function getQuestions() {
   return api.getQuestions()
   .then((questions: Question[]) => {
-    courseQuestions.value = questions.filter(course => course.course === selectedCourseId.value)
+    courseQuestions.value = questions.filter(c => c.course === selectedCourseId.value)
   })
 }
 
