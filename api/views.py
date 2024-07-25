@@ -75,6 +75,25 @@ class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
 
+    @action(detail=True, methods=['post'])
+    def detail_user_ticket(self, request, pk=None):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        ticket = self.get_object()
+        user_ticket, created = UserTicket.objects.get_or_create(
+            ticket=ticket,
+            user=user,
+            user_course=UserCourse.objects.filter(user=user, course=ticket.testing.course).first(),
+            defaults= { 
+                'attempt_count': 1, 
+            }
+        )
+        user_ticket.update_attempt_count()
+
+        serializer = UserTicketSerializer(user_ticket, many=False)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
@@ -251,7 +270,24 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
     serializer_class = UserTicketSerializer
+    
+    # завершаем прохождение билета
+    @action(detail=True, methods=['post'])
+    def end_ticket(self, request, pk=None):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        user_ticket = self.get_object()
+        user_ticket.update_status()
+        user_ticket.update_right_answers()
+        user_ticket.update_attempt_count()
+        user_ticket.save()
 
+        serializer = UserTicketSerializer(user_ticket, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    #генерируем случайный билет для проверки знаний
     @action(detail=False, methods=['post'])
     def generate_random_ticket(self, request):
         from django.utils import timezone
@@ -369,6 +405,11 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
                     order_answer=index,
                 )
             user_answer.check_correctness()
+            q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
+            q.update_memorization()
+            q.update_counts_and_average_time()
+            q.update_consecutive_incorrect()
+            q.save()
             question_ticket.update_status()
 
         questions_serializer = QuestionTicketSerializer(question_ticket, many=False)
@@ -392,6 +433,21 @@ def separate_questions(difficulty, remaining_count):
 class UserCheckSkillsViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkills.objects.all()
     serializer_class = UserCheckSkillsSerializer
+
+    # завершаем проверь себя
+    @action(detail=True, methods=['post'])
+    def end_check(self, request, pk=None):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        user_check = self.get_object()
+        user_check.status = 'Completed'
+        # можно добавить число правильных ответов
+        user_check.save()
+
+        serializer = UserCheckSkillsSerializer(user_check, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
     # создаём "умное тестирование", которое даёт 50% новых вопросов
     @action(detail=False, methods=['post'], url_path='smart-generate-check')
@@ -544,6 +600,12 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
                     order_answer=index,
                 )
             user_answer.check_correctness()
+
+            q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
+            q.update_memorization()
+            q.update_counts_and_average_time()
+            q.update_consecutive_incorrect()
+            q.save()
             user_check_skills_question.update_status()
 
         questions_serializer = UserCheckSkillsQuestionSerializer(user_check_skills_question, many=False)

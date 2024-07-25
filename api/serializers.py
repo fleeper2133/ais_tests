@@ -51,6 +51,8 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
         fields = ['name', 'question_text', 'explanations', 'normative_documents', 'varients']
 
 class QuestionListSerializer(serializers.ModelSerializer):
+    question = QuestionDetailSerializer()
+
     class Meta:
         model = QuestionList
         fields = '__all__'
@@ -76,9 +78,15 @@ class UserQuestionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserTicketSerializer(serializers.ModelSerializer):
+    questions = serializers.SerializerMethodField()
+
     class Meta:
         model = UserTicket
-        fields = '__all__'
+        fields = ['ticket', 'time_ticket', 'status', 'user', 'attempt_count', 'updated_at', 'right_answers', 'questions']
+
+    def get_questions(self, obj):
+        question_list = QuestionList.objects.filter(ticket=obj.ticket).order_by('number_in_ticket')
+        return QuestionListSerializer(question_list, many=True).data
 
 class UserAnswerSerializer(serializers.ModelSerializer):
     class Meta:
