@@ -134,8 +134,7 @@ class UserTicket(models.Model):
 
     # автоматический подсчёт номера попытки *
     def update_attempt_count(self):
-        previous_attempts = UserTicket.objects.filter(user=self.user, ticket=self.ticket).count()
-        self.attempt_count = previous_attempts + 1
+        self.attempt_count = UserTicket.objects.filter(user=self.user, ticket=self.ticket).count()
         self.save()
 
     # автоматический подсчёт количества правильных ответов в билете

@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework import permissions
 from users.models import CustomUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
@@ -35,6 +36,9 @@ class CourseViewSet(viewsets.ModelViewSet):
     def start_course(self, request, pk=None):
         from django.utils import timezone
         user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
         course = self.get_object()
         
         user_course, created = UserCourse.objects.get_or_create(
@@ -53,6 +57,9 @@ class CourseViewSet(viewsets.ModelViewSet):
     def mark_as_delayed(self, request, pk=None):
         from django.utils import timezone
         user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
         course = self.get_object()
         
         user_course, created = UserCourse.objects.get_or_create(
@@ -81,13 +88,15 @@ class TicketViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
         ticket = self.get_object()
-        user_ticket, created = UserTicket.objects.get_or_create(
+
+        if len(UserCourse.objects.filter(user=user, course=ticket.testing.course)) == 0:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user_ticket = UserTicket.objects.create(
             ticket=ticket,
             user=user,
             user_course=UserCourse.objects.filter(user=user, course=ticket.testing.course).first(),
-            defaults= { 
-                'attempt_count': 1, 
-            }
+            attempt_count=0,
         )
         user_ticket.update_attempt_count()
 
@@ -96,7 +105,8 @@ class TicketViewSet(viewsets.ModelViewSet):
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
+    serializer_class = QuestionDetailSerializer
+    permission_classes = [IsAuthenticated]
 
     # получение детальной информации по вопросу
     @action(detail=True, methods=['get'], url_path='detail')
@@ -122,6 +132,7 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
 class UserCourseViewSet(viewsets.ModelViewSet):
     queryset = UserCourse.objects.all()
     serializer_class = UserCourseSerializer
+    permission_classes = [IsAuthenticated]
 
     #история прохождения тестирования и проверок себя
     @action(detail=True, methods=['get'])
@@ -246,6 +257,9 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def mark_as_favorite(self, request, pk=None):
         user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
         user_question = self.get_object()
         user_question.selected = True
         user_question.save()
