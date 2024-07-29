@@ -7,7 +7,7 @@ from users.models import CustomUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
-from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer
+from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, CourseQuestionDetailSerializer
 import random
 # создание + прохождение билета покрыть в тестах.
 
@@ -143,7 +143,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         questions = Question.objects.filter(course=user_course.course)
-        serializer = QuestionDetailSerializer(questions, many=True)
+        serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
         return Response(serializer.data)
 
     #история прохождения тестирования и проверок себя

@@ -1,11 +1,13 @@
 from django.core.management import BaseCommand
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
+from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, \
+    QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion, UserAnswerItem
 
 class Command(BaseCommand):
-    help = 'Удаление всех моделей из приложения course'
+    help = 'Удаление всех моделей из приложения course и usercourse'
 
     def handle(self, *args, **options):
-        # Deleting data from all models
+        # Хаос и удаление
         Qualification.objects.all().delete()
         Block.objects.all().delete()
         NormativeDocument.objects.all().delete()
@@ -16,5 +18,15 @@ class Command(BaseCommand):
         Varient.objects.all().delete()
         QuestionList.objects.all().delete()
         LearningMaterial.objects.all().delete()
-        
+
+        UserCourse.objects.all().delete()
+        TaskQuestion.all().delete()
+        UserQuestion.objects.all().delete()
+        UserTicket.objects.all().delete()
+        UserAnswer.objects.all().delete()
+        QuestionTicket.objects.all().delete()
+        UserCheckSkills.objects.all().delete()
+        UserCheckSkillsQuestion.objects.all().delete()
+        UserAnswerItem.objects.all().delete()
+
         self.stdout.write(self.style.SUCCESS("Всё успешно удалено"))
