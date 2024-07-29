@@ -127,10 +127,6 @@ const paginatedItems = computed(() =>
 watch(inputText, () => {
   currentPage.value = 1;
 });
-
-onMounted(async () => {
-    await aisStore.getQuestions()
-});
 </script>
 
 <style scoped lang="scss">

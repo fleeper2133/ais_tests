@@ -16,7 +16,12 @@
             <div>
                 <div class="container ticket-list">
                     <div class="tickets">
-                        <div @click="selectQuestion(numberIndex)" class="ticket" v-for="(number, numberIndex) in aisStore.questionData">
+                        <div 
+                            @click="selectQuestion(numberIndex)" 
+                            class="ticket" 
+                            v-for="(number, numberIndex) in aisStore.questionData"
+                            :key="numberIndex"
+                        >
                             <p class="fw-bold">{{numberIndex + 1}}</p>
                         </div>
                     </div>
@@ -29,28 +34,30 @@
                 </div>
                 <div class="container__bg">
                     <div class="container answers">
-                        <div v-for="(question, questionIndex) in aisStore.questionDetailList">
+                        <div v-if="currentQuestionIndex !== null">
                             <div class="title">
-                                <p class="grey-text">Вопрос <span class="grey-text">{{questionIndex + 1}}</span></p>
-                                <h1 class="fs-18" >{{ question.question_text }}</h1>
+                                <p class="grey-text">Вопрос <span class="grey-text">{{ currentQuestionIndex + 1 }}</span></p>
+                                <h1 class="fs-18" >{{ currentQuestion.question_text }}</h1>
                             </div>
                             <div
-                                v-for="(answer, answerIndex) in question.varients"
-                                class="answer" 
-                                @click="selectAnswer()"
+                                v-for="(answer, answerIndex) in currentQuestion.varients"
+                                class="answer"
+                                :class="selectedAnswer[answerю] ? 'selected' : null"
+                                :key="answerIndex"
+                                @click="selectAnswer(answerIndex)"
                             >
                                 {{ answer.answer_text }}
                             </div>
                         </div>
                         <div class="buttons-panel">
-                            <button class="button-back">
+                            <button class="button-back" @click="previousQuestion">
                                 <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                                 </svg>
                                 <p class="button-back__text fw-bold">Предыдущий вопрос</p>
                             </button>
-                            <button :disabled="selectedAnswer === null" class="button answers__button" :class="{ disabled: selectedAnswer === null }">Ответить</button>
-                            <button class="button-back">
+                            <button :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }">Ответить</button>
+                            <button class="button-back" @click="nextQuestion">
                                 <p class="button-back__text fw-bold">Следующий вопрос</p>
                                 <svg class="button-back__arrow buttons-panel__svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
@@ -76,14 +83,52 @@ import Footer from './Footer.vue';
 const router = useRouter()
 const aisStore = useStore()
 
-const selectedAnswer = ref(null)
+type AnswerIndex = number;
 
-// prevQuestion() {
-   
-// }
-// nextQuestion() {
-    
-// }
+const currentQuestionIndex = ref(0)
+const selectedAnswer = ref<AnswerIndex[]>([])
+const varientsLength = ref(0)
+
+async function getVarientsLength() {
+    if (aisStore.questionDetailList) {
+        varientsLength.value = await aisStore.questionDetailList[currentQuestionIndex.value].varients.length
+    }
+}
+const currentQuestion = computed(() => {
+    if (aisStore.questionDetailList) {
+        getVarientsLength()
+        return aisStore.questionDetailList[currentQuestionIndex.value]
+    }
+})
+
+function selectQuestion(index) {
+    currentQuestionIndex.value = index
+    selectedAnswer.value = []
+    varientsLength.value = 0
+}
+function selectAnswer(answerIndex) {
+    if (selectedAnswer.value.includes(answerIndex)) {
+        selectedAnswer.value.splice(answerIndex, 1)
+    }
+    if (selectedAnswer.value.length === varientsLength.value) {
+        return
+    }
+    selectedAnswer.value.push(answerIndex);
+}
+function previousQuestion() {
+    if (currentQuestionIndex.value > 0) {
+        currentQuestionIndex.value--
+        selectedAnswer.value = []
+        varientsLength.value = 0
+    }
+}
+function nextQuestion() {
+    if (currentQuestionIndex.value < aisStore.questionDetailList.length - 1) {
+        currentQuestionIndex.value++
+        selectedAnswer.value = []
+        varientsLength.value = 0
+    }
+}
 
 
 

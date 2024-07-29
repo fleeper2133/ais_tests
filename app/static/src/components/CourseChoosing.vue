@@ -3,13 +3,13 @@
         <div>
             <Header />
             <div class="content__gap">
-                <div class="container container__bg">
+                <!-- <div class="container container__bg">
                     <div class="tabs">
                         <div class="fs-18 tabs__item">Все курсы</div>
                         <div class="fs-18 tabs__item">Начатые</div>
                         <div class="fs-18 tabs__item">Пройденные</div>
                     </div>
-                </div>
+                </div> -->
                 <!-- <div class="container container__graph">
                     <div class="graph">
                         <div class="graph__title fs-18">Ударный режим</div>
@@ -131,6 +131,7 @@
                         </div>
                         
                         <Pagination
+                            v-if="totalItems > 15"
                             class="pagination"
                             :current-page="currentPage"
                             :items-per-page="itemsPerPage"

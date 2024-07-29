@@ -53,11 +53,15 @@
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Проверить себя</p>
+                                <p class="selector__title fw-bold">Режим обучения</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Вопросы:</p>
-                                        <p class="fs-14 main-blue fw-bold">20 случайных</p>
+                                        <p class="fs-14 main-blue fw-bold">{{ questionCount }} случайных</p>
+                                    </div>
+                                    <div class="selector__data">
+                                        <p class="fs-14 main-blue">Сложность:</p>
+                                        <p class="fs-14 main-blue fw-bold">{{ difficultyText1 }}</p>
                                     </div>
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы.</p>
@@ -107,6 +111,10 @@
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Вопросы:</p>
                                         <p class="fs-14 main-blue fw-bold">20 случайных</p>
+                                    </div>
+                                    <div class="selector__data">
+                                        <p class="fs-14 main-blue">Сложность:</p>
+                                        <p class="fs-14 main-blue fw-bold">{{ difficultyText2 }}</p>
                                     </div>
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний.</p>
@@ -235,6 +243,7 @@ function openMistakes(): void {
 }
 
 function openCourseQuestions(): void {
+    // aisStore.getQuestions()
     router.push('/all-questions')
 }
 
@@ -254,6 +263,9 @@ async function generateCheck() {
     }
     await aisStore.smartGenerate(check)
 
+    if (aisStore.questionDetailList) {
+        aisStore.questionDetailList = []
+    }
     if (aisStore.questionData) {
         for(const q of aisStore.questionData) {
             const result = await aisStore.getQuestionDetail(q.question)
@@ -265,6 +277,8 @@ async function generateCheck() {
 }
 
 // Генерация вопросов end
+
+
 </script>
 
 <style scoped lang="scss">
