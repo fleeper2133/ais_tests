@@ -243,7 +243,6 @@ function openMistakes(): void {
 }
 
 function openCourseQuestions(): void {
-    // aisStore.getQuestions()
     router.push('/all-questions')
 }
 

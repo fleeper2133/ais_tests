@@ -3,13 +3,17 @@
         <div>
             <Header />
             <div class="content__gap">
-                <!-- <div class="container container__bg">
+                <div class="container container__bg">
                     <div class="tabs">
-                        <div class="fs-18 tabs__item">Все курсы</div>
-                        <div class="fs-18 tabs__item">Начатые</div>
-                        <div class="fs-18 tabs__item">Пройденные</div>
+                        <div class="tabs__item">
+                            <p class="tabs__text fs-18 fw-bold">Все курсы</p>
+                            <div class="tabs__selected"></div>
+                        </div>
+                        <div class="tabs__item">
+                            <p class="tabs__text tabs__text-unselected fs-18">Начатые</p>
+                        </div>
                     </div>
-                </div> -->
+                </div>
                 <!-- <div class="container container__graph">
                     <div class="graph">
                         <div class="graph__title fs-18">Ударный режим</div>
@@ -275,7 +279,7 @@ onMounted(async () => {
 }
 
 .container__bg {
-    background-color: $light-blue;
+    border-bottom: 1px solid $light-blue;
 }
 .container__graph {
     display: flex;
@@ -290,18 +294,34 @@ onMounted(async () => {
 }
 
 .tabs {
+    margin-top: 16px;
+    height: 100%;
     display: flex;
-    gap: 70px;
-    padding: 0.875rem 0;
+    gap: 3rem;
 }
 .tabs__item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     cursor: pointer;
     transition: .2s;
+    height: 100%;
 
+    // &:hover {
+    //     transition: .2s;
+    //     color: #7DB1FF;
+    // }
+}
+.tabs__text {
     &:hover {
-        transition: .2s;
-        color: #7DB1FF;
+        color: #0075ff;
     }
+}
+.tabs__text-unselected {
+    color: $main-grey;
+}
+.tabs__selected {
+    border-bottom: 2px solid #0075ff;
 }
 
 // graph

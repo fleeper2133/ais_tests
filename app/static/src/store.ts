@@ -84,12 +84,13 @@ export interface GenerateCheck {
 }
 
 export interface GenerateCheckResponse {
-    id: number
-    user_check_skills: number
-    question: number
-    number_in_check: number
-    user_answer: null
-    status: string
+  id: number
+  user_check_skills: number
+  question: number
+  number_in_check: number
+  user_answer: null
+  answer_items?: []
+  status: string
 }
 
 export interface QuestionDetail {
@@ -115,6 +116,8 @@ const courseQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
 const questionData = ref<GenerateCheckResponse[] | undefined>([])
 const questionDetailList = ref<QuestionDetail[] | undefined>([])
+const userCheckSkills = ref<number | undefined>(undefined)
+const trainingAnswer = ref({})
 
 // Variables end
 
@@ -126,12 +129,12 @@ function getCourses() {
   })
 }
 
-function getQuestions() {
-  return api.getQuestions()
-  .then((questions: Question[]) => {
-    courseQuestions.value = questions.filter(c => c.course === selectedCourseId.value)
-  })
-}
+// function getQuestions() {
+//   return api.getCourseQuestions(id)
+//   .then((questions: Question[]) => {
+//     courseQuestions.value = questions.filter(c => c.course === selectedCourseId.value)
+//   })
+// }
 
 function getUserCourses() {
   return api.getUserCourses()
@@ -148,12 +151,23 @@ function startCourse(id: number, courseData: UserCourse) {
 function smartGenerate(data: GenerateCheck) {
   return api.smartGenerate(data)
   .then((answer: GenerateCheckResponse[]) => {
+    userCheckSkills.value = answer[0].user_check_skills
     return questionData.value = answer
   })
 }
 
 function getQuestionDetail(id: number) {
   return api.getQuestionDetail(id)
+}
+
+function createAnswer(id: number, data: GenerateCheckResponse) {
+  return api.createAnswer(id, data)
+  .then((answer: GenerateCheckResponse) => {
+    trainingAnswer.value = answer
+  })
+}
+function endTraining(id: number) {
+  return api.endTraining(id)
 }
 
 
@@ -212,7 +226,7 @@ function sendMail(data: SendMail){
     selectedCourseId,
     selectedCourse,
     getCourses,
-    getQuestions,
+    // getQuestions,
     courseQuestions,
     logout,
     sendMail,
@@ -227,5 +241,9 @@ function sendMail(data: SendMail){
     questionData,
     getQuestionDetail,
     questionDetailList,
+    createAnswer,
+    trainingAnswer,
+    endTraining,
+    userCheckSkills,
   }
 });

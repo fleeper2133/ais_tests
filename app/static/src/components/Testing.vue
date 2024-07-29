@@ -39,14 +39,16 @@
                                 <p class="grey-text">Вопрос <span class="grey-text">{{ currentQuestionIndex + 1 }}</span></p>
                                 <h1 class="fs-18" >{{ currentQuestion.question_text }}</h1>
                             </div>
-                            <div
-                                v-for="(answer, answerIndex) in currentQuestion.varients"
-                                class="answer"
-                                :class="selectedAnswer[answerю] ? 'selected' : null"
-                                :key="answerIndex"
-                                @click="selectAnswer(answerIndex)"
-                            >
-                                {{ answer.answer_text }}
+                            <div class="answers">
+                                <div
+                                    v-for="(answer, answerIndex) in currentQuestion.varients"
+                                    class="answer"
+                                    :class="selectedField(answer.answer_number) ? 'selected' : null"
+                                    :key="answerIndex"
+                                    @click="selectAnswer(answer.answer_number)"
+                                >
+                                    {{ answer.answer_text }}
+                                </div>
                             </div>
                         </div>
                         <div class="buttons-panel">
@@ -56,7 +58,7 @@
                                 </svg>
                                 <p class="button-back__text fw-bold">Предыдущий вопрос</p>
                             </button>
-                            <button :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }">Ответить</button>
+                            <button :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
                             <button class="button-back" @click="nextQuestion">
                                 <p class="button-back__text fw-bold">Следующий вопрос</p>
                                 <svg class="button-back__arrow buttons-panel__svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -75,7 +77,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from "../store"
+import { useStore, GenerateCheckResponse } from "../store"
 
 import Header from './Header.vue';
 import Footer from './Footer.vue';
@@ -88,6 +90,8 @@ type AnswerIndex = number;
 const currentQuestionIndex = ref(0)
 const selectedAnswer = ref<AnswerIndex[]>([])
 const varientsLength = ref(0)
+const selectedQuestionId = ref<number>(0)
+const answeredList = ref([])
 
 async function getVarientsLength() {
     if (aisStore.questionDetailList) {
@@ -101,19 +105,25 @@ const currentQuestion = computed(() => {
     }
 })
 
+function selectAnswer(number) {
+    const index = selectedAnswer.value.indexOf(number);
+    if (index !== -1) {
+        selectedAnswer.value.splice(index, 1);
+    } else if (selectedAnswer.value.length === varientsLength.value) {
+        return
+    } else {
+        selectedAnswer.value.push(number);
+    }
+}
+
+function selectedField(number) {
+    return selectedAnswer.value.indexOf(number) !== -1
+}
+
 function selectQuestion(index) {
     currentQuestionIndex.value = index
     selectedAnswer.value = []
     varientsLength.value = 0
-}
-function selectAnswer(answerIndex) {
-    if (selectedAnswer.value.includes(answerIndex)) {
-        selectedAnswer.value.splice(answerIndex, 1)
-    }
-    if (selectedAnswer.value.length === varientsLength.value) {
-        return
-    }
-    selectedAnswer.value.push(answerIndex);
 }
 function previousQuestion() {
     if (currentQuestionIndex.value > 0) {
@@ -128,6 +138,32 @@ function nextQuestion() {
         selectedAnswer.value = []
         varientsLength.value = 0
     }
+}
+
+function send() {
+    if (aisStore.questionData) {
+        const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
+        selectedQuestionId.value = way.question
+
+        if (selectedAnswer) {
+            const toSend: GenerateCheckResponse = {
+                "answer_items": selectedAnswer.value
+            }
+
+            aisStore.createAnswer(selectedQuestionId.value, toSend)
+            if (answeredList.value.length === aisStore.questionDetailList.length - 1) {
+                if (aisStore.userCheckSkills) aisStore.endTraining(aisStore.userCheckSkills)
+                router.push('/course')
+                // -1 нужно
+            } else {
+                // Сюда добавлять ответ с wrang/right, чтобы потом легче отслеживать
+                answeredList.value.push(aisStore.trainingAnswer)
+            }
+        }
+    }
+
+    currentQuestionIndex.value++
+    selectedAnswer.value = []
 }
 
 
@@ -213,6 +249,11 @@ function nextQuestion() {
     gap: 10px;
     padding-left: 1.875rem;
     padding-right: 1.875rem;
+}
+.answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .answer {
     cursor: pointer;

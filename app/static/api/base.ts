@@ -61,8 +61,9 @@ class ApiClient {
     return this.get('/api/courses/');
   }
 
-  async getQuestions() {
-    return this.get('/api/questions/');
+  async getCourseQuestions(id) {
+    const url = `/api/user-courses/${id}/course_questions/`
+    return this.get(url);
   }
 
   async getUserCourses() {
@@ -84,6 +85,15 @@ class ApiClient {
   async getQuestionDetail(id) {
     const url = `/api/questions/${id}/detail/`
     return this.get(url);
+  }
+
+  async createAnswer(id, body) {
+    const url = `/api/user-check-skills-questions/${id}/create_answer/`
+    return this.post(url, body);
+  }
+  async endTraining(id) {
+    const url = `api/user-check-skills/${id}/end_check/`
+    return this.post(url);
   }
 
 
