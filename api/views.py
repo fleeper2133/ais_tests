@@ -134,6 +134,18 @@ class UserCourseViewSet(viewsets.ModelViewSet):
     serializer_class = UserCourseSerializer
     permission_classes = [IsAuthenticated]
 
+    #вопросы курса
+    @action(detail=True, methods=['get'])
+    def course_questions(self, request, pk=None):
+        user_course = self.get_object()
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        questions = Question.objects.filter(course=user_course.course)
+        serializer = QuestionDetailSerializer(questions, many=True)
+        return Response(serializer.data)
+
     #история прохождения тестирования и проверок себя
     @action(detail=True, methods=['get'])
     def course_history(self, request, pk=None):
