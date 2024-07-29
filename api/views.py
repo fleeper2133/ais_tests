@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework import permissions
 from users.models import CustomUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
@@ -104,15 +105,12 @@ class TicketViewSet(viewsets.ModelViewSet):
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
+    serializer_class = QuestionDetailSerializer
+    permission_classes = [IsAuthenticated]
 
     # получение детальной информации по вопросу
     @action(detail=True, methods=['get'], url_path='detail')
     def get_question_detail(self, request, pk=None):
-        user = request.user
-        if not user.is_authenticated: 
-            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
         question = self.get_object()
         serializer = QuestionDetailSerializer(question)
         return Response(serializer.data)
@@ -134,6 +132,7 @@ class LearningMaterialViewSet(viewsets.ModelViewSet):
 class UserCourseViewSet(viewsets.ModelViewSet):
     queryset = UserCourse.objects.all()
     serializer_class = UserCourseSerializer
+    permission_classes = [IsAuthenticated]
 
     #история прохождения тестирования и проверок себя
     @action(detail=True, methods=['get'])
@@ -258,6 +257,9 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def mark_as_favorite(self, request, pk=None):
         user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
         user_question = self.get_object()
         user_question.selected = True
         user_question.save()
