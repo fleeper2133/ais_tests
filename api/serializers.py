@@ -40,7 +40,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 class VarientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Varient
-        fields = ['answer_number', 'answer_text', 'correct', 'expert_check']
+        fields = ['id', 'answer_number', 'answer_text', 'correct', 'expert_check']
 
 class QuestionDetailSerializer(serializers.ModelSerializer):
     normative_documents = NormativeDocumentSerializer(source='ndocument', read_only=True)
@@ -48,7 +48,7 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['name', 'question_text', 'explanations', 'normative_documents', 'varients']
+        fields = ['id', 'name', 'question_text', 'explanations', 'normative_documents', 'varients']
 
 class QuestionListSerializer(serializers.ModelSerializer):
     question = QuestionDetailSerializer()
@@ -82,7 +82,7 @@ class UserTicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserTicket
-        fields = ['ticket', 'time_ticket', 'status', 'user', 'attempt_count', 'updated_at', 'right_answers', 'questions']
+        fields = ['id', 'ticket', 'time_ticket', 'status', 'user', 'attempt_count', 'updated_at', 'right_answers', 'questions']
 
     def get_questions(self, obj):
         question_list = QuestionList.objects.filter(ticket=obj.ticket).order_by('number_in_ticket')

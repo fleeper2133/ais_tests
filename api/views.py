@@ -622,8 +622,8 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
             for index, item in enumerate(user_answer_items):
                 UserAnswerItem.objects.create(
                     user_answer=user_answer,
-                    answer_varient=Varient.objects.filter(question=user_check_skills_question.question, answer_number=item).first(),
-                    order_answer=index,
+                    answer_varient=Varient.objects.filter(question=user_check_skills_question.question, answer_number=int(item)).first(),
+                    order_answer=index + 1,
                 )
             user_answer.check_correctness()
 
