@@ -129,8 +129,6 @@ watch(inputText, () => {
 });
 
 onMounted(async () => {
-    console.log(aisStore.selectedCourse[0].id)
-    console.log(aisStore.getQuestions())
     await aisStore.getQuestions()
 });
 </script>

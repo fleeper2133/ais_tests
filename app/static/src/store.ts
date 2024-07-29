@@ -75,6 +75,32 @@ export interface UserCourse {
   course: number
 }
 
+export interface GenerateCheck {
+  question_count: number
+  status?: string
+  difficulty: string
+  user_id?: number
+  user_course_id: number
+}
+
+export interface GenerateCheckResponse {
+    id: number
+    user_check_skills: number
+    question: number
+    number_in_check: number
+    user_answer: null
+    status: string
+}
+
+export interface QuestionDetail {
+  id: number
+  name: string
+  question_text: string
+  explanations: null
+  normative_documents: {}
+  varients: []
+}
+
 
 
 export const useStore = defineStore("tasks", () => {
@@ -87,6 +113,8 @@ const selectedCourse = ref<Course[]>([])
 const showCourseInfoButton = ref<boolean>(false)
 const courseQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
+const questionData = ref<GenerateCheckResponse[] | undefined>([])
+const questionDetailList = ref<QuestionDetail[] | undefined>([])
 
 // Variables end
 
@@ -113,6 +141,19 @@ function getUserCourses() {
 }
 function setUserCourse(courseData: UserCourse) {
   return api.setUserCourse(courseData)
+}
+function startCourse(id: number, courseData: UserCourse) {
+  return api.startCourse(id, courseData)
+}
+function smartGenerate(data: GenerateCheck) {
+  return api.smartGenerate(data)
+  .then((answer: GenerateCheckResponse[]) => {
+    return questionData.value = answer
+  })
+}
+
+function getQuestionDetail(id: number) {
+  return api.getQuestionDetail(id)
 }
 
 
@@ -181,5 +222,10 @@ function sendMail(data: SendMail){
     startedCourses,
     setUserCourse,
     showCourseInfoButton,
+    startCourse,
+    smartGenerate,
+    questionData,
+    getQuestionDetail,
+    questionDetailList,
   }
 });

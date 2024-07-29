@@ -90,7 +90,7 @@
                                     </div>
                                 </div>
                                 <router-link to="/testing">
-                                    <button class="selector__button">Начать</button>
+                                    <button class="selector__button" @click="generateCheck">Начать</button>
                                 </router-link>
                             </div>
                         </div>
@@ -169,7 +169,7 @@ import Footer from './Footer.vue'
 
 import { computed, onMounted, ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from "../store"
+import { useStore, GenerateCheck } from "../store"
 
 const router = useRouter()
 const aisStore = useStore()
@@ -242,6 +242,29 @@ function showQuestionCount() {
     return aisStore.selectedCourse[0].question_count
 }
 
+// Генерация вопросов
+
+async function generateCheck() {
+    const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    if (!startedCourse) throw new Error('Course not found!')
+    const check: GenerateCheck = {
+        "question_count": questionCount.value,
+        "difficulty": "Easy",
+        "user_course_id": startedCourse.id
+    }
+    await aisStore.smartGenerate(check)
+
+    if (aisStore.questionData) {
+        for(const q of aisStore.questionData) {
+            const result = await aisStore.getQuestionDetail(q.question)
+            aisStore.questionDetailList?.push(result)
+        }
+    }
+
+    return router.push('/testing')
+}
+
+// Генерация вопросов end
 </script>
 
 <style scoped lang="scss">

@@ -68,12 +68,9 @@ function startCourse(id) {
 
     if (aisStore.showCourseInfoButton) {
         const c: UserCourse = {
-            "user": 1,
-            "start_date": "2024-07-23",
-            "progress": 0,
             "course": aisStore.selectedCourse[0].id
         }
-        aisStore.setUserCourse(c)
+        aisStore.startCourse(aisStore.selectedCourse[0].id, c)
         aisStore.getUserCourses()
     }
 

@@ -73,6 +73,19 @@ class ApiClient {
     return this.post('/api/user-courses/', body);
   }
 
+  async startCourse(id, body) {
+    const url = `/api/courses/${id}/start_course/`;
+    return this.post(url, body);
+  }
+
+  async smartGenerate(body) {
+    return this.post('api/user-check-skills/smart-generate-check/', body);
+  }
+  async getQuestionDetail(id) {
+    const url = `/api/questions/${id}/detail/`
+    return this.get(url);
+  }
+
 
   
 
