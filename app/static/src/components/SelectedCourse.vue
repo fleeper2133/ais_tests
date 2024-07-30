@@ -264,6 +264,22 @@ async function generateCheck() {
     }
     await aisStore.smartGenerate(check)
 
+
+    if (aisStore.questionWorkStats) {
+        aisStore.questionWorkStats = {}
+    }
+    // if (aisStore.questionData) {
+    //     aisStore.questionData.forEach(item => {
+    //         aisStore.questionWorkStats[item.id] = {
+    //             status: item.status,
+    //             answer_items: [],
+    //             number_in_check: item.number_in_check,
+    //             varients: []
+    //         };
+    //     });
+    // }
+    // console.log(aisStore.questionWorkStats)
+
     if (aisStore.questionDetailList) {
         aisStore.questionDetailList = []
     }
