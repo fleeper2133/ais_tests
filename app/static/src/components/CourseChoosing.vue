@@ -271,7 +271,6 @@ const selectedTasks = computed(() => {
 watch(inputText, () => {
   currentPage.value = 1;
 });
-
 onMounted(async () => {
     await aisStore.getCourses()
     await aisStore.getUserCourses()
