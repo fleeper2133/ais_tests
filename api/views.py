@@ -7,7 +7,7 @@ from users.models import CustomUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
-from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer
+from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, CourseQuestionDetailSerializer
 import random
 # создание + прохождение билета покрыть в тестах.
 
@@ -143,7 +143,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         questions = Question.objects.filter(course=user_course.course)
-        serializer = QuestionDetailSerializer(questions, many=True)
+        serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
         return Response(serializer.data)
 
     #история прохождения тестирования и проверок себя
@@ -428,7 +428,7 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
                 UserAnswerItem.objects.create(
                     user_answer=user_answer,
                     answer_varient=Varient.objects.filter(question=question_ticket.question, answer_number=item).first(),
-                    order_answer=index,
+                    order_answer=index + 1,
                 )
             user_answer.check_correctness()
             q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
@@ -597,7 +597,6 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserCheckSkillsQuestion.objects.all()
     serializer_class = UserCheckSkillsQuestionSerializer
 
-    # создаём ответ на вопрос проверки себя
     @action(detail=True, methods=['post'], url_path='create_answer')
     def create_answer(self, request, pk=None):
         from django.db import transaction
@@ -607,32 +606,84 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        user_check_skills_question = self.get_object()
+        try:
+            user_check_skills_question = self.get_object()
+        except UserCheckSkillsQuestion.DoesNotExist:
+            return Response({'detail': 'Вопрос не найден.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'detail': f'Произошла ошибка при получении вопроса: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         user_answer_items = request.data.get('answer_items')
+        if not user_answer_items:
+            return Response({'detail': 'Ответы не найдены.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        with transaction.atomic():
-            user_answer = UserAnswer.objects.create(
-                question=user_check_skills_question.question,
-                user=user,
-                answer_time=timedelta(seconds=50),
-                correct=0.0,
-            )
-            user_check_skills_question.user_answer = user_answer
-            for index, item in enumerate(user_answer_items):
-                UserAnswerItem.objects.create(
-                    user_answer=user_answer,
-                    answer_varient=Varient.objects.filter(question=user_check_skills_question.question, answer_number=item).first(),
-                    order_answer=index,
-                )
-            user_answer.check_correctness()
+        try:
+            with transaction.atomic():
+                try:
+                    user_answer = UserAnswer.objects.create(
+                        question=user_check_skills_question.question,
+                        user=user,
+                        answer_time=timedelta(seconds=50),
+                        correct=0.0,
+                    )
+                except Exception as e:
+                    return Response({'detail': f'Ошибка при создании ответа пользователя: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
-            q.update_memorization()
-            q.update_counts_and_average_time()
-            q.update_consecutive_incorrect()
-            q.save()
-            user_check_skills_question.update_status()
+                user_check_skills_question.user_answer = user_answer
 
-        questions_serializer = UserCheckSkillsQuestionSerializer(user_check_skills_question, many=False)
-        return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
+                try:
+                    for index, item in enumerate(user_answer_items):
+                        answer_variant = Varient.objects.filter(question=user_check_skills_question.question, answer_number=item).first()
+                        if not answer_variant:
+                            return Response({'detail': f'Вариант ответа с номером {item} не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                        UserAnswerItem.objects.create(
+                            user_answer=user_answer,
+                            answer_varient=answer_variant,
+                            order_answer=index + 1,
+                        )
+                except Exception as e:
+                    return Response({'detail': f'Ошибка при создании элементов ответа пользователя: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                try:
+                    user_answer.check_correctness()
+                except Exception as e:
+                    return Response({'detail': f'Ошибка при проверке корректности ответа: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                try:
+                    q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
+                    if q:
+                        try:
+                            q.update_memorization()
+                        except Exception as e:
+                            return Response({'detail': f'Ошибка при обновлении данных запоминания: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                        try:
+                            q.update_counts_and_average_time()
+                        except Exception as e:
+                            return Response({'detail': f'Ошибка при обновлении данных количества и среднего времени: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                        try:
+                            q.update_consecutive_incorrect()
+                        except Exception as e:
+                            return Response({'detail': f'Ошибка при обновлении данных о последовательных неправильных ответах: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                        try:
+                            q.save()
+                        except Exception as e:
+                            return Response({'detail': f'Ошибка при сохранении данных о вопросе пользователя: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    else:
+                        return Response({'detail': 'Вопрос пользователя не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                    try:
+                        user_check_skills_question.update_status()
+                    except Exception as e:
+                        return Response({'detail': f'Ошибка при обновлении статуса вопроса: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                except Exception as e:
+                    return Response({'detail': f'Общая ошибка при обновлении данных вопроса пользователя: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            questions_serializer = UserCheckSkillsQuestionSerializer(user_check_skills_question, many=False)
+            return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'detail': f'Произошла ошибка при обработке ответа: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
