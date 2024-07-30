@@ -143,7 +143,7 @@ function nextQuestion() {
 function send() {
     if (aisStore.questionData) {
         const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
-        selectedQuestionId.value = way.question
+        selectedQuestionId.value = way.id
 
         if (selectedAnswer) {
             const toSend: GenerateCheckResponse = {
@@ -154,7 +154,6 @@ function send() {
             if (answeredList.value.length === aisStore.questionDetailList.length - 1) {
                 if (aisStore.userCheckSkills) aisStore.endTraining(aisStore.userCheckSkills)
                 router.push('/course')
-                // -1 нужно
             } else {
                 // Сюда добавлять ответ с wrang/right, чтобы потом легче отслеживать
                 answeredList.value.push(aisStore.trainingAnswer)

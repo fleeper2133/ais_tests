@@ -243,6 +243,8 @@ function openMistakes(): void {
 }
 
 function openCourseQuestions(): void {
+    const id = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    aisStore.getCourseQuestions(id)
     router.push('/all-questions')
 }
 
