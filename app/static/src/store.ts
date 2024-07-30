@@ -49,18 +49,18 @@ export interface Course {
 }
 
 export interface Question {
-  id: number
-  name: string
-  question_text: string
-  topic: string
-  difficulty: string
-  explanations: string
-  right_answer_count: number
-  answer_count: number
-  course: number
-  explanation_material: number
-  ndocumen: number
-  block: number
+  id?: number
+  name?: string
+  question_text?: string
+  topic?: string
+  difficulty?: string
+  explanations?: string
+  right_answer_count?: number
+  answer_count?: number
+  course?: number
+  explanation_material?: number
+  ndocumen?: number
+  block?: number
 }
 
 export interface UserCourse {
@@ -118,6 +118,10 @@ const questionData = ref<GenerateCheckResponse[] | undefined>([])
 const questionDetailList = ref<QuestionDetail[] | undefined>([])
 const userCheckSkills = ref<number | undefined>(undefined)
 const trainingAnswer = ref({})
+const courseStatuses = ref([
+  {id: 'All', name: 'Все курсы'},
+  {id: 'New', name: 'Начатые'},
+])
 
 // Variables end
 
@@ -129,12 +133,12 @@ function getCourses() {
   })
 }
 
-// function getQuestions() {
-//   return api.getCourseQuestions(id)
-//   .then((questions: Question[]) => {
-//     courseQuestions.value = questions.filter(c => c.course === selectedCourseId.value)
-//   })
-// }
+function getCourseQuestions(id) {
+  return api.getCourseQuestions(id)
+  .then((questions: Question[]) => {
+    courseQuestions.value = questions
+  })
+}
 
 function getUserCourses() {
   return api.getUserCourses()
@@ -226,7 +230,7 @@ function sendMail(data: SendMail){
     selectedCourseId,
     selectedCourse,
     getCourses,
-    // getQuestions,
+    getCourseQuestions,
     courseQuestions,
     logout,
     sendMail,
@@ -245,5 +249,6 @@ function sendMail(data: SendMail){
     trainingAnswer,
     endTraining,
     userCheckSkills,
+    courseStatuses
   }
 });
