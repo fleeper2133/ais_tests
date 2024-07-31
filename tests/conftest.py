@@ -10,6 +10,7 @@ import random
 @pytest.fixture
 def create_test_data():
     user = CustomUser.objects.create_user(password='olpassword123', email='oleg_test_user@example.com')
+    other_user = CustomUser.objects.create_user(password='password1234', email='test_2user@example.com')
     
     course = Course.objects.create(
         name='Test Course', 
@@ -124,6 +125,7 @@ def create_test_data():
     
     return {
         'user': user,
+        'other_user': other_user,
         'course': course,
         'testing': testing,
         'tickets': [ticket1, ticket2],

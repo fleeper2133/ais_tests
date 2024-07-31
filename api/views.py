@@ -142,6 +142,9 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated:
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
+        if user_course not in list(UserCourse.objects.filter(user=user)):
+            return Response({'detail': 'Пользователь не проходит этот курс.'}, status=status.HTTP_403_FORBIDDEN)
+        
         questions = Question.objects.filter(course=user_course.course)
         serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
         return Response(serializer.data)
@@ -296,15 +299,20 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
     serializer_class = UserTicketSerializer
-    
+    permission_classes = [IsAuthenticated]
+
     # завершаем прохождение билета
     @action(detail=True, methods=['post'])
     def end_ticket(self, request, pk=None):
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
         user_ticket = self.get_object()
+
+        if user_ticket not in list(UserTicket.objects.filter(user=user)):
+            return Response({'detail': 'Пользователь не проходил этот билет.'}, status=status.HTTP_403_FORBIDDEN)
+        
         user_ticket.update_status()
         user_ticket.update_right_answers()
         user_ticket.update_attempt_count()

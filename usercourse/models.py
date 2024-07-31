@@ -142,6 +142,7 @@ class UserTicket(models.Model):
         right_answers = QuestionTicket.objects.filter(user_ticket=self, status='Right').count()
         self.right_answers = right_answers
         self.save()
+        return right_answers
 
     # автоматический подсчёт статуса билета, на основании правильных ответов пользователя. От 60% правильных
     def update_status(self):
