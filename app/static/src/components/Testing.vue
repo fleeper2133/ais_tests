@@ -17,12 +17,13 @@
                 <div class="container ticket-list">
                     <div class="tickets">
                         <div 
-                            @click="selectQuestion(numberIndex)" 
+                            @click="selectQuestion(value['number_in_check'] - 1)"
                             class="ticket" 
-                            v-for="(number, numberIndex) in aisStore.questionData"
-                            :key="numberIndex"
+                            :style="{ backgroundColor: whatBgColor(value.status), border: whatBorder(value.status)}"
+                            v-for="(value, key) in aisStore.questionData"
+                            :key="key"
                         >
-                            <p class="fw-bold">{{numberIndex + 1}}</p>
+                            <p class="fw-bold">{{ value.number_in_check }}</p>
                         </div>
                     </div>
                     <div class="favorites">
@@ -43,7 +44,7 @@
                                 <div
                                     v-for="(answer, answerIndex) in currentQuestion.varients"
                                     class="answer"
-                                    :class="selectedField(answer.answer_number) ? 'selected' : null"
+                                    :class="[selectedField(answer.answer_number) ? 'selected' : null, (aisStore.questionData[currentQuestionIndex]?.answer_items || []).includes(answer.answer_number) ? 'selected' : null]"
                                     :key="answerIndex"
                                     @click="selectAnswer(answer.answer_number)"
                                 >
@@ -58,7 +59,7 @@
                                 </svg>
                                 <p class="button-back__text fw-bold">Предыдущий вопрос</p>
                             </button>
-                            <button :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
+                            <button v-if="aisStore.questionData[currentQuestionIndex].status === 'Not Answered'" :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
                             <button class="button-back" @click="nextQuestion">
                                 <p class="button-back__text fw-bold">Следующий вопрос</p>
                                 <svg class="button-back__arrow buttons-panel__svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -91,14 +92,16 @@ const currentQuestionIndex = ref(0)
 const selectedAnswer = ref<AnswerIndex[]>([])
 const varientsLength = ref(0)
 const selectedQuestionId = ref<number>(0)
-const answeredList = ref([])
+// const answeredList = ref([])
 
 async function getVarientsLength() {
     if (aisStore.questionDetailList) {
         varientsLength.value = await aisStore.questionDetailList[currentQuestionIndex.value].varients.length
     }
 }
+
 const currentQuestion = computed(() => {
+
     if (aisStore.questionDetailList) {
         getVarientsLength()
         return aisStore.questionDetailList[currentQuestionIndex.value]
@@ -140,7 +143,7 @@ function nextQuestion() {
     }
 }
 
-function send() {
+async function send() {
     if (aisStore.questionData) {
         const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
         selectedQuestionId.value = way.id
@@ -149,15 +152,30 @@ function send() {
             const toSend: GenerateCheckResponse = {
                 "answer_items": selectedAnswer.value
             }
+            await aisStore.createAnswer(selectedQuestionId.value, toSend)
 
-            aisStore.createAnswer(selectedQuestionId.value, toSend)
-            if (answeredList.value.length === aisStore.questionDetailList.length - 1) {
-                if (aisStore.userCheckSkills) aisStore.endTraining(aisStore.userCheckSkills)
-                router.push('/course')
-            } else {
-                // Сюда добавлять ответ с wrang/right, чтобы потом легче отслеживать
-                answeredList.value.push(aisStore.trainingAnswer)
-            }
+
+            // Логика завершения курса. Нужна будет кнопка 'завершить тестирование'. Чтобы человек мог посмотреть свои ошибки (не выкидывать просто так)
+
+            // if (answeredList.value.length === aisStore.questionDetailList.length - 1) {
+            //     if (aisStore.userCheckSkills) aisStore.endTraining(aisStore.userCheckSkills)
+            //     здесь лучше сделать пробежку по aisStore.questionWorkStats[id].status, и если все статусы объектов не равны стандарту, завершать курс
+            //     router.push('/course')
+            // } else {
+            //     // Сюда добавлять ответ с wrang/right, чтобы потом легче отслеживать
+            //     // answeredList.value.push(aisStore.trainingAnswer) - // для определения длинный массива
+            //     console.log(aisStore.trainingAnswer['id'])
+            // }
+        }
+    }
+    
+
+    if (aisStore.questionData) {
+        const index = aisStore.questionData.findIndex(q => q.id === aisStore.trainingAnswer['id']);
+        if (index !== -1) {
+            aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
+            console.log("aisStore.questionData[index]['answer_items']", aisStore.questionData[index], aisStore.trainingAnswer)
+            aisStore.questionData[index]['answer_items'] = [...selectedAnswer.value]
         }
     }
 
@@ -166,7 +184,26 @@ function send() {
 }
 
 
+// Запоминание
 
+function whatBgColor(status) {
+    if (status === 'Wrong') {
+        return '#ffb2c1';
+    }
+    if (status === 'Right') {
+        return '#acffac';
+    }
+    return 'transparent';
+}
+
+function whatBorder(status) {
+    if (status === 'Wrong' || status === 'Right') {
+        return 'none';
+    }
+}
+
+
+// Запоминание end
 
 
 </script>
@@ -220,7 +257,6 @@ function send() {
     height: 2.5rem;
     border-radius: 0.25rem;
     border: 2px solid $second-blue;
-    background-color: none;
 
     &:hover {
         transform: scale(1.1);

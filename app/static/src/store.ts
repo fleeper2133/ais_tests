@@ -99,7 +99,7 @@ export interface QuestionDetail {
   question_text: string
   explanations: null
   normative_documents: {}
-  varients: []
+  varients?: []
 }
 
 
@@ -115,8 +115,9 @@ const showCourseInfoButton = ref<boolean>(false)
 const courseQuestions = ref<Question[]>([])
 const favoritesQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
-const questionData = ref<GenerateCheckResponse[] | undefined>([])
-const questionDetailList = ref<QuestionDetail[] | undefined>([])
+const questionData = ref<GenerateCheckResponse[]>([])
+const questionWorkStats = ref({}) // удалить, не используется
+const questionDetailList = ref<QuestionDetail[]>([])
 const userCheckSkills = ref<number | undefined>(undefined)
 const trainingAnswer = ref({})
 const courseStatuses = ref([
@@ -264,6 +265,7 @@ function sendMail(data: SendMail){
     getFavoritesQuestions,
     favoritesQuestions,
     userCheckSkills,
-    courseStatuses
+    courseStatuses,
+    questionWorkStats
   }
 });
