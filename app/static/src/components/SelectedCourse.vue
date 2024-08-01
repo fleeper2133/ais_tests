@@ -239,8 +239,8 @@ function goBack(): void {
     router.push('/courses')
 }
 
-function openFavorite(): void{
-    aisStore.getFavoritesQuestions();
+function openFavorite(): void {
+    aisStore.getFavoritesQuestions()
     router.push('/favorite-questions')
 }
 

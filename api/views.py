@@ -112,7 +112,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='detail')
     def get_question_detail(self, request, pk=None):
         question = self.get_object()
-        serializer = QuestionDetailSerializer(question)
+        serializer = QuestionDetailSerializer(question, context={'request': request})
         return Response(serializer.data)
     
     #отметить вопрос, как избранный

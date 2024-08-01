@@ -100,6 +100,7 @@ export interface QuestionDetail {
   explanations: null
   normative_documents: {}
   varients?: []
+  selected: boolean
 }
 
 
@@ -163,7 +164,7 @@ function smartGenerate(data: GenerateCheck) {
 }
 
 function getQuestionDetail(id: number) {
-  return api.getQuestionDetail(id)
+  return api.getQuestionDetail(id);
 }
 
 function createAnswer(id: number, data: GenerateCheckResponse) {
@@ -176,6 +177,8 @@ function endTraining(id: number) {
   return api.endTraining(id)
 }
 
+// Favorite
+
 function getFavoritesQuestions(){
   return api.favoritesQuestions()
   .then((questions: Question[]) => 
@@ -187,6 +190,7 @@ function markQuestionSelected(id: number){
   return api.markQuestionSelected(id);
 }
 
+// Favorite end
 
 // Authentication
 function login(loginData: Login) {
