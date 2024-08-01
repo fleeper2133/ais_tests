@@ -44,10 +44,11 @@ class VarientSerializer(serializers.ModelSerializer):
 
 class CourseQuestionDetailSerializer(serializers.ModelSerializer):
     selected = serializers.SerializerMethodField()
+    varients = VarientSerializer(source='varient_set', many=True, read_only=True)
 
     class Meta:
         model = Question
-        fields = ['id', 'name', 'question_text', 'course', 'selected']
+        fields = ['id', 'name', 'question_text', 'course', 'selected', 'varients']
 
     def get_selected(self, obj):
         user = self.context['request'].user

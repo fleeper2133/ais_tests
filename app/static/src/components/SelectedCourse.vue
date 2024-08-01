@@ -31,7 +31,7 @@
                         </div>
                     </div>
                     <div class="info__buttons">
-                        <button class="button info__button">
+                        <button class="button info__button" @click="openFavorite">
                             <img class="info__button-img" src="../assets/images/star.png" alt="favorite">
                             <p>Избранные вопросы</p>
                         </button>
@@ -238,6 +238,12 @@ const selectDifficulty = (dropper: 'difficulty1' | 'difficulty2', difficulty: st
 function goBack(): void {
     router.push('/courses')
 }
+
+function openFavorite(): void{
+    aisStore.getFavoritesQuestions();
+    router.push('/favorite-questions')
+}
+
 function openMistakes(): void {
     router.push('/mistakes')
 }

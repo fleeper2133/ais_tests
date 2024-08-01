@@ -8,6 +8,7 @@ import TicketSelection from '../components/TicketSelection.vue'
 import Testing from '../components/Testing.vue'
 import History from '../components/History.vue'
 import Mistakes from '../components/Mistakes.vue'
+import FavoriteQuestions from '../components/FavoriteQuestions.vue'
 
 const routes = [
     {
@@ -54,6 +55,11 @@ const routes = [
       path: '/mistakes',
       name: 'Mistakes',
       component: Mistakes
+    },
+    {
+      path: '/favorite-questions',
+      name: 'FavoriteQuestions',
+      component: FavoriteQuestions
     }
 ]
 

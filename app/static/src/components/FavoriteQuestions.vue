@@ -86,10 +86,10 @@ function clearSearch() {
 }
 const filterSearch = computed(() => {
     if (!inputText.value) {
-        return aisStore.courseQuestions;
+        return aisStore.favoritesQuestions;
     }
 
-    return aisStore.courseQuestions.filter((question) => {
+    return aisStore.favoritesQuestions.filter((question) => {
         return question.question_text.toLowerCase().includes(inputText.value.toLowerCase());
     });
 });

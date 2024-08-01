@@ -113,6 +113,7 @@ const selectedCourseId = ref<number | undefined>(undefined)
 const selectedCourse = ref<Course[]>([])
 const showCourseInfoButton = ref<boolean>(false)
 const courseQuestions = ref<Question[]>([])
+const favoritesQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
 const questionData = ref<GenerateCheckResponse[] | undefined>([])
 const questionDetailList = ref<QuestionDetail[] | undefined>([])
@@ -172,6 +173,17 @@ function createAnswer(id: number, data: GenerateCheckResponse) {
 }
 function endTraining(id: number) {
   return api.endTraining(id)
+}
+
+function getFavoritesQuestions(){
+  return api.favoritesQuestions()
+  .then((questions: Question[]) => 
+    favoritesQuestions.value = questions
+  );
+}
+
+function markQuestionSelected(id: number){
+  return api.markQuestionSelected(id);
 }
 
 
@@ -248,6 +260,9 @@ function sendMail(data: SendMail){
     createAnswer,
     trainingAnswer,
     endTraining,
+    markQuestionSelected,
+    getFavoritesQuestions,
+    favoritesQuestions,
     userCheckSkills,
     courseStatuses
   }

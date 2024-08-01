@@ -96,6 +96,16 @@ class ApiClient {
     return this.post(url);
   }
 
+  async favoritesQuestions(){
+    const url = '/api/user-questions/favorites-questions/'
+    return this.get(url);
+  }
+
+  async markQuestionSelected(id) {
+    const url = `/api/questions/${id}/mark-as-favorite/`
+    return this.post(url);
+  }
+
 
   
 
