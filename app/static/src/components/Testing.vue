@@ -19,7 +19,11 @@
                         <div 
                             @click="selectQuestion(value['number_in_check'] - 1)"
                             class="ticket" 
-                            :style="{ backgroundColor: whatBgColor(value.status), border: whatBorder(value.status)}"
+                            :style="{ 
+                                backgroundColor: whatBgColor(value.status),
+                                border: whatBorder(value.status),
+                                transform: key === currentQuestionIndex ? 'scale(1.15)' : 'scale(1)',
+                            }"
                             v-for="(value, key) in aisStore.questionData"
                             :key="key"
                         >
@@ -44,24 +48,43 @@
                                 <div
                                     v-for="(answer, answerIndex) in currentQuestion.varients"
                                     class="answer"
-                                    :class="[selectedField(answer.answer_number) ? 'selected' : null, (aisStore.questionData[currentQuestionIndex]?.answer_items || []).includes(answer.answer_number) ? 'selected' : null]"
+                                    :class="{
+                                        'selected': selectedField(answer.answer_number),
+                                        'selected-right': aisStore.questionData[currentQuestionIndex]?.answer_items && aisStore.questionData[currentQuestionIndex].answer_items?.includes(answer.answer_number),
+                                        'selected-wrong': aisStore.questionData[currentQuestionIndex]?.status === 'Wrong' && aisStore.questionData[currentQuestionIndex].answer_items?.includes(answer.answer_number),
+                                        'correct-answer': aisStore.questionData[currentQuestionIndex].correct_answer_items?.includes(answer.answer_number)
+                                    }"
                                     :key="answerIndex"
-                                    @click="selectAnswer(answer.answer_number)"
+                                    @click="selectAnswer(answer, answer.answer_number, aisStore.questionData[currentQuestionIndex]?.answer_items)"
                                 >
                                     {{ answer.answer_text }}
                                 </div>
                             </div>
                         </div>
+                        <div v-if="aisStore.questionData[currentQuestionIndex].answer_items" class="question-status">
+                            <div class="question-status__text">
+                                <p class="question-status__text-wrong fs-20 fw-bold" v-if="aisStore.questionData[currentQuestionIndex].status === 'Wrong'">Неправильный ответ</p>
+                                <p class="question-status__text-right fs-20 fw-bold" v-if="aisStore.questionData[currentQuestionIndex].status === 'Right'">Правильный ответ</p>
+                            </div>
+                            <div class="question-status__description">
+                                <span class="fw-bold grey-text">Комментарий:</span>
+                                <div class="question-status__description-text">
+                                    <h1 class="fs-20">{{ currentQuestion.normative_documents.text }}</h1>
+                                    <p class="fs-18">// Добавить описание документа<br>Настоящий Федеральный закон определяет правовые, экономические и социальные основы обеспечения безопасной эксплуатации опасных производственных объектов и направлен на предупреждение аварий на опасных производственных объектах и обеспечение готовности эксплуатирующих опасные производственные объекты юридических лиц и индивидуальных предпринимателей (далее также - организации, эксплуатирующие опасные производственные объекты) к локализации и ликвидации последствий указанных аварий. Положения настоящего Федерального закона распространяются на все организации независимо от их организационно-правовых форм и форм собственности, осуществляющие деятельность в области промышленной безопасности опасных производственных объектов на территории Российской Федерации и на иных территориях, над которыми Российская Федерация осуществляе</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="buttons-panel">
-                            <button class="button-back" @click="previousQuestion">
+                            <button class="button-back button-skip" @click="previousQuestion">
                                 <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                                 </svg>
-                                <p class="button-back__text fw-bold">Предыдущий вопрос</p>
+                                <p class="button-skip__text fw-bold">Назад</p>
                             </button>
                             <button v-if="aisStore.questionData[currentQuestionIndex].status === 'Not Answered'" :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
-                            <button class="button-back" @click="nextQuestion">
-                                <p class="button-back__text fw-bold">Следующий вопрос</p>
+                            <!-- <button v-else @click="currentQuestionIndex++" class="button answers__button next__button">Далее</button> -->
+                            <button class="button-back button-skip" @click="nextQuestion">
+                                <p class="button-skip__text fw-bold">Дальше</p>
                                 <svg class="button-back__arrow buttons-panel__svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                                 </svg>
@@ -86,6 +109,12 @@ import Footer from './Footer.vue';
 const router = useRouter()
 const aisStore = useStore()
 
+// function count(answer) {
+//     if (answer.correct !== true) {
+//         return aisStore.questionData[currentQuestionIndex]?.answer_items.includes(answer.answer_number)
+//     }
+// }
+
 type AnswerIndex = number;
 
 const currentQuestionIndex = ref(0)
@@ -96,7 +125,7 @@ const selectedQuestionId = ref<number>(0)
 
 async function getVarientsLength() {
     if (aisStore.questionDetailList) {
-        varientsLength.value = await aisStore.questionDetailList[currentQuestionIndex.value].varients.length
+        varientsLength.value = await aisStore.questionDetailList[currentQuestionIndex.value].varients?.length
     }
 }
 
@@ -108,19 +137,35 @@ const currentQuestion = computed(() => {
     }
 })
 
-function selectAnswer(number) {
+async function selectAnswer(answer, number, condition) {
+    if (condition) {
+        return;
+    }
+
     const index = selectedAnswer.value.indexOf(number);
     if (index !== -1) {
         selectedAnswer.value.splice(index, 1);
     } else if (selectedAnswer.value.length === varientsLength.value) {
-        return
+        return;
     } else {
         selectedAnswer.value.push(number);
     }
+
+        // aisStore.questionData[currentQuestionIndex.value]['correct_answer_items'] = [];
+        // console.log('aisStore.questionData[currentQuestionIndex.value]', aisStore.questionData[currentQuestionIndex.value]['correct_answer_items']);
+
+        // // Фильтрация и маппинг ответов
+        // const findedNumber: number[] = answer
+        //     .filter(num => num.correct === true)
+        //     .map(num => num.answer_number);
+
+        //     console.log('findedNumber', findedNumber)
+        // // Присваивание найденных номеров
+        // aisStore.questionData[currentQuestionIndex.value]['correct_answer_items'] = [...findedNumber.value]
 }
 
 function selectedField(number) {
-    return selectedAnswer.value.indexOf(number) !== -1
+    return selectedAnswer.value.indexOf(number) !== -1;
 }
 
 function selectQuestion(index) {
@@ -144,42 +189,37 @@ function nextQuestion() {
 }
 
 async function send() {
-    if (aisStore.questionData) {
-        const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
-        selectedQuestionId.value = way.id
+    const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
+    selectedQuestionId.value = way.id
 
-        if (selectedAnswer) {
-            const toSend: GenerateCheckResponse = {
-                "answer_items": selectedAnswer.value
-            }
-            await aisStore.createAnswer(selectedQuestionId.value, toSend)
-
-
-            // Логика завершения курса. Нужна будет кнопка 'завершить тестирование'. Чтобы человек мог посмотреть свои ошибки (не выкидывать просто так)
-
-            // if (answeredList.value.length === aisStore.questionDetailList.length - 1) {
-            //     if (aisStore.userCheckSkills) aisStore.endTraining(aisStore.userCheckSkills)
-            //     здесь лучше сделать пробежку по aisStore.questionWorkStats[id].status, и если все статусы объектов не равны стандарту, завершать курс
-            //     router.push('/course')
-            // } else {
-            //     // Сюда добавлять ответ с wrang/right, чтобы потом легче отслеживать
-            //     // answeredList.value.push(aisStore.trainingAnswer) - // для определения длинный массива
-            //     console.log(aisStore.trainingAnswer['id'])
-            // }
+    if (selectedAnswer) {
+        const toSend: GenerateCheckResponse = {
+            "answer_items": selectedAnswer.value
         }
+
+    await aisStore.createAnswer(selectedQuestionId.value, toSend)
+
+
+        // // Когда будет закрываться тестирование, сделать очистку всех ненужных данных (типа: questionData) !!!!
+
+        // Логика завершения курса. Нужна будет кнопка 'завершить тестирование'. Чтобы человек мог посмотреть свои ошибки (не выкидывать просто так)
+
+        // if (answeredList.value.length === aisStore.questionDetailList.length - 1) {
+        //     if (aisStore.userCheckSkills) aisStore.endTraining(aisStore.userCheckSkills)
+        //     здесь лучше сделать пробежку по aisStore.questionWorkStats[id].status, и если все статусы объектов не равны стандарту, завершать курс
+        //     router.push('/course')
+        // } else {
+        //     // Сюда добавлять ответ с wrang/right, чтобы потом легче отслеживать
+        //     // answeredList.value.push(aisStore.trainingAnswer) - // для определения длинный массива
+        // }
     }
     
-
-    if (aisStore.questionData) {
-        const index = aisStore.questionData.findIndex(q => q.id === aisStore.trainingAnswer['id']);
-        if (index !== -1) {
-            aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
-            console.log("aisStore.questionData[index]['answer_items']", aisStore.questionData[index], aisStore.trainingAnswer)
-            aisStore.questionData[index]['answer_items'] = [...selectedAnswer.value]
-        }
+    const index = aisStore.questionData.findIndex(q => q.id === aisStore.trainingAnswer['id']);
+    if (index !== -1) {
+        aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
+        aisStore.questionData[index]['answer_items'] = [...selectedAnswer.value]
     }
 
-    currentQuestionIndex.value++
     selectedAnswer.value = []
 }
 
@@ -187,19 +227,13 @@ async function send() {
 // Запоминание
 
 function whatBgColor(status) {
-    if (status === 'Wrong') {
-        return '#ffb2c1';
-    }
-    if (status === 'Right') {
-        return '#acffac';
-    }
+    if (status === 'Wrong') return '#ffb2c1'
+    if (status === 'Right') return '#acffac'
     return 'transparent';
 }
 
 function whatBorder(status) {
-    if (status === 'Wrong' || status === 'Right') {
-        return 'none';
-    }
+    if (status === 'Wrong' || status === 'Right') return 'none'
 }
 
 
@@ -305,7 +339,29 @@ function whatBorder(status) {
     width: 300px;
     margin: 0 auto;
 }
+.next__button {
+    background-color: #3fc2ff;
+}
 
+.button-skip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #d3eaff;
+    border-radius: 0.25rem;
+    padding: 10px 0;
+    width: 240px;
+    height: 3.75rem;
+
+    &:hover {
+        background-color: #abd7ff;
+    }
+}
+.button-skip__text {
+    color: $main-blue;
+    text-align: start;
+    transition: .2s;
+}
 .buttons-panel {
     display: flex;
     justify-content: space-between;
@@ -315,9 +371,49 @@ function whatBorder(status) {
     transform: rotate(180deg)
 }
 
+.question-status {
+    width: 100%;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.question-status__text {
+    width: 100%;
+    text-align: center;
+}
+.question-status__text-wrong {
+    color: #9b1e1e;
+}
+.question-status__text-right {
+    color: #269b37;
+}
+.question-status__description {
+    display: flex;
+    flex-direction: column;
+    gap: 10px
+}
+.question-status__description-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .selected {
     background-color: #bbdbff;
     border: 2px solid $main-blue;
+}
+.selected-right {
+    background-color: #d4ffd0;
+    border: 2px solid #2ac71b;
+}
+.selected-wrong {
+    background-color: #ffe9e9;
+    border: 2px solid #ff4a4a;
+}
+.correct-answer {
+    background-color: #d4ffd0;
+    border: 2px solid #2ac71b;
 }
 .disabled {
     opacity: 0.4;
@@ -341,6 +437,9 @@ function whatBorder(status) {
         padding-bottom: 1.875rem;
     }
     .answers__button {
+        width: 100%;
+    }
+    .button-skip {
         width: 100%;
     }
 }

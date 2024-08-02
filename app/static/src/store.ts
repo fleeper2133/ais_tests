@@ -90,6 +90,7 @@ export interface GenerateCheckResponse {
   number_in_check: number
   user_answer: null
   answer_items?: []
+  correct_answer_items?: []
   status: string
 }
 
