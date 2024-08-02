@@ -234,6 +234,7 @@ def create_test_data_course_history(create_test_data):
 
 @pytest.mark.django_db
 class TestUserCourseViewSet:
+    # история прохождения курса
 
     @pytest.mark.parametrize('is_authenticated, expected_status', [
         (True, status.HTTP_200_OK),
@@ -282,6 +283,8 @@ class TestUserCourseViewSet:
         assert ticket_event['status'] == 'Completed'
         assert ticket_event['attempt_count'] == 1
         assert ticket_event['right_answers'] == 5
+
+    # вопросы курса
 
     @pytest.mark.parametrize('is_authenticated, expected_status', [
         (True, status.HTTP_200_OK),
@@ -346,6 +349,7 @@ class TestUserCourseViewSet:
 
 @pytest.mark.django_db
 class TestUserTicketViewSet:
+    # завершение билета
 
     @pytest.mark.parametrize('is_authenticated, expected_status', [
         (True, status.HTTP_200_OK),
@@ -401,10 +405,7 @@ class TestUserTicketViewSet:
         assert user_ticket.attempt_count >= 0
 
 # ----------------------------------------------------------------------------------------
-
-
-@pytest.mark.django_db
-class TestUserTicketViewSetGenerateRandomTicket:
+    # тестируем создание случайного билета
 
     @pytest.mark.parametrize('is_authenticated, expected_status', [
         (True, status.HTTP_201_CREATED),
