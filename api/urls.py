@@ -1,4 +1,4 @@
-from users.views import LoginAPIView, LogoutAPIView, RegistrationAPIView, SendMail
+from users.views import LoginAPIView, LogoutAPIView, RegistrationAPIView, SendMail, CreateUserAPIView
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.urls import path, include
 from rest_framework import routers
@@ -35,5 +35,6 @@ urlpatterns = [
     path("registration/", RegistrationAPIView.as_view(), name="registration"),
     path("logout/", LogoutAPIView.as_view(), name="logout"),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('send-mail/', SendMail.as_view(), name="send_mail")
+    path('send-mail/', SendMail.as_view(), name="send_mail"),
+    path('create-user/', CreateUserAPIView.as_view(), name="create_user")
 ]

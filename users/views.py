@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from users.models import CustomUser as User
-from users.serializers import UserSerializer, RegistrationSerializer
+from users.serializers import UserSerializer, RegistrationSerializer, UserCreateSerializer
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -20,6 +20,7 @@ from django.core.mail import EmailMessage
 from rest_framework import permissions
 from django.utils.crypto import get_random_string
 from .models import CustomUser
+from django.conf import settings
 
 #создание + авторизация демо-пользователя
 class CreateDemoUserAPIView(APIView):
@@ -174,6 +175,36 @@ class RegistrationAPIView(APIView):
                         "access": str(refresh.access_token),  # Отправка на клиент
                     },
                     status=status.HTTP_201_CREATED,
+                )
+
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+class CreateUserAPIView(APIView):
+    @extend_schema(
+        request=inline_serializer(
+            name="create user",
+            fields={
+                "user_id": serializers.IntegerField(),
+                "email": serializers.EmailField(),
+                "password": serializers.CharField(),
+            },
+        )
+    )
+    def post(self, request):
+        token = request.headers.get('token') 
+        if not token or token != settings.TOKEN_BP_COK:
+            return Response(
+                {"error": "Токен не валиден"}, status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer = UserCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            if user is not None:
+                return Response(
+                    {"user": user.email}, status=status.HTTP_201_CREATED
                 )
 
         return Response(

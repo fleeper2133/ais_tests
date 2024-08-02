@@ -204,6 +204,8 @@ DJANGO_VITE_ASSETS_PATH = BASE_DIR / "app" / "static" / "dist"
 # Vite 3 defaults to 5173. Default for django-vite is 3000, which is the default for Vite 2.
 DJANGO_VITE_DEV_SERVER_PORT = 5173
 
+TOKEN_BP_COK = 'DtveDHQHCrAotq5VR2iKSVH2AYpkLLG9li32uwYSlaubo9TIZDrFcr1JOcLEkmws'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

@@ -29,7 +29,8 @@ class CustomUser(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField(
             CustomUser,
-            on_delete=models.CASCADE
+            on_delete=models.CASCADE,
+            related_name="profile"
             )
     first_name = models.CharField(max_length=150, blank=True, null=True,)
     last_name = models.CharField(max_length=150, blank=True, null=True,)
@@ -38,6 +39,7 @@ class Profile(models.Model):
     is_verified = models.BooleanField(default=False)
     img = models.ImageField(blank=True, null=True, upload_to='uploads/')
     phone = PhoneNumberField(null=True, blank=True)
+    user_id_bp_cok = models.PositiveIntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"Profile {self.user.email}"
