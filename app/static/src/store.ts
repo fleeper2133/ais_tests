@@ -101,6 +101,7 @@ export interface QuestionDetail {
   explanations: null
   normative_documents: {}
   varients?: []
+  selected: boolean
 }
 
 
@@ -114,6 +115,7 @@ const selectedCourseId = ref<number | undefined>(undefined)
 const selectedCourse = ref<Course[]>([])
 const showCourseInfoButton = ref<boolean>(false)
 const courseQuestions = ref<Question[]>([])
+const favoritesQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
 const questionData = ref<GenerateCheckResponse[]>([])
 const questionWorkStats = ref({}) // удалить, не используется
@@ -163,7 +165,7 @@ function smartGenerate(data: GenerateCheck) {
 }
 
 function getQuestionDetail(id: number) {
-  return api.getQuestionDetail(id)
+  return api.getQuestionDetail(id);
 }
 
 function createAnswer(id: number, data: GenerateCheckResponse) {
@@ -176,6 +178,20 @@ function endTraining(id: number) {
   return api.endTraining(id)
 }
 
+// Favorite
+
+function getFavoritesQuestions(){
+  return api.favoritesQuestions()
+  .then((questions: Question[]) => 
+    favoritesQuestions.value = questions
+  );
+}
+
+function markQuestionSelected(id: number){
+  return api.markQuestionSelected(id);
+}
+
+// Favorite end
 
 // Authentication
 function login(loginData: Login) {
@@ -250,6 +266,9 @@ function sendMail(data: SendMail){
     createAnswer,
     trainingAnswer,
     endTraining,
+    markQuestionSelected,
+    getFavoritesQuestions,
+    favoritesQuestions,
     userCheckSkills,
     courseStatuses,
     questionWorkStats

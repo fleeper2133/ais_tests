@@ -27,7 +27,7 @@ class NormativeDocumentViewSet(viewsets.ModelViewSet):
     #permission_classes = [IsAdminUser]
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
+    queryset = Course.objects.exclude(name="удалена")
     serializer_class = CourseSerializer
     #permission_classes = [IsAuthenticated]
 
@@ -112,8 +112,20 @@ class QuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='detail')
     def get_question_detail(self, request, pk=None):
         question = self.get_object()
-        serializer = QuestionDetailSerializer(question)
+        serializer = QuestionDetailSerializer(question, context={'request': request})
         return Response(serializer.data)
+    
+    #отметить вопрос, как избранный
+    @action(detail=True, methods=['post'], url_path="mark-as-favorite")
+    def mark_as_favorite(self, request, pk):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        user_question, created = UserQuestion.objects.get_or_create(user=user, question_id=pk, defaults={'selected': False})
+        user_question.selected = not user_question.selected
+        user_question.save()
+        return Response({'status': 'Вопрос отмечен как избранный'})
 
 class VarientViewSet(viewsets.ModelViewSet):
     queryset = Varient.objects.all()
@@ -283,6 +295,14 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
         user = request.user
         favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
         serializer = UserQuestionSerializer(favorite_questions, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='favorites-questions')
+    def get_favorites_questions(self, request):
+        user = request.user
+        favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
+        questions = [i.question for i in favorite_questions]
+        serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
         return Response(serializer.data)
 
     # получить вопросы с плохой степенью запоминания
