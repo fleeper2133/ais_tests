@@ -56,6 +56,9 @@ class ApiClient {
   }
 
 
+  async getCurrentUser() {
+    return this.get('/users/api/current_user/');
+  }
 
   async getCourses() {
     return this.get('/api/courses/');
@@ -69,6 +72,10 @@ class ApiClient {
   async getUserCourses() {
     return this.get('/api/user-courses/');
   }
+  // async getCurrentUserCourses(id) {
+  //   const url = `/api/user-courses/${id}/`
+  //   return this.get(url);
+  // }
 
   async setUserCourse(body) {
     return this.post('/api/user-courses/', body);

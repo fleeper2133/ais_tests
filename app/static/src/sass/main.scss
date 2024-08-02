@@ -91,6 +91,7 @@ html,body {
   width: 30px;
   height: 30px;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
 
   &:hover {
       opacity: 0.8;
@@ -100,6 +101,10 @@ html,body {
 }
 .star--filled {
   fill: $yellow;
+}
+.star--scaled {
+  transform: scale(1.1);
+  opacity: .8;
 }
 
 // Star end

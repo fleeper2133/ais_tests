@@ -98,7 +98,6 @@ function login() {
     }
     // debugger;
     aisStore.login(data);
-    
 }
 
 </script>

@@ -272,6 +272,7 @@ watch(inputText, () => {
   currentPage.value = 1;
 });
 onMounted(async () => {
+    aisStore.getCurrentUser()
     await aisStore.getCourses()
     await aisStore.getUserCourses()
 });
