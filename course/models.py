@@ -38,6 +38,15 @@ class Course(models.Model):
     def __str__(self):
         return self.name
     
+    # Возвращает список вопросов, доступных для отображения в текущей активной ротации курса.
+    def get_available_questions(self):
+        now = timezone.now()
+        active_rotation = Rotation.objects.filter(course=self, available_until__gte=now).order_by('-created_at').first()
+
+        if active_rotation:
+            return [rq.question for rq in RotationQuestion.objects.filter(rotation=active_rotation)]
+        return []
+    
     # функция по вычислению оценки курса
     def update_course_mark(self):
         from usercourse.models import UserCourse
@@ -132,3 +141,15 @@ class LearningMaterial(models.Model):
     author = models.CharField(max_length=255)
     year_of_issue = models.PositiveIntegerField()
     document_link = models.URLField(null=True, blank=True)
+
+# Ротация вопросов
+class Rotation(models.Model):
+    title = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    available_until = models.DateField()
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+# Связь ротаций и вопросов
+class RotationQuestion(models.Model):
+    rotation = models.ForeignKey(Rotation, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)

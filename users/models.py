@@ -36,6 +36,7 @@ class Profile(models.Model):
     surname = models.CharField(max_length=150, blank=True, null=True,)
     # будем использовать для активации пользователя по ссылке из письма с подтверждением
     is_verified = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=True)
     img = models.ImageField(blank=True, null=True, upload_to='uploads/')
     phone = PhoneNumberField(null=True, blank=True)
 
