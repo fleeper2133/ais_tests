@@ -41,7 +41,6 @@ class UserCourse(models.Model):
     
     # обновление времени нахождении пользователя в системе
     def calculate_course_time(self):
-        #testing_time = UserCheckSkills.objects.filter(user=self.user, user_course=self).aggregate(total_time=sum('total_duration'))['total_time'] or timedelta()
         answer_question_time = UserQuestion.objects.filter(user=self.user, question__course=self.course).aggregate(total_time=sum('average_answer_time'))['total_time'] or timedelta()
         self.course_time = answer_question_time
         self.save()
@@ -49,15 +48,18 @@ class UserCourse(models.Model):
     # Рассчитывает степень подготовки пользователя на основе количества успешно отвеченных вопросов.
     # Успешным считается вопрос, на который пользователь ответил правильно хотя бы три раза.
     def calculate_prepare(self):
-        rotation = self.course.rotation_set.latest('created_at')
-        rotation_questions = rotation.get_available_questions()
-        total_questions = len(rotation_questions)
+        # Получение доступных вопросов из последней активной ротации курса
+        available_questions = self.course.get_available_questions()
+        total_questions = len(available_questions)
         successful_questions = 0
-        for question in rotation_questions:
+        
+        # Подсчёт успешно отвеченных вопросов
+        for question in available_questions:
             user_question = UserQuestion.objects.filter(user=self.user, question=question).first()
             if user_question and user_question.correct_count >= 3:
                 successful_questions += 1
 
+        # Расчёт процента подготовки
         if total_questions > 0:
             prepare = int((successful_questions / total_questions) * 100)
         else:
@@ -133,7 +135,7 @@ class UserQuestion(models.Model):
         
         self.force_downgrade_flag = (self.consecutive_incorrect_count >= 3)
         self.save()
-        
+
     # Рассчитывает средний уровень запоминания вопроса на основе системной и пользовательской оценок.
     def calculate_average_memorization(self):
         # Определение рангов для каждой оценки. Округление в пользу пользователя при спорных моментах

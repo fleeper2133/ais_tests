@@ -112,6 +112,7 @@ class Question(models.Model):
     answer_count = models.PositiveIntegerField(default=1)
     ndocument = models.ForeignKey('NormativeDocument', on_delete=models.SET_NULL, null=True, blank=True)
     block = models.ForeignKey('Block', on_delete=models.SET_NULL, null=True, blank=True)
+    normative_point = models.CharField(max_length=255, blank=True, null=True)
 
     # написать функции для вычисления
     def calculate_right_answer_count(self):
