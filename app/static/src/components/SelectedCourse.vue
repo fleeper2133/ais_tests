@@ -272,11 +272,6 @@ async function generateCheck() {
     }
     await aisStore.smartGenerate(check)
 
-
-    if (aisStore.questionWorkStats) {
-        aisStore.questionWorkStats = {}
-    }
-
     if (aisStore.questionDetailList) {
         aisStore.questionDetailList = []
     }

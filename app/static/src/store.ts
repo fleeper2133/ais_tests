@@ -119,7 +119,6 @@ const courseQuestions = ref<Question[]>([])
 const favoritesQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
 const questionData = ref<GenerateCheckResponse[]>([])
-const questionWorkStats = ref({}) // удалить, не используется
 const questionDetailList = ref<QuestionDetail[]>([])
 const userCheckSkills = ref<number | undefined>(undefined)
 const trainingAnswer = ref({})
@@ -300,7 +299,6 @@ function sendMail(data: SendMail){
     favoritesQuestions,
     userCheckSkills,
     courseStatuses,
-    questionWorkStats,
     getCurrentUser,
     currentUser,
     giveRating,
