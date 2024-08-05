@@ -169,7 +169,8 @@ function answers(value) {
 
 async function getVarientsLength() {
     if (aisStore.questionDetailList) {
-        varientsLength.value = await aisStore.questionDetailList[currentQuestionIndex.value].varients?.length
+        const variants = await aisStore.questionDetailList[currentQuestionIndex.value].varients
+        varientsLength.value = variants?.length
     }
 }
 

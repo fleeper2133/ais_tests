@@ -580,7 +580,7 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
                         more_questions = list(user_questions.filter(memorization='Good').exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
                         remaining_questions += more_questions
                         remaining_needed -= len(more_questions)
-                selected_questions += more_questions
+                    selected_questions += more_questions
             random.shuffle(selected_questions)
 
         user_check_skills.question_count = len(selected_questions)
