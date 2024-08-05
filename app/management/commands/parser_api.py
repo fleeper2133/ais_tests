@@ -16,7 +16,7 @@ URLS = {
     "blocks": HOST + "blocks/",
     "ndocuments": HOST + "ndocuments/",
 }
-TOKEN = "9fe5eafc98df02817fc7c4f0fe81d0c98ff2b80c"
+TOKEN = "7ed52887f5c6447bbaf51242e96b4a4a78d4111a"
 HEADERS = {"Authorization": f"Token {TOKEN}"}
 
 
@@ -66,7 +66,8 @@ class Command(BaseCommand):
                             'topic': block.title[:250],
                             'course': course,
                             'block': block,
-                            'ndocument_id': question['normative']
+                            'ndocument_id': question['normative'],
+                            "normative_point": question['normative_point']
                         }
                     )
 
