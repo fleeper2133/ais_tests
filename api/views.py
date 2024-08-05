@@ -446,7 +446,7 @@ class UserAnswerViewSet(viewsets.ModelViewSet):
                 user_answer.user_memorization = user_mem
                 user_answer.save()
 
-                uq = UserQuestion.objects.filter(user=user, question=user_answer.qustion).first()
+                uq = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
                 uq.calculate_average_memorization()
                 return Response({'status': 'Вопросу добавлена степень запоминания'})
             else:

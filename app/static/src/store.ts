@@ -91,6 +91,7 @@ export interface GenerateCheckResponse {
   user_answer: null
   answer_items?: []
   correct_answer_items?: []
+  isRated?: boolean
   status: string
 }
 
@@ -122,6 +123,8 @@ const questionWorkStats = ref({}) // удалить, не используетс
 const questionDetailList = ref<QuestionDetail[]>([])
 const userCheckSkills = ref<number | undefined>(undefined)
 const trainingAnswer = ref({})
+const lastCheckSkills = ref({})
+const lastCourse = ref({})
 const courseStatuses = ref([
   {id: 'All', name: 'Все курсы'},
   {id: 'New', name: 'Начатые'},
@@ -141,6 +144,13 @@ function getCourses() {
   return api.getCourses()
   .then((courses: Course[]) => {
     allCourses.value = courses;
+  })
+}
+
+function getLastUserCheckSkills() {
+  return api.getUserCheckSkills()
+  .then((userCheckSkills) => {
+    lastCheckSkills.value = userCheckSkills[userCheckSkills.length - 1]
   })
 }
 
@@ -195,8 +205,19 @@ function getFavoritesQuestions(){
   );
 }
 
+function getLastCourse() {
+  return api.getLastCourse()
+  .then((course) => 
+    lastCourse.value = course
+  );
+}
+
 function markQuestionSelected(id: number){
   return api.markQuestionSelected(id);
+}
+
+function giveRating(id: number, body: string) {
+  return api.giveRating(id, body)
 }
 
 // Favorite end
@@ -282,5 +303,10 @@ function sendMail(data: SendMail){
     questionWorkStats,
     getCurrentUser,
     currentUser,
+    giveRating,
+    lastCheckSkills,
+    getLastUserCheckSkills,
+    lastCourse,
+    getLastCourse
   }
 });

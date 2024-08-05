@@ -8,10 +8,10 @@
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                             <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                         </svg>
-                        <p class="button-back__text fw-bold">Назад</p>
+                        <p class="button-back__text fw-bold">Выйти</p>
                     </button>
                 </router-link>
-                <p class="fw-bold">Проверить себя</p>
+                <p class="fw-bold">Режим обучения</p>
             </div>
             <div v-if="!isTestDone">
                 <div class="container ticket-list">
@@ -76,6 +76,29 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div v-if="!aisStore.questionData[currentQuestionIndex].isRated && aisStore.questionData[currentQuestionIndex].status === 'Right'" class="rate-container">
+                            <p class="grey-text">Как хорошо вы запомнили вопрос?</p>
+                            <div class="rate">
+                                <div class="rate__item" @click="giveRating('Excellent')">
+                                    <img class="rate__smile" src="../assets/images/emoji/excellent.png" alt="emoji">
+                                    <p class="fs-14">Блистательно</p>
+                                </div>
+                                <div class="rate__item" @click="giveRating('Good')">
+                                    <img class="rate__smile" src="../assets/images/emoji/good.png" alt="emoji2">
+                                    <p class="fs-14">Хорошо</p>
+                                </div>
+                                <div class="rate__item" @click="giveRating('Satisfactorily')">
+                                    <img class="rate__smile" src="../assets/images/emoji/satisfactorily.png" alt="emoji3">
+                                    <p class="fs-14">Удовлетворительно</p>
+                                </div>
+                                <div class="rate__item" @click="giveRating('Bad')">
+                                    <img class="rate__smile" src="../assets/images/emoji/bad.png" alt="emoji4">
+                                    <p class="fs-14">Плохо</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="buttons-panel">
                             <button class="button-back button-skip" @click="previousQuestion">
                                 <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -84,7 +107,7 @@
                                 <p class="button-skip__text fw-bold">Назад</p>
                             </button>
                             <button v-if="aisStore.questionData[currentQuestionIndex].status === 'Not Answered'" :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
-                            <button v-if="requiredDoneLength" @click="isTestDone = true" class="button answers__button end__button">Завершить тестирование</button>
+                            <button v-if="requiredDoneLength" @click="makeDone" class="button answers__button end__button">Завершить тестирование</button>
                             <button class="button-back button-skip" @click="nextQuestion">
                                 <p class="button-skip__text fw-bold">Дальше</p>
                                 <svg class="button-back__arrow buttons-panel__svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -124,17 +147,11 @@ import { computed, onMounted, ref, reactive, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore, GenerateCheckResponse } from "../store"
 
-import Header from './Header.vue';
-import Footer from './Footer.vue';
+import Header from './Header.vue'
+import Footer from './Footer.vue'
 
 const router = useRouter()
 const aisStore = useStore()
-
-// function count(answer) {
-//     if (answer.correct !== true) {
-//         return aisStore.questionData[currentQuestionIndex]?.answer_items.includes(answer.answer_number)
-//     }
-// }
 
 type AnswerIndex = number;
 
@@ -147,6 +164,7 @@ const selectedQuestionId = ref<number>(0)
 // const answeredList = ref([])
 
 function back() {
+
     aisStore.questionData = []
     aisStore.questionDetailList = []
 }
@@ -182,12 +200,6 @@ let currentQuestion = computed(() => {
     }
 })
 
-// function favoriteQuestion(event, id){
-//     currentQuestion.value.selected = !currentQuestion.value.selected
-//     aisStore.markQuestionSelected(id);
-
-// }
-
 async function selectAnswer(answer, number, condition) {
     if (condition) {
         return;
@@ -201,18 +213,6 @@ async function selectAnswer(answer, number, condition) {
     } else {
         selectedAnswer.value.push(number);
     }
-
-        // aisStore.questionData[currentQuestionIndex.value]['correct_answer_items'] = [];
-        // console.log('aisStore.questionData[currentQuestionIndex.value]', aisStore.questionData[currentQuestionIndex.value]['correct_answer_items']);
-
-        // // Фильтрация и маппинг ответов
-        // const findedNumber: number[] = answer
-        //     .filter(num => num.correct === true)
-        //     .map(num => num.answer_number);
-
-        //     console.log('findedNumber', findedNumber)
-        // // Присваивание найденных номеров
-        // aisStore.questionData[currentQuestionIndex.value]['correct_answer_items'] = [...findedNumber.value]
 }
 
 function selectedField(number) {
@@ -264,15 +264,6 @@ async function send() {
     }, 200);
 }
 
-// watch(
-//   () => currentQuestionAnswerItems.value,
-//   (newAnswerItems) => {
-//     console.log('Answer items changed:', newAnswerItems);
-//   },
-//   { deep: true }
-// );
-
-
 const scrollToBottom = () => {
     window.scrollTo({
         top: document.documentElement.scrollHeight,
@@ -306,6 +297,35 @@ watch(
     },
     { deep: true }
 )
+
+// Оценка 
+function giveRating(value) {
+    aisStore.questionData[currentQuestionIndex.value]['isRated'] = true
+
+    if (value) {
+        const toSend = {
+            "user_memorization": value
+        }
+
+        if (aisStore.questionData[currentQuestionIndex.value].user_answer !== null) {
+            const id = aisStore.questionData[currentQuestionIndex.value].user_answer
+            console.log('id', id)
+            aisStore.giveRating(id, toSend)
+        }
+    }
+}
+// Оценка end
+
+function makeDone() {
+    isTestDone.value = true
+    aisStore.endTraining(aisStore.lastCheckSkills.id)
+    aisStore.trainingAnswer = {}
+    aisStore.lastCheckSkills = {}
+}
+
+onMounted(async () => {
+    aisStore.getLastUserCheckSkills()
+});
 
 </script>
 
@@ -408,6 +428,44 @@ watch(
 }
 .end__button {
     background-color: #0fa5eb;
+}
+
+.rate-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.rate {
+    display: flex;
+    width: 100%;
+    border-radius: 0.25rem;
+    background-color: #f0faff;
+}
+.rate__item {
+    cursor: pointer;
+    padding: 10px 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    transition: .2s;
+
+    &:hover {
+        background-color: #c0cfd6;
+        transition: .2s;
+    }
+    &:hover .rate__smile {
+        scale: 1.1;
+        transition: .2s;
+    }
+}
+.rate__smile {
+    width: 26px;
+    height: 26px;
+    transition: .2s;
 }
 
 .button-skip {

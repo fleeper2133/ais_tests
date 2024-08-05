@@ -72,11 +72,6 @@ class ApiClient {
   async getUserCourses() {
     return this.get('/api/user-courses/');
   }
-  // async getCurrentUserCourses(id) {
-  //   const url = `/api/user-courses/${id}/`
-  //   return this.get(url);
-  // }
-
   async setUserCourse(body) {
     return this.post('/api/user-courses/', body);
   }
@@ -113,7 +108,17 @@ class ApiClient {
     return this.post(url);
   }
 
+  async giveRating(id, body) {
+    const url = `api/user-answers/${id}/post_user_memorization/`
+    return this.post(url, body);
+  }
 
+  async getUserCheckSkills(){
+    return this.get('/api/user-check-skills/');
+  }
+  async getLastCourse(){
+    return this.get('api/user-courses/last-course/');
+  }
   
 
   async sendMail(body){

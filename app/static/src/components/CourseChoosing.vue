@@ -4,7 +4,7 @@
             <Header />
             <div class="content__gap">
                 <div class="container container__graph">
-                    <div class="graph">
+                    <!-- <div class="graph">
                         <div class="graph__title fs-18">Ударный режим</div>
                         <div class="graph__info">
                             <div class="graph__info-item">
@@ -53,17 +53,17 @@
                                 <p class="fs-14">28.09</p>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="last-course">
                         <p>Последний курс:</p>
-                        <p class="fs-18">A.1 Основы промышленной безопасности</p>
+                        <p class="fs-18">{{ truncatedCourseName }}</p>
                         <div class="info-text">
                             <div class="info-text__stats">
-                                <p class="main-blue fw-bold">1709</p>
+                                <p class="main-blue fw-bold">{{ showQuestions }}</p>
                                 <p class="main-blue">вопросов</p>
                             </div>
                             <div class="info-text__stats">
-                                <p class="main-blue fw-bold">30%</p>
+                                <p class="main-blue fw-bold">{{ showLastCourseProgress }}</p>
                                 <p class="main-blue">прогресс</p>
                             </div>
                         </div>
@@ -167,7 +167,7 @@ import Pagination from './Pagination.vue'
 const router = useRouter()
 const aisStore = useStore()
 
-function goToCourseInfo(id): void {
+function goToCourseInfo(id: number): void {
     const course = aisStore.allCourses.filter(c => c.id === id)
     aisStore.selectedCourse = course
     aisStore.selectedCourseId = aisStore.selectedCourse[0].id
@@ -181,6 +181,49 @@ function goToCourseInfo(id): void {
         router.push('/course-info')
     }
 }
+
+// Last course
+const showLastCourseInfo = computed(() => {
+    if (aisStore.allCourses.length === 0) {
+        return null
+    }
+    const course = aisStore.allCourses.find(c => c.id === aisStore.lastCourse['course']);
+    return course || null
+})
+const truncatedCourseName = computed(() => {
+    const course = showLastCourseInfo.value
+    if (!course || !course.name) {
+        return ''
+    }
+    const courseName = course.name
+    if (courseName.length > 50) {
+        return courseName.slice(0, 50) + '...'
+    }
+    return courseName
+})
+const showQuestions = computed(() => {
+    const course = showLastCourseInfo.value
+    if (!course || !course.question_count) {
+        return 0
+    }
+    const courseName = course.question_count
+    return courseName
+})
+const showLastCourseProgress = computed(() => {
+    const course = showLastCourseInfo.value
+    if (!course || !course.id) {
+        return ''
+    }
+    const courseId = course.id
+    return showProgress(courseId)
+})
+
+function goToCourse() {
+    const course = aisStore.startedCourses.filter(c => c.course === aisStore.lastCourse['course'])
+    const course2 = aisStore.allCourses.filter(c => c.id === course[0].course)
+    goToCourseInfo(course2[0].id)
+}
+// Last course end
 
 // Search
 const inputText = ref('')
@@ -273,6 +316,7 @@ watch(inputText, () => {
 });
 onMounted(async () => {
     aisStore.getCurrentUser()
+    aisStore.getLastCourse()
     await aisStore.getCourses()
     await aisStore.getUserCourses()
 });
