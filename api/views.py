@@ -113,7 +113,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='detail')
     def get_question_detail(self, request, pk=None):
         question = self.get_object()
-        serializer = QuestionDetailSerializer(question)
+        serializer = QuestionDetailSerializer(question, context={'request': request})
         return Response(serializer.data)
 
 class VarientViewSet(viewsets.ModelViewSet):
@@ -446,7 +446,7 @@ class UserAnswerViewSet(viewsets.ModelViewSet):
                 user_answer.user_memorization = user_mem
                 user_answer.save()
 
-                uq = UserQuestion.objects.filter(user=user, question=user_answer.qustion).first()
+                uq = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
                 uq.calculate_average_memorization()
                 return Response({'status': 'Вопросу добавлена степень запоминания'})
             else:
