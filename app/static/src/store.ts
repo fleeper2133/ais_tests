@@ -90,6 +90,7 @@ export interface GenerateCheckResponse {
   number_in_check: number
   user_answer: null
   answer_items?: []
+  correct_answer_items?: []
   status: string
 }
 
@@ -108,7 +109,7 @@ export interface QuestionDetail {
 export const useStore = defineStore("tasks", () => {
 
 // Variables
-
+const currentUser = ref({})
 const allCourses = ref<Course[]>([])
 const selectedCourseId = ref<number | undefined>(undefined)
 const selectedCourse = ref<Course[]>([])
@@ -129,6 +130,13 @@ const courseStatuses = ref([
 // Variables end
 
 
+function getCurrentUser() {
+  return api.getCurrentUser()
+  .then((user: Course[]) => {
+    currentUser.value = user
+  })
+}
+
 function getCourses() {
   return api.getCourses()
   .then((courses: Course[]) => {
@@ -146,7 +154,8 @@ function getCourseQuestions(id) {
 function getUserCourses() {
   return api.getUserCourses()
   .then((courses: UserCourse[]) => {
-    return startedCourses.value = courses
+    const course = courses.filter(c => c.user === currentUser.value.id)
+    return startedCourses.value = course
   })
 }
 function setUserCourse(courseData: UserCourse) {
@@ -270,6 +279,8 @@ function sendMail(data: SendMail){
     favoritesQuestions,
     userCheckSkills,
     courseStatuses,
-    questionWorkStats
+    questionWorkStats,
+    getCurrentUser,
+    currentUser,
   }
 });

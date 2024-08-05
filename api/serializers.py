@@ -96,6 +96,21 @@ class UserQuestionSerializer(serializers.ModelSerializer):
         model = UserQuestion
         fields = '__all__'
 
+class UserQuestionStatisticSerializer(serializers.ModelSerializer):
+    question_id = serializers.IntegerField(source='question.id')
+    user_question_id = serializers.IntegerField(source='id')
+    question_text = serializers.CharField(source='question.question_text')
+    answers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserQuestion
+        fields = ['user_question_id', 'question_id', 'question_text', 'correct_count', 
+                  'incorrect_count', 'average_answer_time', 'selected', 'memorization', 'answers']
+
+    def get_answers(self, obj):
+        user_answers = UserAnswer.objects.filter(user=obj.user, question=obj.question)
+        return UserAnswerSerializer(user_answers, many=True).data
+    
 class UserTicketSerializer(serializers.ModelSerializer):
     questions = serializers.SerializerMethodField()
 
@@ -108,14 +123,26 @@ class UserTicketSerializer(serializers.ModelSerializer):
         return QuestionListSerializer(question_list, many=True).data
 
 class UserAnswerSerializer(serializers.ModelSerializer):
+    user_answer_items = serializers.SerializerMethodField()
+    question_id = serializers.IntegerField(source='question.id')
+    question_text = serializers.CharField(source='question.question_text')
+    
     class Meta:
         model = UserAnswer
-        fields = '__all__'
+        fields = ['question_id', 'question_text', 'correct', 'answer_time', 'created_at', 'user_answer_items']
+
+    def get_user_answer_items(self, obj):
+        user_answer_items = UserAnswerItem.objects.filter(user_answer=obj)
+        return UserAnswerItemSerializer(user_answer_items, many=True).data
 
 class UserAnswerItemSerializer(serializers.ModelSerializer):
+    answer_varient_id = serializers.IntegerField(source='answer_varient.id')
+    answer_varient_text = serializers.CharField(source='answer_varient.answer_text')
+    correct = serializers.BooleanField(source='answer_varient.correct')
+
     class Meta:
         model = UserAnswerItem
-        fields = '__all__'
+        fields = ['answer_varient_id', 'answer_varient_text', 'correct', 'order_answer']
 
 class QuestionTicketSerializer(serializers.ModelSerializer):
     class Meta:

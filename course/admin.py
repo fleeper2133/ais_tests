@@ -1,6 +1,6 @@
 from django.contrib import admin
 from course.models import Course, Testing, Ticket, Question, QuestionList, Varient, LearningMaterial, \
-                            Block, NormativeDocument, Qualification
+                            Block, NormativeDocument, Qualification, Rotation, RotationQuestion
 
 admin.site.register(Course)
 admin.site.register(Testing)
@@ -12,3 +12,5 @@ admin.site.register(LearningMaterial)
 admin.site.register(Block)
 admin.site.register(NormativeDocument)
 admin.site.register(Qualification) 
+admin.site.register(Rotation)
+admin.site.register(RotationQuestion) 

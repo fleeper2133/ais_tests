@@ -4,11 +4,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import permissions
 from users.models import CustomUser
-from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
+from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial, Rotation, RotationQuestion
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
-from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, CourseQuestionDetailSerializer
+from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, CourseQuestionDetailSerializer, UserQuestionStatisticSerializer
 import random
+from django.db import transaction
 # создание + прохождение билета покрыть в тестах.
 
 class QualificationViewSet(viewsets.ModelViewSet):
@@ -27,7 +28,7 @@ class NormativeDocumentViewSet(viewsets.ModelViewSet):
     #permission_classes = [IsAdminUser]
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.exclude(name="удалена")
+    queryset = Course.objects.all()
     serializer_class = CourseSerializer
     #permission_classes = [IsAuthenticated]
 
@@ -112,20 +113,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='detail')
     def get_question_detail(self, request, pk=None):
         question = self.get_object()
-        serializer = QuestionDetailSerializer(question, context={'request': request})
+        serializer = QuestionDetailSerializer(question)
         return Response(serializer.data)
-    
-    #отметить вопрос, как избранный
-    @action(detail=True, methods=['post'], url_path="mark-as-favorite")
-    def mark_as_favorite(self, request, pk):
-        user = request.user
-        if not user.is_authenticated: 
-            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        user_question, created = UserQuestion.objects.get_or_create(user=user, question_id=pk, defaults={'selected': False})
-        user_question.selected = not user_question.selected
-        user_question.save()
-        return Response({'status': 'Вопрос отмечен как избранный'})
 
 class VarientViewSet(viewsets.ModelViewSet):
     queryset = Varient.objects.all()
@@ -146,15 +135,40 @@ class UserCourseViewSet(viewsets.ModelViewSet):
     serializer_class = UserCourseSerializer
     permission_classes = [IsAuthenticated]
 
-    #вопросы курса
+    # Статистика по вопросам
+    @action(detail=True, methods=['get'])
+    def get_statistic(self, request, pk=None):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        user_course = self.get_object()
+        if user_course.user != user:
+            return Response({'detail': 'Пользователь не проходит этот курс.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Получаем все записи UserQuestion для данного пользователя и курса
+        user_questions = UserQuestion.objects.filter(user=user, question__course=user_course.course)
+
+        if not user_questions.exists():
+            return Response({'detail': 'Нет статистики по вопросам для данного курса.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserQuestionStatisticSerializer(user_questions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # вопросы курса
     @action(detail=True, methods=['get'])
     def course_questions(self, request, pk=None):
         user_course = self.get_object()
         user = request.user
+
         if not user.is_authenticated:
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        questions = Question.objects.filter(course=user_course.course)
+        if user_course not in list(UserCourse.objects.filter(user=user)):
+            return Response({'detail': 'Пользователь не проходит этот курс.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Получаем доступные вопросы из текущей активной ротации
+        questions = user_course.course.get_available_questions()
+        
         serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -296,14 +310,6 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
         favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
         serializer = UserQuestionSerializer(favorite_questions, many=True)
         return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'], url_path='favorites-questions')
-    def get_favorites_questions(self, request):
-        user = request.user
-        favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
-        questions = [i.question for i in favorite_questions]
-        serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
-        return Response(serializer.data)
 
     # получить вопросы с плохой степенью запоминания
     @action(detail=False, methods=['get'], url_path='memorization/bad')
@@ -316,15 +322,20 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
     serializer_class = UserTicketSerializer
-    
+    permission_classes = [IsAuthenticated]
+
     # завершаем прохождение билета
     @action(detail=True, methods=['post'])
     def end_ticket(self, request, pk=None):
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
         user_ticket = self.get_object()
+
+        if user_ticket not in list(UserTicket.objects.filter(user=user)):
+            return Response({'detail': 'Пользователь не проходил этот билет.'}, status=status.HTTP_403_FORBIDDEN)
+        
         user_ticket.update_status()
         user_ticket.update_right_answers()
         user_ticket.update_attempt_count()
@@ -338,7 +349,6 @@ class UserTicketViewSet(viewsets.ModelViewSet):
     def generate_random_ticket(self, request):
         from django.utils import timezone
         from datetime import timedelta
-        from django.db import transaction
 
         user = request.user
         if not user.is_authenticated: 
@@ -356,7 +366,9 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         except Course.DoesNotExist:
             return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        questions = list(Question.objects.filter(course=course).order_by('?'))
+        # Получаем доступные вопросы из текущей активной ротации
+        questions = user_course.course.get_available_questions()
+        print(len(questions))
         random.shuffle(questions)
 
         total_questions_count = 5
@@ -415,6 +427,33 @@ class UserAnswerViewSet(viewsets.ModelViewSet):
     queryset = UserAnswer.objects.all()
     serializer_class = UserAnswerSerializer
 
+    # Добавление вопросу уровня запоминания
+    @action(detail=True, methods=['post'])
+    def post_user_memorization(self, request, pk=None):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            user_mem = request.data.get('user_memorization')
+            if user_mem not in ['New','Bad', 'Satisfactorily', 'Good','Excellent', 'No']:
+                return Response({'detail': 'Недопустимый уровень запоминания'}, status=status.HTTP_400_BAD_REQUEST)
+
+            user_answer = self.get_object()
+            if user_answer.user != user:
+                return Response({'detail': 'Ответ не принадлежит пользователю'}, status=status.HTTP_403_FORBIDDEN)
+            if user_answer.correct == 1.0:
+                user_answer.user_memorization = user_mem
+                user_answer.save()
+
+                uq = UserQuestion.objects.filter(user=user, question=user_answer.qustion).first()
+                uq.calculate_average_memorization()
+                return Response({'status': 'Вопросу добавлена степень запоминания'})
+            else:
+                return Response({'status': 'Пользователь не имеет права изменять статус с неправильным ответом!'})
+        except UserAnswer.DoesNotExist:
+            return Response({'detail': 'Ответ не найден. Повторите позже'}, status=status.HTTP_404_NOT_FOUND)
+
 class UserAnswerItemViewSet(viewsets.ModelViewSet):
     queryset = UserAnswerItem.objects.all()
     serializer_class = UserAnswerItemSerializer
@@ -426,7 +465,6 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
     # создаём ответ на вопрос тестирования
     @action(detail=True, methods=['post'], url_path='create_answer')
     def create_answer(self, request, pk=None):
-        from django.db import transaction
         from datetime import timedelta
 
         user = request.user
@@ -451,10 +489,8 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
                     order_answer=index + 1,
                 )
             user_answer.check_correctness()
-            q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
+            q = UserQuestion.objects.filter(user=user, question=user_answer.question).last()
             q.update_memorization()
-            q.update_counts_and_average_time()
-            q.update_consecutive_incorrect()
             q.save()
             question_ticket.update_status()
 
@@ -495,11 +531,9 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         serializer = UserCheckSkillsSerializer(user_check, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
-    # создаём "умное тестирование", которое даёт 50% новых вопросов
+    # Создание "умного тестирования"
     @action(detail=False, methods=['post'], url_path='smart-generate-check')
     def smart_generate_check(self, request):
-        from django.db import transaction
-
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -514,6 +548,7 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         except UserCourse.DoesNotExist:
             return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Создаем запись UserCheckSkills
         user_check_skills = UserCheckSkills.objects.create(
             user=user,
             question_count=question_count,
@@ -522,66 +557,66 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
             user_course=user_course,
         )
 
+        # Получение вопросов из последней ротации
+        rotation_questions = user_course.course.get_available_questions()
+        rotation_questions_ids = [q.id for q in rotation_questions]
+        new_questions = Question.objects.filter(id__in=rotation_questions_ids).exclude(
+            id__in=UserQuestion.objects.filter(user=user, question__course_id=course_id).values_list('question_id', flat=True)
+        )
+
+        # Деление вопросов по уровню запоминания
         user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
         answered_questions_count = len(user_questions)
         
-        new_questions = list(Question.objects.filter(course_id=course_id).order_by('?'))
-        random.shuffle(new_questions)
-        new_questions = list(new_questions[:question_count])
-
-        # Делим вопросы по уровню запоминания
         answ_new_questions = user_questions.filter(memorization='New')
         bad_questions = user_questions.filter(memorization='Bad')
-        satisfy_questions = user_questions.filter(memorization='Satisfy')
+        satisfy_questions = user_questions.filter(memorization='Satisfactorily')
         good_questions = user_questions.filter(memorization='Good')
 
         # Если пользователь не отвечал на вопросы, возвращаем просто вопросы
         if answered_questions_count <= int(question_count / 2):
-            # считаем, что в курсе изначально хватает вопросов, но лучше сделать обработку!
-            selected_questions = list(new_questions)
+            selected_questions = list(new_questions[:question_count])
         else:
-            new_questions = Question.objects.filter(course_id=course_id).exclude(id__in=user_questions.values('question_id')).order_by('?')
-            if len(new_questions) >= int(question_count / 2): # Если хватает, берем 50% новых вопросов
+            if new_questions.exists() and new_questions.count() >= int(question_count / 2):
                 new_questions_count = question_count // 2
-            else: # Или сколько есть
-                new_questions_count = len(new_questions)
+            else:
+                new_questions_count = new_questions.count()
 
             remaining_count = question_count - new_questions_count
-            # Оставшиеся 50% делим между "Bad", "Satisfy" и "Good" вопросами с учетом сложности
+            
             bad_count, satisfy_count, good_count = separate_questions(difficulty, remaining_count)
-
+            
             selected_bad_questions = list(bad_questions.order_by('?')[:bad_count])
             selected_satisfy_questions = list(satisfy_questions.order_by('?')[:satisfy_count])
             selected_good_questions = list(good_questions.order_by('?')[:good_count])
 
-            # добавляем вопросы, которые были оставлены без ответов при прохождении
             answ_new_count = 0
             if len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions) < remaining_count:
                 answ_new_count = remaining_count - (len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions))
-            selected_new_questions = answ_new_questions.order_by('?')[:answ_new_count]
+            selected_new_questions = list(answ_new_questions.order_by('?')[:answ_new_count])
             
-            # добавляем новые вопросы (которые ещё не встречались)
-            if len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions) + len(selected_new_questions) < question_count:
-                new_questions_count = question_count - (len(selected_bad_questions) + len(selected_satisfy_questions) + len(selected_good_questions) + len(selected_new_questions))
-            new_questions = new_questions[:new_questions_count]
+            new_questions = list(new_questions[:new_questions_count])
 
             selected_questions = list(new_questions) + list(selected_new_questions) + list(selected_bad_questions) + list(selected_satisfy_questions) + list(selected_good_questions)
 
-            #добавляем случай, когда надо добавить просто вопросы, чтобы сохранить +- пропорцию.
             remaining_needed = question_count - len(selected_questions)
             if remaining_needed > 0:
-                remaining_questions = list(user_questions.filter(memorization='Bad').exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
+                remaining_questions = list(user_questions.filter(memorization='Bad').exclude(question__id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
                 remaining_needed -= len(remaining_questions)
                 if remaining_needed > 0:
-                    more_questions = list(user_questions.filter(memorization='Satisfy').exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
+                    more_questions = list(user_questions.filter(memorization='Satisfactorily').exclude(question__id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
                     remaining_questions += more_questions
                     remaining_needed -= len(more_questions)
-                    if remaining_needed > 0:
-                        more_questions = list(user_questions.filter(memorization='Good').exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
-                        remaining_questions += more_questions
-                        remaining_needed -= len(more_questions)
-                selected_questions += more_questions
-            random.shuffle(selected_questions)
+                if remaining_needed > 0:
+                    more_questions = list(user_questions.filter(memorization='Good').exclude(question__id__in=[q.id for q in selected_questions]).order_by('?')[:remaining_needed])
+                    remaining_questions += more_questions
+                selected_questions += remaining_questions
+
+        # Проверяем, чтобы выбранное количество вопросов совпадало с необходимым
+        if len(selected_questions) < question_count:
+            missing_count = question_count - len(selected_questions)
+            additional_questions = list(rotation_questions.exclude(id__in=[q.id for q in selected_questions]).order_by('?')[:missing_count])
+            selected_questions += additional_questions
 
         user_check_skills.question_count = len(selected_questions)
         user_check_skills.save()
@@ -600,11 +635,9 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
                 )
                 created_questions.append(created_question)
 
-            # создание UserQuestion
-            # Для новых вопросов необходимо создать отношение UserQuestion
-            for index in range(len(new_questions)):
+            for question in new_questions:
                 UserQuestion.objects.create(
-                    question=new_questions[index],
+                    question=question,
                     user=user,
                     selected=False,
                     memorization='New',
@@ -619,7 +652,6 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], url_path='create_answer')
     def create_answer(self, request, pk=None):
-        from django.db import transaction
         from datetime import timedelta
 
         user = request.user
@@ -671,22 +703,12 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
                     return Response({'detail': f'Ошибка при проверке корректности ответа: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                 try:
-                    q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
+                    q = UserQuestion.objects.filter(user=user, question=user_answer.question).last()
                     if q:
                         try:
                             q.update_memorization()
                         except Exception as e:
                             return Response({'detail': f'Ошибка при обновлении данных запоминания: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-                        try:
-                            q.update_counts_and_average_time()
-                        except Exception as e:
-                            return Response({'detail': f'Ошибка при обновлении данных количества и среднего времени: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-                        try:
-                            q.update_consecutive_incorrect()
-                        except Exception as e:
-                            return Response({'detail': f'Ошибка при обновлении данных о последовательных неправильных ответах: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                         try:
                             q.save()

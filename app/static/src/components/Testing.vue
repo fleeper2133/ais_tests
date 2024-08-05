@@ -2,8 +2,8 @@
     <div class="content">
         <div>
             <Header />
-            <div class="container container__bg link-line">
-                <router-link to="/course">
+            <div v-if="!isTestDone" class="container container__bg link-line">
+                <router-link to="/course" @click="back">
                     <button class="button-back">
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                             <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
@@ -13,25 +13,31 @@
                 </router-link>
                 <p class="fw-bold">Проверить себя</p>
             </div>
-            <div>
+            <div v-if="!isTestDone">
                 <div class="container ticket-list">
                     <div class="tickets">
                         <div 
                             @click="selectQuestion(value['number_in_check'] - 1)"
                             class="ticket" 
-                            :style="{ backgroundColor: whatBgColor(value.status), border: whatBorder(value.status)}"
+                            :style="{ 
+                                backgroundColor: whatBgColor(value.status),
+                                border: whatBorder(value.status),
+                                transform: key === currentQuestionIndex ? 'scale(1.15)' : 'scale(1)',
+                            }"
                             v-for="(value, key) in aisStore.questionData"
                             :key="key"
                         >
                             <p class="fw-bold">{{ value.number_in_check }}</p>
                         </div>
                     </div>
-                    <div class="favorites">
+                    <!-- <div class="favorites">
                         <p>Добавить вопрос в избранное</p>
-                        <svg  class="star" viewBox="-0.5 0 25 25" :fill="currentQuestion.selected ? 'yellow' : 'none'" @click.stop="favoriteQuestion($event, currentQuestion.id)">
+                        <svg  class="star" viewBox="-0.5 0 25 25" :class="question.selected ? 'star--filled' : 'none'" @click.stop="favoriteQuestion($event, currentQuestion.id)">
                             <path d="M12.71 3.45001L15.17 7.94C15.2272 8.04557 15.307 8.1371 15.4039 8.20801C15.5007 8.27892 15.6121 8.3274 15.73 8.34998L20.73 9.29999C20.8726 9.327 21.0053 9.39183 21.1142 9.48767C21.2232 9.58352 21.3044 9.70688 21.3494 9.84485C21.3943 9.98282 21.4014 10.1303 21.3698 10.272C21.3383 10.4136 21.2693 10.5442 21.17 10.65L17.66 14.38C17.5784 14.4676 17.5172 14.5723 17.4809 14.6864C17.4446 14.8005 17.4341 14.9213 17.45 15.04L18.09 20.12C18.1098 20.2633 18.0903 20.4094 18.0337 20.5425C17.9771 20.6757 17.8854 20.791 17.7684 20.8762C17.6514 20.9613 17.5135 21.0132 17.3694 21.0262C17.2253 21.0392 17.0804 21.0129 16.95 20.95L12.32 18.77C12.2114 18.7155 12.0915 18.6871 11.97 18.6871C11.8485 18.6871 11.7286 18.7155 11.62 18.77L6.99 20.95C6.85904 21.0119 6.71392 21.0375 6.56971 21.0242C6.4255 21.0109 6.28751 20.9591 6.17008 20.8744C6.05265 20.7896 5.96006 20.6749 5.90201 20.5422C5.84396 20.4096 5.82256 20.2638 5.84 20.12L6.49 15.04C6.50596 14.9213 6.49542 14.8005 6.45911 14.6864C6.4228 14.5723 6.36162 14.4676 6.28 14.38L2.76999 10.65C2.67072 10.5442 2.60172 10.4136 2.57017 10.272C2.53861 10.1303 2.54568 9.98282 2.59064 9.84485C2.63561 9.70688 2.71683 9.58352 2.82578 9.48767C2.93473 9.39183 3.06742 9.327 3.21 9.29999L8.21 8.34998C8.32789 8.3274 8.43929 8.27892 8.53614 8.20801C8.63299 8.1371 8.71286 8.04557 8.76999 7.94L11.28 3.45001C11.349 3.32033 11.4521 3.21187 11.578 3.13623C11.704 3.0606 11.8481 3.02063 11.995 3.02063C12.1419 3.02063 12.2861 3.0606 12.412 3.13623C12.538 3.21187 12.641 3.32033 12.71 3.45001V3.45001Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                    </div>
+                    </div> -->
+                    <!-- доделать нажатие на звезду, переделать с yellow, под class -->
+                    <!-- разобраться с question.selected, его тут нет -->
                 </div>
                 <div class="container__bg">
                     <div class="container answers">
@@ -44,29 +50,67 @@
                                 <div
                                     v-for="(answer, answerIndex) in currentQuestion.varients"
                                     class="answer"
-                                    :class="[selectedField(answer.answer_number) ? 'selected' : null, (aisStore.questionData[currentQuestionIndex]?.answer_items || []).includes(answer.answer_number) ? 'selected' : null]"
+                                    :class="{
+                                        'selected': selectedField(answer.answer_number),
+                                        'selected-right': aisStore.questionData[currentQuestionIndex].answer_items && aisStore.questionData[currentQuestionIndex].answer_items?.includes(answer.answer_number),
+                                        'selected-wrong': aisStore.questionData[currentQuestionIndex]?.status === 'Wrong' && aisStore.questionData[currentQuestionIndex].answer_items?.includes(answer.answer_number),
+                                        // 'correct-answer': aisStore.questionData[currentQuestionIndex]?.answer_items && aisStore.questionData[answerIndex]?.status === 'Right', // что-то исправить, работает через раз
+                                    }"
                                     :key="answerIndex"
-                                    @click="selectAnswer(answer.answer_number)"
+                                    @click="selectAnswer(answer, answer.answer_number, aisStore.questionData[currentQuestionIndex]?.answer_items)"
                                 >
                                     {{ answer.answer_text }}
                                 </div>
                             </div>
                         </div>
+                        <div v-if="aisStore.questionData[currentQuestionIndex].answer_items" class="question-status">
+                            <div class="question-status__text">
+                                <p class="question-status__text-wrong fs-20 fw-bold" v-if="aisStore.questionData[currentQuestionIndex].status === 'Wrong'">Неправильный ответ</p>
+                                <p class="question-status__text-right fs-20 fw-bold" v-if="aisStore.questionData[currentQuestionIndex].status === 'Right'">Правильный ответ</p>
+                            </div>
+                            <div class="question-status__description">
+                                <span class="fw-bold grey-text">Комментарий:</span>
+                                <div class="question-status__description-text">
+                                    <h1 class="fs-20">{{ currentQuestion.normative_documents.text }}</h1>
+                                    <p class="fs-18">// Добавить описание документа<br>Настоящий Федеральный закон определяет правовые, экономические и социальные основы обеспечения безопасной эксплуатации опасных производственных объектов и направлен на предупреждение аварий на опасных производственных объектах и обеспечение готовности эксплуатирующих опасные производственные объекты юридических лиц и индивидуальных предпринимателей (далее также - организации, эксплуатирующие опасные производственные объекты) к локализации и ликвидации последствий указанных аварий. Положения настоящего Федерального закона распространяются на все организации независимо от их организационно-правовых форм и форм собственности, осуществляющие деятельность в области промышленной безопасности опасных производственных объектов на территории Российской Федерации и на иных территориях, над которыми Российская Федерация осуществляе</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="buttons-panel">
-                            <button class="button-back" @click="previousQuestion">
+                            <button class="button-back button-skip" @click="previousQuestion">
                                 <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                                 </svg>
-                                <p class="button-back__text fw-bold">Предыдущий вопрос</p>
+                                <p class="button-skip__text fw-bold">Назад</p>
                             </button>
                             <button v-if="aisStore.questionData[currentQuestionIndex].status === 'Not Answered'" :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
-                            <button class="button-back" @click="nextQuestion">
-                                <p class="button-back__text fw-bold">Следующий вопрос</p>
+                            <button v-if="requiredDoneLength" @click="isTestDone = true" class="button answers__button end__button">Завершить тестирование</button>
+                            <button class="button-back button-skip" @click="nextQuestion">
+                                <p class="button-skip__text fw-bold">Дальше</p>
                                 <svg class="button-back__arrow buttons-panel__svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                                     <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                                 </svg>
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="isTestDone">
+                <div class="stats">
+                    <div class="svg">
+                        <svg class="svg__front" fill="#000000" width="60px" height="60px" viewBox="0 0 1920 1920">
+                            <path d="M960 1807.059c-467.125 0-847.059-379.934-847.059-847.059 0-467.125 379.934-847.059 847.059-847.059 467.125 0 847.059 379.934 847.059 847.059 0 467.125-379.934 847.059-847.059 847.059M960 0C430.645 0 0 430.645 0 960s430.645 960 960 960 960-430.645 960-960S1489.355 0 960 0M854.344 1157.975 583.059 886.69l-79.85 79.85 351.135 351.133L1454.4 717.617l-79.85-79.85-520.206 520.208Z" fill-rule="evenodd"/>
+                        </svg>
+                        <svg class="svg__back" fill="#000000" width="120px" height="120px" viewBox="0 0 1920 1920">
+                            <path d="M960 1807.059c-467.125 0-847.059-379.934-847.059-847.059 0-467.125 379.934-847.059 847.059-847.059 467.125 0 847.059 379.934 847.059 847.059 0 467.125-379.934 847.059-847.059 847.059M960 0C430.645 0 0 430.645 0 960s430.645 960 960 960 960-430.645 960-960S1489.355 0 960 0M854.344 1157.975 583.059 886.69l-79.85 79.85 351.135 351.133L1454.4 717.617l-79.85-79.85-520.206 520.208Z" fill-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="stats__content fs-18">
+                        <h2>Статистика тестирования</h2>
+                        <p class="stats__answers">Всего вопросов: <span class="fw-bold">{{ aisStore.questionData.length }}</span></p>
+                        <p class="stats__answers">Правильных ответов: <span class="fw-bold">{{ answers('right') }}</span></p>
+                        <p class="stats__answers">Неправильных ответов: <span class="fw-bold">{{ answers('wrong') }}</span></p>
+                        <button @click="exitTesting" class="button answers__button end__button stats__content-button">Выйти</button>
                     </div>
                 </div>
             </div>
@@ -76,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, reactive } from 'vue'
+import { computed, onMounted, ref, reactive, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore, GenerateCheckResponse } from "../store"
 
@@ -86,17 +130,47 @@ import Footer from './Footer.vue';
 const router = useRouter()
 const aisStore = useStore()
 
+// function count(answer) {
+//     if (answer.correct !== true) {
+//         return aisStore.questionData[currentQuestionIndex]?.answer_items.includes(answer.answer_number)
+//     }
+// }
+
 type AnswerIndex = number;
 
+const isTestDone = ref(false)
+const requiredDoneLength = ref(false)
 const currentQuestionIndex = ref(0)
 const selectedAnswer = ref<AnswerIndex[]>([])
 const varientsLength = ref(0)
 const selectedQuestionId = ref<number>(0)
 // const answeredList = ref([])
 
+function back() {
+    aisStore.questionData = []
+    aisStore.questionDetailList = []
+}
+function exitTesting() {
+    aisStore.questionData = []
+    aisStore.questionDetailList = []
+    router.push('/course')
+}
+
+function answers(value) {
+    if (value === 'right') {
+        const answers = aisStore.questionData.filter(q => q.status === "Right")
+        return answers.length
+    }
+    if (value === 'wrong') {
+        const answers = aisStore.questionData.filter(q => q.status === "Wrong")
+        return answers.length
+    }
+}
+
 async function getVarientsLength() {
     if (aisStore.questionDetailList) {
-        varientsLength.value = await aisStore.questionDetailList[currentQuestionIndex.value].varients.length
+        const variants = await aisStore.questionDetailList[currentQuestionIndex.value].varients
+        varientsLength.value = variants?.length
     }
 }
 
@@ -108,29 +182,41 @@ let currentQuestion = computed(() => {
     }
 })
 
-function favoriteQuestion(event, id){
-    // if(event.currentTarget.getAttribute('fill') == 'none')
-    // event.currentTarget.setAttribute('fill', 'yellow');
-    // else
-    // event.currentTarget.setAttribute('fill', 'none');
-    currentQuestion.value.selected = !currentQuestion.value.selected;
-    aisStore.markQuestionSelected(id);
+// function favoriteQuestion(event, id){
+//     currentQuestion.value.selected = !currentQuestion.value.selected
+//     aisStore.markQuestionSelected(id);
 
-}
+// }
 
-function selectAnswer(number) {
+async function selectAnswer(answer, number, condition) {
+    if (condition) {
+        return;
+    }
+
     const index = selectedAnswer.value.indexOf(number);
     if (index !== -1) {
         selectedAnswer.value.splice(index, 1);
     } else if (selectedAnswer.value.length === varientsLength.value) {
-        return
+        return;
     } else {
         selectedAnswer.value.push(number);
     }
+
+        // aisStore.questionData[currentQuestionIndex.value]['correct_answer_items'] = [];
+        // console.log('aisStore.questionData[currentQuestionIndex.value]', aisStore.questionData[currentQuestionIndex.value]['correct_answer_items']);
+
+        // // Фильтрация и маппинг ответов
+        // const findedNumber: number[] = answer
+        //     .filter(num => num.correct === true)
+        //     .map(num => num.answer_number);
+
+        //     console.log('findedNumber', findedNumber)
+        // // Присваивание найденных номеров
+        // aisStore.questionData[currentQuestionIndex.value]['correct_answer_items'] = [...findedNumber.value]
 }
 
 function selectedField(number) {
-    return selectedAnswer.value.indexOf(number) !== -1
+    return selectedAnswer.value.indexOf(number) !== -1;
 }
 
 function selectQuestion(index) {
@@ -154,67 +240,72 @@ function nextQuestion() {
 }
 
 async function send() {
-    if (aisStore.questionData) {
-        const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
-        selectedQuestionId.value = way.id
+    const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
+    selectedQuestionId.value = way.id
 
-        if (selectedAnswer) {
-            const toSend: GenerateCheckResponse = {
-                "answer_items": selectedAnswer.value
-            }
-            await aisStore.createAnswer(selectedQuestionId.value, toSend)
-
-
-            // Логика завершения курса. Нужна будет кнопка 'завершить тестирование'. Чтобы человек мог посмотреть свои ошибки (не выкидывать просто так)
-
-            // if (answeredList.value.length === aisStore.questionDetailList.length - 1) {
-            //     if (aisStore.userCheckSkills) aisStore.endTraining(aisStore.userCheckSkills)
-            //     здесь лучше сделать пробежку по aisStore.questionWorkStats[id].status, и если все статусы объектов не равны стандарту, завершать курс
-            //     router.push('/course')
-            // } else {
-            //     // Сюда добавлять ответ с wrang/right, чтобы потом легче отслеживать
-            //     // answeredList.value.push(aisStore.trainingAnswer) - // для определения длинный массива
-            //     console.log(aisStore.trainingAnswer['id'])
-            // }
+    if (selectedAnswer) {
+        const toSend: GenerateCheckResponse = {
+            "answer_items": selectedAnswer.value
         }
+
+        await aisStore.createAnswer(selectedQuestionId.value, toSend)
     }
     
-
-    if (aisStore.questionData) {
-        const index = aisStore.questionData.findIndex(q => q.id === aisStore.trainingAnswer['id']);
-        if (index !== -1) {
-            aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
-            console.log("aisStore.questionData[index]['answer_items']", aisStore.questionData[index], aisStore.trainingAnswer)
-            aisStore.questionData[index]['answer_items'] = [...selectedAnswer.value]
-        }
+    const index = aisStore.questionData.findIndex(q => q.id === aisStore.trainingAnswer['id']);
+    if (index !== -1) {
+        aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
+        aisStore.questionData[index]['answer_items'] = [...selectedAnswer.value]
     }
 
-    currentQuestionIndex.value++
     selectedAnswer.value = []
+
+    setTimeout(() => {
+        scrollToBottom();
+    }, 200);
 }
+
+// watch(
+//   () => currentQuestionAnswerItems.value,
+//   (newAnswerItems) => {
+//     console.log('Answer items changed:', newAnswerItems);
+//   },
+//   { deep: true }
+// );
+
+
+const scrollToBottom = () => {
+    window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+    });
+};
 
 
 // Запоминание
 
 function whatBgColor(status) {
-    if (status === 'Wrong') {
-        return '#ffb2c1';
-    }
-    if (status === 'Right') {
-        return '#acffac';
-    }
+    if (status === 'Wrong') return '#ffb2c1'
+    if (status === 'Right') return '#acffac'
     return 'transparent';
 }
 
 function whatBorder(status) {
-    if (status === 'Wrong' || status === 'Right') {
-        return 'none';
-    }
+    if (status === 'Wrong' || status === 'Right') return 'none'
 }
-
 
 // Запоминание end
 
+
+watch(
+    () => aisStore.questionData,
+    (newData) => {
+    const allAnswered = newData.every(question => question.status !== 'Not Answered');
+    if (allAnswered) {
+        requiredDoneLength.value = true
+    }
+    },
+    { deep: true }
+)
 
 </script>
 
@@ -315,7 +406,29 @@ function whatBorder(status) {
     width: 300px;
     margin: 0 auto;
 }
+.end__button {
+    background-color: #0fa5eb;
+}
 
+.button-skip {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #d3eaff;
+    border-radius: 0.25rem;
+    padding: 10px 0;
+    width: 240px;
+    height: 3.75rem;
+
+    &:hover {
+        background-color: #abd7ff;
+    }
+}
+.button-skip__text {
+    color: $main-blue;
+    text-align: start;
+    transition: .2s;
+}
 .buttons-panel {
     display: flex;
     justify-content: space-between;
@@ -325,14 +438,99 @@ function whatBorder(status) {
     transform: rotate(180deg)
 }
 
+.question-status {
+    width: 100%;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.question-status__text {
+    width: 100%;
+    text-align: center;
+}
+.question-status__text-wrong {
+    color: #9b1e1e;
+}
+.question-status__text-right {
+    color: #269b37;
+}
+.question-status__description {
+    display: flex;
+    flex-direction: column;
+    gap: 10px
+}
+.question-status__description-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .selected {
     background-color: #bbdbff;
     border: 2px solid $main-blue;
+}
+.selected-right {
+    background-color: #d4ffd0;
+    border: 2px solid #2ac71b;
+}
+.selected-wrong {
+    background-color: #ffe9e9;
+    border: 2px solid #ff4a4a;
+}
+.correct-answer {
+    background-color: #d4ffd0;
+    border: 2px solid #2ac71b;
 }
 .disabled {
     opacity: 0.4;
 }
 
+
+// stats
+
+.stats {
+    margin-top: 10vh;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+}
+.stats__content {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    gap: 10px;
+}
+.stats__answers {
+    display: flex;
+    justify-content: space-between;
+}
+.stats__content-button {
+    margin-top: 20px;
+}
+.svg {
+    width: 100%;
+    height: 120px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.svg__front {
+    position: absolute;
+    z-index: 3;
+}
+.svg__back {
+    position: absolute;
+    z-index: 2;
+    opacity: 0.05;
+}
+
+// stats end
 
 @media (max-width: 600px) {
     .container {
@@ -351,6 +549,9 @@ function whatBorder(status) {
         padding-bottom: 1.875rem;
     }
     .answers__button {
+        width: 100%;
+    }
+    .button-skip {
         width: 100%;
     }
 }

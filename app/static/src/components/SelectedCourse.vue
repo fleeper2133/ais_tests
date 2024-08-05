@@ -87,9 +87,9 @@
                                     <div class="dropper">
                                         <div class="dropper__title" @click.stop="toggleDropper('difficulty1')">Сложность: {{ difficultyText1 }}</div>
                                         <div v-show="dropperStates.difficulty1" class="dropper__list">
-                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Легко')">Легко</p>
-                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Средне')">Средне</p>
-                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Сложно')">Сложно</p>
+                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Легко'), testDifficultyLevel = 'Easy'">Легко</p>
+                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Средне'), testDifficultyLevel = 'Medium'">Средне</p>
+                                            <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Сложно') , testDifficultyLevel= 'Hard'">Сложно</p>
                                         </div>
                                     </div>
                                 </div>
@@ -260,12 +260,14 @@ function showQuestionCount() {
 
 // Генерация вопросов
 
+const testDifficultyLevel = ref('Easy')
+
 async function generateCheck() {
     const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
     if (!startedCourse) throw new Error('Course not found!')
     const check: GenerateCheck = {
         "question_count": questionCount.value,
-        "difficulty": "Easy",
+        "difficulty": testDifficultyLevel.value,
         "user_course_id": startedCourse.id
     }
     await aisStore.smartGenerate(check)
@@ -274,17 +276,6 @@ async function generateCheck() {
     if (aisStore.questionWorkStats) {
         aisStore.questionWorkStats = {}
     }
-    // if (aisStore.questionData) {
-    //     aisStore.questionData.forEach(item => {
-    //         aisStore.questionWorkStats[item.id] = {
-    //             status: item.status,
-    //             answer_items: [],
-    //             number_in_check: item.number_in_check,
-    //             varients: []
-    //         };
-    //     });
-    // }
-    // console.log(aisStore.questionWorkStats)
 
     if (aisStore.questionDetailList) {
         aisStore.questionDetailList = []

@@ -3,7 +3,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 from course.models import Course, Ticket, Question
-from usercourse.models import UserCourse, UserTicket, UserCheckSkills
+from usercourse.models import UserCourse, UserTicket, UserCheckSkills, QuestionTicket
+from api.serializers import CourseQuestionDetailSerializer
 from users.models import CustomUser
 from datetime import timedelta
 from django.utils import timezone
@@ -233,6 +234,7 @@ def create_test_data_course_history(create_test_data):
 
 @pytest.mark.django_db
 class TestUserCourseViewSet:
+    # история прохождения курса
 
     @pytest.mark.parametrize('is_authenticated, expected_status', [
         (True, status.HTTP_200_OK),
@@ -282,9 +284,195 @@ class TestUserCourseViewSet:
         assert ticket_event['attempt_count'] == 1
         assert ticket_event['right_answers'] == 5
 
-# ----------------------------------------------------------------------------------------
+    # вопросы курса
+
+    @pytest.mark.parametrize('is_authenticated, expected_status', [
+        (True, status.HTTP_200_OK),
+        (False, status.HTTP_401_UNAUTHORIZED),
+    ])
+    def test_course_questions_auth(self, create_test_data, is_authenticated, expected_status):
+        user = create_test_data['user']
+        course = create_test_data['course']
+        user_course = create_test_data['user_course']
+        
+        client = APIClient()
+        if is_authenticated:
+            client.force_authenticate(user=user)
+        url = reverse('usercourse-course-questions', args=[user_course.id])
+        
+        response = client.get(url)
+        
+        assert response.status_code == expected_status
+        if is_authenticated:
+            data = response.json()
+            questions = Question.objects.filter(course=course)
+            serialized_data = CourseQuestionDetailSerializer(questions, many=True, context={'request': response.wsgi_request}).data
+            assert data == serialized_data
+
+    def test_course_questions_no_questions(self, create_test_data):
+        user = create_test_data['user']
+        user_course = create_test_data['user_course']
+
+        Question.objects.filter(course=user_course.course).delete()
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse('usercourse-course-questions', args=[user_course.id])
+        
+        response = client.get(url)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == []  # Ожидается пустой список
+
+    def test_course_questions_different_user(self, create_test_data):
+        other_user = create_test_data['other_user']
+        user_course = create_test_data['user_course']
+
+        client = APIClient()
+        client.force_authenticate(user=other_user)
+        url = reverse('usercourse-course-questions', args=[user_course.id])
+        
+        response = client.get(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    @pytest.mark.parametrize("invalid_pk", [-1, 0, 99999])
+    def test_course_questions_invalid_course_pk(self, create_test_data, invalid_pk):
+        user = create_test_data['user']
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse('usercourse-course-questions', args=[invalid_pk])
+        
+        response = client.get(url)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
 # ----------------------------------------------------------------------------------------
+
+@pytest.mark.django_db
+class TestUserTicketViewSet:
+    # завершение билета
+
+    @pytest.mark.parametrize('is_authenticated, expected_status', [
+        (True, status.HTTP_200_OK),
+        (False, status.HTTP_401_UNAUTHORIZED),
+    ])
+    def test_end_ticket_auth(self, create_test_data, is_authenticated, expected_status):
+        user_ticket = create_test_data['user_tickets'][0]
+        user = create_test_data['user']
+
+        client = APIClient()
+        if is_authenticated:
+            client.force_authenticate(user=user)
+
+        url = reverse('userticket-end-ticket', args=[user_ticket.id])
+
+        response = client.post(url)
+        assert response.status_code == expected_status
+
+        if is_authenticated:
+            data = response.json()
+            assert data['id'] == user_ticket.id
+            assert data['status'] in ['Done', 'Failed']
+
+    def test_end_ticket_different_user(self, create_test_data, api_client):
+        other_user = create_test_data['other_user']
+        user_ticket = create_test_data['user_tickets'][0]
+
+        client = api_client
+        client.force_authenticate(user=other_user)
+        url = reverse('userticket-end-ticket', args=[user_ticket.id])
+
+        response = client.post(url)
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    @pytest.mark.parametrize("invalid_pk", [-1, 0, 99999])
+    def test_end_ticket_invalid_ticket_pk(self, authenticated_client, invalid_pk):
+        url = reverse('userticket-end-ticket', args=[invalid_pk])
+        response = authenticated_client.post(url)
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_end_ticket_updates(self, create_test_data, authenticated_client):
+        user_ticket = create_test_data['user_tickets'][0]
+
+        url = reverse('userticket-end-ticket', args=[user_ticket.id])
+        response = authenticated_client.post(url)
+
+        assert response.status_code == status.HTTP_200_OK
+
+        user_ticket.refresh_from_db()
+        assert user_ticket.status in ['Done', 'Failed']
+        assert user_ticket.right_answers == user_ticket.update_right_answers()
+        assert user_ticket.attempt_count >= 0
+
+# ----------------------------------------------------------------------------------------
+    # тестируем создание случайного билета
+
+    @pytest.mark.parametrize('is_authenticated, expected_status', [
+        (True, status.HTTP_201_CREATED),
+        (False, status.HTTP_401_UNAUTHORIZED),
+    ])
+    def test_generate_random_ticket_auth(self, create_test_data, is_authenticated, expected_status):
+        user = create_test_data['user']
+        user_course = create_test_data['user_course']
+        
+        client = APIClient()
+        if is_authenticated:
+            client.force_authenticate(user=user)
+
+        url = reverse('userticket-generate-random-ticket')
+        data = {'user_course_id': user_course.id}
+        response = client.post(url, data, format='json')
+
+        assert response.status_code == expected_status
+        if is_authenticated:
+            assert 'id' in response.json()[0]  # Проверяем, что в ответе есть созданные вопросы
+
+    def test_generate_random_ticket_no_questions(self, create_test_data, authenticated_client):
+        user_course = create_test_data['user_course']
+        client = authenticated_client
+
+        # Удаляем все вопросы из курса
+        Question.objects.filter(course=user_course.course).delete()
+
+        url = reverse('userticket-generate-random-ticket')
+        data = {'user_course_id': user_course.id}
+        response = client.post(url, data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json()['detail'] == 'Недостаточно вопросов для генерации билета.'
+
+    def test_generate_random_ticket_invalid_course(self, authenticated_client):
+        invalid_user_course_id = 9999  # Несуществующий ID курса
+        url = reverse('userticket-generate-random-ticket')
+        data = {'user_course_id': invalid_user_course_id}
+        response = authenticated_client.post(url, data, format='json')
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json()['detail'] == 'Пользовательский курс не найден.'
+
+    def test_generate_random_ticket_successful(self, create_test_data, authenticated_client):
+        user_course = create_test_data['user_course']
+        client = authenticated_client
+
+        url = reverse('userticket-generate-random-ticket')
+        data = {'user_course_id': user_course.id}
+        response = client.post(url, data, format='json')
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+        # Проверяем, что билет и вопросы успешно созданы
+        user_ticket = UserTicket.objects.filter(user=user_course.user, user_course=user_course).last()
+        assert user_ticket.status == 'Not started'
+        assert user_ticket.attempt_count == 1
+        assert user_ticket.right_answers == 0
+        assert user_ticket.time_ticket == timedelta(minutes=30)
+
+        question_tickets = QuestionTicket.objects.filter(user_ticket=user_ticket)
+        assert question_tickets.count() == 5
+        for question_ticket in question_tickets:
+            assert question_ticket.status == 'Not Answered'
+            assert question_ticket.user_answer is None
+
 
 # ----------------------------------------------------------------------------------------
 

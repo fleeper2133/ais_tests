@@ -3,20 +3,7 @@
         <div>
             <Header />
             <div class="content__gap">
-                <div class="container container__bg">
-                    <div class="tabs">
-                        <div class="tabs__item" v-for="(status, statusIndex) in aisStore.courseStatuses" @click="showCourseStatus = status.id">
-                            <p
-                                class=" fs-18"
-                                :class="{'fw-bold' : showCourseStatus === status.id}"
-                            >
-                                {{ status.name }}
-                            </p>
-                            <div v-if="showCourseStatus === status.id" class="tabs__selected"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- <div class="container container__graph">
+                <div class="container container__graph">
                     <div class="graph">
                         <div class="graph__title fs-18">Ударный режим</div>
                         <div class="graph__info">
@@ -85,7 +72,20 @@
                         </div>
                         <button class="button last-course__button" @click="goToCourse">Продолжить</button>
                     </div>
-                </div> -->
+                </div>
+                <div class="container container__bg">
+                    <div class="tabs">
+                        <div class="tabs__item" v-for="(status, statusIndex) in aisStore.courseStatuses" @click="showCourseStatus = status.id">
+                            <p
+                                class=" fs-18"
+                                :class="{'fw-bold' : showCourseStatus === status.id}"
+                            >
+                                {{ status.name }}
+                            </p>
+                            <div v-if="showCourseStatus === status.id" class="tabs__selected"></div>
+                        </div>
+                    </div>
+                </div>
                 <div class="container container__courses">
                     <div 
                         class="search" 
@@ -272,6 +272,7 @@ watch(inputText, () => {
   currentPage.value = 1;
 });
 onMounted(async () => {
+    aisStore.getCurrentUser()
     await aisStore.getCourses()
     await aisStore.getUserCourses()
 });

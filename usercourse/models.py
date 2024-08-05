@@ -17,15 +17,17 @@ class UserCourse(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, db_index=True, null=True, blank=True)
     start_date = models.DateField()
-    progress = models.PositiveIntegerField()
+    progress = models.PositiveIntegerField(default=0)
+    prepare = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=255, default='New', choices=stat, null=True, blank=True)
     last_visited = models.DateTimeField(default=timezone.now)
     #для отзыва по курсу
     selected = models.BooleanField(default=False)  # как избранный
     review_text = models.TextField(null=True, blank=True)
     mark = models.PositiveIntegerField(null=True, blank=True)
+    course_time = models.DurationField(default=timedelta())
 
-    # написать функцию, которая автоматически вычисляет прогресс курса, на основании сданных билетов из тестирования
+    # вычисляет прогресс курса, на основании сданных билетов из тестирования
     def calculate_progress(self):
         tickets = UserTicket.objects.filter(user=self.user, ticket__testing__course=self.course)
         completed_tickets = tickets.filter(status='Done').count()
@@ -36,7 +38,34 @@ class UserCourse(models.Model):
         else:
             self.progress = 0
         self.save()
-    #модернизировать и интегрировать вместе с вопросами с excelent из всех?
+    
+    # обновление времени нахождении пользователя в системе
+    def calculate_course_time(self):
+        answer_question_time = UserQuestion.objects.filter(user=self.user, question__course=self.course).aggregate(total_time=sum('average_answer_time'))['total_time'] or timedelta()
+        self.course_time = answer_question_time
+        self.save()
+
+    # Рассчитывает степень подготовки пользователя на основе количества успешно отвеченных вопросов.
+    # Успешным считается вопрос, на который пользователь ответил правильно хотя бы три раза.
+    def calculate_prepare(self):
+        # Получение доступных вопросов из последней активной ротации курса
+        available_questions = self.course.get_available_questions()
+        total_questions = len(available_questions)
+        successful_questions = 0
+        
+        # Подсчёт успешно отвеченных вопросов
+        for question in available_questions:
+            user_question = UserQuestion.objects.filter(user=self.user, question=question).first()
+            if user_question and user_question.correct_count >= 3:
+                successful_questions += 1
+
+        # Расчёт процента подготовки
+        if total_questions > 0:
+            prepare = int((successful_questions / total_questions) * 100)
+        else:
+            prepare = 0
+        self.prepare = prepare
+        self.save()
 
 # Вопросы по заданию от пользователя
 class TaskQuestion(models.Model):
@@ -66,6 +95,8 @@ class UserQuestion(models.Model):
 
     #степень запоминания
     def update_memorization(self):
+        self.update_consecutive_incorrect()
+        self.update_counts_and_average_time()
         if self.force_downgrade_flag:
             self.memorization = 'Bad'
         else:
@@ -90,7 +121,7 @@ class UserQuestion(models.Model):
         self.incorrect_count = answers.filter(correct=False).count()
         total_time = sum((answer.answer_time for answer in answers), timedelta())
         self.average_answer_time = total_time / answers.count() if answers.exists() else timedelta()
-        self.update_memorization()
+        self.save()
 
     #последовательность последних неправильных ответов
     def update_consecutive_incorrect(self):
@@ -103,7 +134,58 @@ class UserQuestion(models.Model):
             self.consecutive_incorrect_count += 1
         
         self.force_downgrade_flag = (self.consecutive_incorrect_count >= 3)
+        self.save()
+
+    # Рассчитывает средний уровень запоминания вопроса на основе системной и пользовательской оценок.
+    def calculate_average_memorization(self):
+        # Определение рангов для каждой оценки. Округление в пользу пользователя при спорных моментах
+        rank_map = {
+            'user': 50,   # Вес пользовательской оценки
+            'system': 50, # Вес системной оценки
+        }
+
+        # Получаем последнюю пользовательскую оценку (не 'No')
+        latest_user_answer = UserAnswer.objects.filter(question=self.question, user=self.user).exclude(user_memorization='No').last()
+        user_memorization = latest_user_answer.user_memorization if latest_user_answer else 'New'
+        
+        # Получаем системную оценку
         self.update_memorization()
+        system_memorization = self.memorization
+
+        # Маппинг рангов на значения
+        rank_to_value = {
+            'New': 1,
+            'Bad': 2,
+            'Satisfactorily': 3,
+            'Good': 4,
+            'Excellent': 5,
+        }
+
+        # Преобразуем оценки в числовые значения
+        user_value = rank_to_value[user_memorization]
+        system_value = rank_to_value[system_memorization]
+
+        # Вычисляем взвешенное среднее значение
+        total_weight = rank_map['user'] + rank_map['system']
+        weighted_average = (user_value * rank_map['user'] + system_value * rank_map['system']) / total_weight
+
+        # можно добавить сравнение по времени и если пользователь > среднего, то - 0.5
+
+        # Определение уровня запоминания на основе взвешенного среднего
+        if weighted_average >= 4.5:
+            average_memorization = 'Excellent'
+        elif weighted_average >= 3.5:
+            average_memorization = 'Good'
+        elif weighted_average >= 2.5:
+            average_memorization = 'Satisfactorily'
+        elif weighted_average >= 1.5:
+            average_memorization = 'Bad'
+        else:
+            average_memorization = 'New'
+        
+        self.memorization = average_memorization
+        self.save()
+        return average_memorization
 
 
 # Билет пользователя
@@ -142,6 +224,7 @@ class UserTicket(models.Model):
         right_answers = QuestionTicket.objects.filter(user_ticket=self, status='Right').count()
         self.right_answers = right_answers
         self.save()
+        return right_answers
 
     # автоматический подсчёт статуса билета, на основании правильных ответов пользователя. От 60% правильных
     def update_status(self):
@@ -153,10 +236,20 @@ class UserTicket(models.Model):
 
 # Ответ пользователя
 class UserAnswer(models.Model):
+    degree = [
+        ('No', 'Нет оценки от пользователя'),
+        ('New', 'Новый'),
+        ('Bad', 'Плохо'),
+        ('Satisfactorily', 'Удовлетворительно'),
+        ('Good', 'Хорошо'),
+        ('Excellent', 'Блистательно'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_index=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, db_index=True)
     correct = models.FloatField(default=0.0) #1 - полностью правильно
     answer_time = models.DurationField()
+    user_memorization = models.CharField(max_length=255, choices=degree, default='No', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     #написать функцию, которая автоматически определяет правильность, обращаться к UserAnswerItem и Varient
