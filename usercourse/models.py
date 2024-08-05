@@ -93,6 +93,8 @@ class UserQuestion(models.Model):
 
     #степень запоминания
     def update_memorization(self):
+        self.update_consecutive_incorrect()
+        self.update_counts_and_average_time()
         if self.force_downgrade_flag:
             self.memorization = 'Bad'
         else:
@@ -117,7 +119,7 @@ class UserQuestion(models.Model):
         self.incorrect_count = answers.filter(correct=False).count()
         total_time = sum((answer.answer_time for answer in answers), timedelta())
         self.average_answer_time = total_time / answers.count() if answers.exists() else timedelta()
-        self.update_memorization()
+        self.save()
 
     #последовательность последних неправильных ответов
     def update_consecutive_incorrect(self):
@@ -130,8 +132,8 @@ class UserQuestion(models.Model):
             self.consecutive_incorrect_count += 1
         
         self.force_downgrade_flag = (self.consecutive_incorrect_count >= 3)
-        self.update_memorization()
-
+        self.save()
+        
     # Рассчитывает средний уровень запоминания вопроса на основе системной и пользовательской оценок.
     def calculate_average_memorization(self):
         # Определение рангов для каждой оценки. Округление в пользу пользователя при спорных моментах

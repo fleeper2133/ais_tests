@@ -445,6 +445,9 @@ class UserAnswerViewSet(viewsets.ModelViewSet):
             if user_answer.correct == 1.0:
                 user_answer.user_memorization = user_mem
                 user_answer.save()
+
+                uq = UserQuestion.objects.filter(user=user, question=user_answer.qustion).first()
+                uq.calculate_average_memorization()
                 return Response({'status': 'Вопросу добавлена степень запоминания'})
             else:
                 return Response({'status': 'Пользователь не имеет права изменять статус с неправильным ответом!'})
@@ -486,10 +489,8 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
                     order_answer=index + 1,
                 )
             user_answer.check_correctness()
-            q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
+            q = UserQuestion.objects.filter(user=user, question=user_answer.question).last()
             q.update_memorization()
-            q.update_counts_and_average_time()
-            q.update_consecutive_incorrect()
             q.save()
             question_ticket.update_status()
 
@@ -702,22 +703,12 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
                     return Response({'detail': f'Ошибка при проверке корректности ответа: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                 try:
-                    q = UserQuestion.objects.filter(user=user, question=user_answer.question).first()
+                    q = UserQuestion.objects.filter(user=user, question=user_answer.question).last()
                     if q:
                         try:
                             q.update_memorization()
                         except Exception as e:
                             return Response({'detail': f'Ошибка при обновлении данных запоминания: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-                        try:
-                            q.update_counts_and_average_time()
-                        except Exception as e:
-                            return Response({'detail': f'Ошибка при обновлении данных количества и среднего времени: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-                        try:
-                            q.update_consecutive_incorrect()
-                        except Exception as e:
-                            return Response({'detail': f'Ошибка при обновлении данных о последовательных неправильных ответах: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                         try:
                             q.save()
