@@ -41,8 +41,9 @@ class UserCourse(models.Model):
     
     # обновление времени нахождении пользователя в системе
     def calculate_course_time(self):
-        answer_question_time = UserQuestion.objects.filter(user=self.user, question__course=self.course).aggregate(total_time=sum('average_answer_time'))['total_time'] or timedelta()
-        self.course_time = answer_question_time
+        user_answers = UserAnswer.objects.filter(user=self.user, question__course=self.course)
+        total_time = sum((answer.answer_time for answer in user_answers), timedelta())
+        self.course_time = total_time
         self.save()
 
     # Рассчитывает степень подготовки пользователя на основе количества успешно отвеченных вопросов.

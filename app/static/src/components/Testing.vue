@@ -54,7 +54,7 @@
                                         'selected': selectedField(answer.answer_number),
                                         'selected-right': aisStore.questionData[currentQuestionIndex].answer_items && aisStore.questionData[currentQuestionIndex].answer_items?.includes(answer.answer_number),
                                         'selected-wrong': aisStore.questionData[currentQuestionIndex]?.status === 'Wrong' && aisStore.questionData[currentQuestionIndex].answer_items?.includes(answer.answer_number),
-                                        // 'correct-answer': aisStore.questionData[currentQuestionIndex]?.answer_items && aisStore.questionData[answerIndex]?.status === 'Right', // что-то исправить, работает через раз
+                                        'correct-answer': isAnswerRight(answer.answer_number),
                                     }"
                                     :key="answerIndex"
                                     @click="selectAnswer(answer, answer.answer_number, aisStore.questionData[currentQuestionIndex]?.answer_items)"
@@ -185,6 +185,14 @@ function answers(value) {
     }
 }
 
+function isAnswerRight(answerId) {
+
+    const rightVarientsArray = currentQuestion.value?.varients.filter(v => v.correct === true)
+    const answerNumbers = rightVarientsArray.map(v => v.answer_number)
+    const isAnswered = !!aisStore.questionData[currentQuestionIndex.value]?.correct_answer_items
+    return isAnswered && answerNumbers.includes(answerId)
+}
+
 async function getVarientsLength() {
     if (aisStore.questionDetailList) {
         const variants = await aisStore.questionDetailList[currentQuestionIndex.value].varients
@@ -229,11 +237,19 @@ function previousQuestion() {
         currentQuestionIndex.value--
         selectedAnswer.value = []
         varientsLength.value = 0
+    } else {
+        currentQuestionIndex.value = aisStore.questionDetailList.length - 1
+        selectedAnswer.value = []
+        varientsLength.value = 0
     }
 }
 function nextQuestion() {
     if (currentQuestionIndex.value < aisStore.questionDetailList.length - 1) {
         currentQuestionIndex.value++
+        selectedAnswer.value = []
+        varientsLength.value = 0
+    } else {
+        currentQuestionIndex.value = 0
         selectedAnswer.value = []
         varientsLength.value = 0
     }
@@ -245,7 +261,8 @@ async function send() {
 
     if (selectedAnswer) {
         const toSend: GenerateCheckResponse = {
-            "answer_items": selectedAnswer.value
+            "answer_items": selectedAnswer.value,
+            "answer_time": 50 // засечь время ответа на вопрос
         }
 
         await aisStore.createAnswer(selectedQuestionId.value, toSend)
@@ -255,6 +272,10 @@ async function send() {
     if (index !== -1) {
         aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
         aisStore.questionData[index]['answer_items'] = [...selectedAnswer.value]
+
+        const rightVarientsArray = currentQuestion.value?.varients.filter(v => v.correct === true)
+        const answerNumbers = rightVarientsArray.map(v => v.answer_number);
+        aisStore.questionData[index]['correct_answer_items'] = [...answerNumbers]
     }
 
     selectedAnswer.value = []

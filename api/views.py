@@ -113,7 +113,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='detail')
     def get_question_detail(self, request, pk=None):
         question = self.get_object()
-        serializer = QuestionDetailSerializer(question)
+        serializer = QuestionDetailSerializer(question, context={'request': request})
         return Response(serializer.data)
 
 class VarientViewSet(viewsets.ModelViewSet):
@@ -169,7 +169,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         # Получаем доступные вопросы из текущей активной ротации
         questions = user_course.course.get_available_questions()
         
-        serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
+        serializer = QuestionDetailSerializer(questions, many=True, context={'request': request})
         return Response(serializer.data)
 
     #история прохождения тестирования и проверок себя
@@ -473,12 +473,13 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
 
         question_ticket = self.get_object()
         user_answer_items = request.data.get('answer_items')
+        answer_time = request.data.get('answer_time')
 
         with transaction.atomic():
             user_answer = UserAnswer.objects.create(
                 question=question_ticket.question,
                 user=user,
-                answer_time=timedelta(seconds=50),
+                answer_time=timedelta(seconds=answer_time),
                 correct=0.0,
             )
             question_ticket.user_answer = user_answer
@@ -666,6 +667,8 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
             return Response({'detail': f'Произошла ошибка при получении вопроса: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         user_answer_items = request.data.get('answer_items')
+        answer_time = request.data.get('answer_time')
+
         if not user_answer_items:
             return Response({'detail': 'Ответы не найдены.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -675,7 +678,7 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
                     user_answer = UserAnswer.objects.create(
                         question=user_check_skills_question.question,
                         user=user,
-                        answer_time=timedelta(seconds=50),
+                        answer_time=timedelta(seconds=answer_time),
                         correct=0.0,
                     )
                 except Exception as e:
