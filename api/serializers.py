@@ -42,19 +42,6 @@ class VarientSerializer(serializers.ModelSerializer):
         model = Varient
         fields = ['id', 'answer_number', 'answer_text', 'correct', 'expert_check']
 
-class CourseQuestionDetailSerializer(serializers.ModelSerializer):
-    selected = serializers.SerializerMethodField()
-    varients = VarientSerializer(source='varient_set', many=True, read_only=True)
-
-    class Meta:
-        model = Question
-        fields = ['id', 'name', 'question_text', 'course', 'selected', 'varients']
-
-    def get_selected(self, obj):
-        user = self.context['request'].user
-        user_question = UserQuestion.objects.filter(user=user, question=obj).first()
-        return user_question.selected if user_question else False
-
 class QuestionDetailSerializer(serializers.ModelSerializer):
     selected = serializers.SerializerMethodField()
     normative_documents = NormativeDocumentSerializer(source='ndocument', read_only=True)

@@ -7,9 +7,10 @@ from users.models import CustomUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial, Rotation, RotationQuestion
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
-from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, CourseQuestionDetailSerializer, UserQuestionStatisticSerializer
+from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, UserQuestionStatisticSerializer
 import random
 from django.db import transaction
+from django.utils import timezone
 # создание + прохождение билета покрыть в тестах.
 
 class QualificationViewSet(viewsets.ModelViewSet):
@@ -35,7 +36,6 @@ class CourseViewSet(viewsets.ModelViewSet):
     # При нажатии кнопки начать у курса создаём курс-пользователя
     @action(detail=True, methods=['post'])
     def start_course(self, request, pk=None):
-        from django.utils import timezone
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -56,7 +56,6 @@ class CourseViewSet(viewsets.ModelViewSet):
     # Отметка курса как отложенного
     @action(detail=True, methods=['post'])
     def mark_as_delayed(self, request, pk=None):
-        from django.utils import timezone
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -109,6 +108,30 @@ class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionDetailSerializer
     permission_classes = [IsAuthenticated]
 
+    # отметить вопрос, как избранный
+    @action(detail=True, methods=['post'])
+    def change_favorite(self, request, pk=None):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        question = self.get_object()
+
+        user_question, created = UserQuestion.objects.get_or_create(
+            user=user, 
+            question=question,
+            defaults={'selected': True}
+        )
+        if not created:
+            # Если объект уже существует, переключаем статус избранного
+            user_question.selected = not user_question.selected
+            user_question.save()
+            status_message = f"Вопрос с id {question.id} отмечен как избранный" if user_question.selected else f"Вопрос с id {question.id} удалён из избранных"
+        else:
+            status_message = f"Вопрос с id {question.id} отмечен как избранный"
+
+        return Response({'status': status_message})
+    
     # получение детальной информации по вопросу
     @action(detail=True, methods=['get'], url_path='detail')
     def get_question_detail(self, request, pk=None):
@@ -235,7 +258,6 @@ class UserCourseViewSet(viewsets.ModelViewSet):
 
     # обновление последнего времени посещения курса при get запросе
     def retrieve(self, request, pk=None):
-        from django.utils import timezone
         user_course = self.get_object()
         if user_course:
             user_course.last_visited = timezone.now()
@@ -290,18 +312,6 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     queryset = UserQuestion.objects.all()
     serializer_class = UserQuestionSerializer
     permission_classes = [IsAuthenticated]
-
-    #отметить вопрос, как избранный
-    @action(detail=True, methods=['post'])
-    def mark_as_favorite(self, request, pk=None):
-        user = request.user
-        if not user.is_authenticated: 
-            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        user_question = self.get_object()
-        user_question.selected = True
-        user_question.save()
-        return Response({'status': 'Вопрос отмечен как избранный'})
     
     # получить избранные вопросы
     @action(detail=False, methods=['get'], url_path='favorites')
@@ -347,7 +357,6 @@ class UserTicketViewSet(viewsets.ModelViewSet):
     #генерируем случайный билет для проверки знаний
     @action(detail=False, methods=['post'])
     def generate_random_ticket(self, request):
-        from django.utils import timezone
         from datetime import timedelta
 
         user = request.user
