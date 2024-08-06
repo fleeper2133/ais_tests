@@ -7,7 +7,7 @@ from users.models import CustomUser
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial, Rotation, RotationQuestion
 from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
-from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, CourseQuestionDetailSerializer, UserQuestionStatisticSerializer
+from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, UserQuestionStatisticSerializer
 import random
 from django.db import transaction
 # создание + прохождение билета покрыть в тестах.
@@ -169,7 +169,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         # Получаем доступные вопросы из текущей активной ротации
         questions = user_course.course.get_available_questions()
         
-        serializer = CourseQuestionDetailSerializer(questions, many=True, context={'request': request})
+        serializer = QuestionDetailSerializer(questions, many=True, context={'request': request})
         return Response(serializer.data)
 
     #история прохождения тестирования и проверок себя
