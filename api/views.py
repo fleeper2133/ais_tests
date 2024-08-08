@@ -78,6 +78,15 @@ class TestingViewSet(viewsets.ModelViewSet):
     queryset = Testing.objects.all()
     serializer_class = TestingSerializer
 
+    # получаем подробную информацию о тестирование, передавай id (берём из курса)
+    def retrieve(self, request, pk=None):
+        try:
+            testing = self.get_object()
+            serializer = self.get_serializer(testing)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Testing.DoesNotExist:
+            return Response({'detail': 'Тестирование не найдено.'}, status=status.HTTP_404_NOT_FOUND)
+
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
@@ -100,7 +109,7 @@ class TicketViewSet(viewsets.ModelViewSet):
         )
         user_ticket.update_attempt_count()
 
-        serializer = UserTicketSerializer(user_ticket, many=False)
+        serializer = UserTicketSerializer(user_ticket, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -313,21 +322,21 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = UserQuestionSerializer
     permission_classes = [IsAuthenticated]
     
-    # получить избранные вопросы
-    @action(detail=False, methods=['get'], url_path='favorites')
-    def get_favorites(self, request):
-        user = request.user
-        favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
-        serializer = UserQuestionSerializer(favorite_questions, many=True)
-        return Response(serializer.data)
+    # # получить избранные вопросы
+    # @action(detail=False, methods=['get'], url_path='favorites')
+    # def get_favorites(self, request):
+    #     user = request.user
+    #     favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
+    #     serializer = UserQuestionSerializer(favorite_questions, many=True)
+    #     return Response(serializer.data)
 
-    # получить вопросы с плохой степенью запоминания
-    @action(detail=False, methods=['get'], url_path='memorization/bad')
-    def get_bad_memorization(self, request):
-        user = request.user
-        bad_memorization_questions = UserQuestion.objects.filter(user=user, memorization='Bad')
-        serializer = UserQuestionSerializer(bad_memorization_questions, many=True)
-        return Response(serializer.data)
+    # # получить вопросы с плохой степенью запоминания
+    # @action(detail=False, methods=['get'], url_path='memorization/bad')
+    # def get_bad_memorization(self, request):
+    #     user = request.user
+    #     bad_memorization_questions = UserQuestion.objects.filter(user=user, memorization='Bad')
+    #     serializer = UserQuestionSerializer(bad_memorization_questions, many=True)
+    #     return Response(serializer.data)
 
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
@@ -429,7 +438,8 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                 )
                 mass.append(temp)
 
-        serializer = QuestionTicketSerializer(mass, many=True)
+        #serializer = QuestionTicketSerializer(mass, many=True)
+        serializer = QuestionDetailSerializer(selected_questions, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserAnswerViewSet(viewsets.ModelViewSet):

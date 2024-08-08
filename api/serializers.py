@@ -22,15 +22,17 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = '__all__'
 
-class TestingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Testing
-        fields = '__all__'
-
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = '__all__'
+
+class TestingSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, read_only=True, source='ticket_set')
+
+    class Meta:
+        model = Testing
+        fields = ['id', 'course', 'description', 'price', 'tickets'] 
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -106,8 +108,9 @@ class UserTicketSerializer(serializers.ModelSerializer):
         fields = ['id', 'ticket', 'time_ticket', 'status', 'user', 'attempt_count', 'updated_at', 'right_answers', 'questions']
 
     def get_questions(self, obj):
-        question_list = QuestionList.objects.filter(ticket=obj.ticket).order_by('number_in_ticket')
-        return QuestionListSerializer(question_list, many=True).data
+        request = self.context.get('request', None)
+        questions = Question.objects.filter(questionlist__ticket=obj.ticket).order_by('questionlist__number_in_ticket')
+        return QuestionDetailSerializer(questions, many=True, context={'request': request}).data
 
 class UserAnswerSerializer(serializers.ModelSerializer):
     user_answer_items = serializers.SerializerMethodField()
