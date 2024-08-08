@@ -163,6 +163,25 @@ const varientsLength = ref(0)
 const selectedQuestionId = ref<number>(0)
 // const answeredList = ref([])
 
+
+// Timer
+
+const timerValue = ref(0)
+let intervalId = null
+
+function startTimer() {
+    if (intervalId !== null) {
+        clearInterval(intervalId);
+    }
+
+    timerValue.value = 0
+
+    intervalId = setInterval(() => {
+        timerValue.value++
+    }, 1000)
+}
+// Timer end
+
 function back() {
 
     aisStore.questionData = []
@@ -228,11 +247,13 @@ function selectedField(number) {
 }
 
 function selectQuestion(index) {
+    startTimer()
     currentQuestionIndex.value = index
     selectedAnswer.value = []
     varientsLength.value = 0
 }
 function previousQuestion() {
+    startTimer()
     if (currentQuestionIndex.value > 0) {
         currentQuestionIndex.value--
         selectedAnswer.value = []
@@ -244,6 +265,7 @@ function previousQuestion() {
     }
 }
 function nextQuestion() {
+    startTimer()
     if (currentQuestionIndex.value < aisStore.questionDetailList.length - 1) {
         currentQuestionIndex.value++
         selectedAnswer.value = []
@@ -256,13 +278,14 @@ function nextQuestion() {
 }
 
 async function send() {
+
     const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
     selectedQuestionId.value = way.id
 
     if (selectedAnswer) {
         const toSend: GenerateCheckResponse = {
             "answer_items": selectedAnswer.value,
-            "answer_time": 50 // засечь время ответа на вопрос
+            "answer_time": timerValue.value
         }
 
         await aisStore.createAnswer(selectedQuestionId.value, toSend)
@@ -279,6 +302,8 @@ async function send() {
     }
 
     selectedAnswer.value = []
+    
+    console.log(timerValue.value)
 
     setTimeout(() => {
         scrollToBottom();
@@ -345,6 +370,7 @@ function makeDone() {
 }
 
 onMounted(async () => {
+    startTimer()
     aisStore.getLastUserCheckSkills()
 });
 

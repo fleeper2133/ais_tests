@@ -117,6 +117,7 @@ const selectedCourse = ref<Course[]>([])
 const showCourseInfoButton = ref<boolean>(false)
 const courseQuestions = ref<Question[]>([])
 const favoritesQuestions = ref<Question[]>([])
+const filteredFavouriteQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
 const questionData = ref<GenerateCheckResponse[]>([])
 const questionDetailList = ref<QuestionDetail[]>([])
@@ -124,6 +125,7 @@ const userCheckSkills = ref<number | undefined>(undefined)
 const trainingAnswer = ref({})
 const lastCheckSkills = ref({})
 const lastCourse = ref({})
+const isLoading  = ref<boolean>(true)
 const courseStatuses = ref([
   {id: 'All', name: 'Все курсы'},
   {id: 'New', name: 'Начатые'},
@@ -157,7 +159,13 @@ function getCourseQuestions(id) {
   return api.getCourseQuestions(id)
   .then((questions: Question[]) => {
     courseQuestions.value = questions
+  }) .finally (() => {
+    isLoading.value = false
   })
+}
+
+function getCourseById(id) {
+  return api.getCourseById(id)
 }
 
 function getUserCourses() {
@@ -220,6 +228,7 @@ function giveRating(id: number, body: string) {
 }
 
 // Favorite end
+
 
 // Authentication
 function login(loginData: Login) {
@@ -297,6 +306,7 @@ function sendMail(data: SendMail){
     markQuestionSelected,
     getFavoritesQuestions,
     favoritesQuestions,
+    filteredFavouriteQuestions,
     userCheckSkills,
     courseStatuses,
     getCurrentUser,
@@ -305,6 +315,8 @@ function sendMail(data: SendMail){
     lastCheckSkills,
     getLastUserCheckSkills,
     lastCourse,
-    getLastCourse
+    getLastCourse,
+    isLoading,
+    getCourseById,
   }
 });

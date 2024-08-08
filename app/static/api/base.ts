@@ -64,6 +64,11 @@ class ApiClient {
     return this.get('/api/courses/');
   }
 
+  async getCourseById(id) {
+    const url = `/api/user-courses/${id}/`
+    return this.get(url);
+  }
+
   async getCourseQuestions(id) {
     const url = `/api/user-courses/${id}/course_questions/`
     return this.get(url);
@@ -99,12 +104,11 @@ class ApiClient {
   }
 
   async favoritesQuestions(){
-    const url = '/api/user-questions/favorites-questions/'
-    return this.get(url);
+    return this.get('/api/user-questions/favorites/')
   }
 
   async markQuestionSelected(id) {
-    const url = `/api/questions/${id}/mark-as-favorite/`
+    const url = `/api/questions/${id}/change_favorite/`
     return this.post(url);
   }
 

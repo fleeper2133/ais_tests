@@ -112,10 +112,10 @@
                                         <p class="fs-14 main-blue">Вопросы:</p>
                                         <p class="fs-14 main-blue fw-bold">20 случайных</p>
                                     </div>
-                                    <div class="selector__data">
+                                    <!-- <div class="selector__data">
                                         <p class="fs-14 main-blue">Сложность:</p>
                                         <p class="fs-14 main-blue fw-bold">{{ difficultyText2 }}</p>
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний.</p>
                             </div>
@@ -127,14 +127,14 @@
                         </div>
                         <div class="selector__action">
                             <div class="selector__buttons">
-                                <div class="dropper">
+                                <!-- <div class="dropper">
                                     <div class="dropper__title" @click.stop="toggleDropper('difficulty2')">Сложность: {{ difficultyText2 }}</div>
                                     <div v-show="dropperStates.difficulty2" class="dropper__list">
                                         <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Легко')">Легко</p>
                                         <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Средне')">Средне</p>
                                         <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Сложно')">Сложно</p>
                                     </div>
-                                </div>
+                                </div> -->
                                 <button class="selector__button" @click="goToTickets">Пройти</button>
                             </div>
                         </div>
@@ -240,13 +240,15 @@ function goBack(): void {
 }
 
 function openFavorite(): void {
-    aisStore.getFavoritesQuestions()
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    aisStore.getCourseQuestions(course.id)
     router.push('/favorite-questions')
 }
 
 function openMistakes(): void {
     router.push('/mistakes')
 }
+
 
 function openCourseQuestions(): void {
     const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
@@ -282,11 +284,15 @@ async function generateCheck() {
         }
     }
 
+    aisStore.startTestTimer()
     return router.push('/testing')
 }
 
 // Генерация вопросов end
-
+onMounted(async () => {
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    await aisStore.getCourseById(course.id)
+});
 
 </script>
 

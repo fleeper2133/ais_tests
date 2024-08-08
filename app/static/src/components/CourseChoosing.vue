@@ -4,56 +4,65 @@
             <Header />
             <div class="content__gap">
                 <div class="container container__graph">
-                    <!-- <div class="graph">
+                    <div class="graph">
                         <div class="graph__title fs-18">Ударный режим</div>
                         <div class="graph__info">
                             <div class="graph__info-item">
                                 <p class="fs-14 grey-text">Ваш ударный режим:</p>
-                                <p class="fw-bold fs-14">2 дня</p>
+                                <p class="fw-bold fs-14">3 дня</p>
                             </div>
                             <div class="graph__info-item">
                                 <p class="fs-14 grey-text">Вы выполнили:</p>
-                                <p class="fw-bold fs-14">20 заданий</p>
+                                <p class="fw-bold fs-14">5 заданий</p>
                             </div>
                         </div>
                         <div class="graph__days">
                             <div class="graph__day">
-                                <div class="graph__day-icon graph__day-icon--filed"></div>
+                                <div class="graph__day-icon graph__day-icon--filed">
+                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+                                        <path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
                                 <p class="fs-14">Пн</p>
-                                <p class="fs-14">28.09</p>
                             </div>
                             <div class="graph__day">
-                                <div class="graph__day-icon graph__day-icon--selected"></div>
-                                <p class="fs-14">Пн</p>
-                                <p class="fs-14">28.09</p>
+                                <div class="graph__day-icon">
+                                </div>
+                                <p class="fs-14">Вт</p>
                             </div>
                             <div class="graph__day">
-                                <div class="graph__day-icon"></div>
-                                <p class="fs-14">Пн</p>
-                                <p class="fs-14">28.09</p>
+                                <div class="graph__day-icon">
+                                </div>
+                                <p class="fs-14">Ср</p>
                             </div>
                             <div class="graph__day">
-                                <div class="graph__day-icon"></div>
-                                <p class="fs-14">Пн</p>
-                                <p class="fs-14">28.09</p>
+                                <div class="graph__day-icon graph__day-icon--filed">
+                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+                                        <path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <p class="fs-14">Чт</p>
                             </div>
                             <div class="graph__day">
-                                <div class="graph__day-icon"></div>
+                                <div class="graph__day-icon graph__day-icon--filed">
+                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none">
+                                        <path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
                                 <p class="fs-14">Пн</p>
-                                <p class="fs-14">28.09</p>
                             </div>
                             <div class="graph__day">
-                                <div class="graph__day-icon"></div>
-                                <p class="fs-14">Пн</p>
-                                <p class="fs-14">28.09</p>
+                                <div class="graph__day-icon">
+                                </div>
+                                <p class="fs-14">Сб</p>
                             </div>
                             <div class="graph__day">
-                                <div class="graph__day-icon"></div>
-                                <p class="fs-14">Пн</p>
-                                <p class="fs-14">28.09</p>
+                                <div class="graph__day-icon">
+                                </div>
+                                <p class="fs-14">Вс</p>
                             </div>
                         </div>
-                    </div> -->
+                    </div>
                     <div class="last-course">
                         <p>Последний курс:</p>
                         <p class="fs-18">{{ truncatedCourseName }}</p>
@@ -418,6 +427,9 @@ onMounted(async () => {
     align-items: center;
 }
 .graph__day-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: white;
     width: 40px;
     height: 40px;

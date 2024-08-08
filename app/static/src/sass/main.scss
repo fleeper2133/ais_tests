@@ -92,6 +92,7 @@ html,body {
   height: 30px;
   flex-shrink: 0;
   transition: transform 0.3s ease;
+  fill: none;
 
   &:hover {
       opacity: 0.8;
@@ -114,6 +115,12 @@ html,body {
   font-size: 18px;
 }
 
+.loader-position {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
 
 .fs-14 {
