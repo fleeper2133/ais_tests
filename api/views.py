@@ -329,14 +329,34 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     #     favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
     #     serializer = UserQuestionSerializer(favorite_questions, many=True)
     #     return Response(serializer.data)
+    
+    # получить вопросы с плохой степенью запоминания
+    @action(detail=False, methods=['get'], url_path='memorization/bad')
+    def get_bad_memorization(self, request):
+        user = request.user
+        user_course_id = request.query_params.get('user_course_id')
 
-    # # получить вопросы с плохой степенью запоминания
-    # @action(detail=False, methods=['get'], url_path='memorization/bad')
-    # def get_bad_memorization(self, request):
-    #     user = request.user
-    #     bad_memorization_questions = UserQuestion.objects.filter(user=user, memorization='Bad')
-    #     serializer = UserQuestionSerializer(bad_memorization_questions, many=True)
-    #     return Response(serializer.data)
+        if not user_course_id:
+            return Response({'detail': 'user_course_id не предоставлен.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id, user=user)
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Получаем вопросы, доступные в текущей ротации
+        rotation_questions = user_course.course.get_available_questions()
+        rotation_questions_ids = [q.id for q in rotation_questions]
+
+        # Фильтрация вопросов с плохой степенью запоминания в текущей ротации
+        bad_memorization_questions = UserQuestion.objects.filter(
+            user=user,
+            question__id__in=rotation_questions_ids,
+            memorization='Bad'
+        )
+
+        serializer = UserQuestionSerializer(bad_memorization_questions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
