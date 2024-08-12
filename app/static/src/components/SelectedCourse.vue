@@ -191,6 +191,8 @@ function courseInfo(): void {
 }
 
 function openHistory(): void {
+    const whatCourseSelected = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    aisStore.getCourseHistory(whatCourseSelected.id)
     router.push('/history')
 }
 
@@ -246,6 +248,9 @@ function openFavorite(): void {
 }
 
 function openMistakes(): void {
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    aisStore.getCourseQuestions(course.id)
+    aisStore.getMistakes()
     router.push('/mistakes')
 }
 
@@ -283,8 +288,7 @@ async function generateCheck() {
             aisStore.questionDetailList?.push(result)
         }
     }
-
-    aisStore.startTestTimer()
+    aisStore.getLastUserCheckSkills()
     return router.push('/testing')
 }
 

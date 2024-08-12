@@ -81,6 +81,8 @@ export interface GenerateCheck {
   difficulty: string
   user_id?: number
   user_course_id: number
+  type?: string
+  created_at?: string
 }
 
 export interface GenerateCheckResponse {
@@ -120,12 +122,15 @@ const favoritesQuestions = ref<Question[]>([])
 const filteredFavouriteQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
 const questionData = ref<GenerateCheckResponse[]>([])
+const allQuestionsData = ref<GenerateCheckResponse[]>([])
+const allMistakes = ref<GenerateCheckResponse[]>([])
 const questionDetailList = ref<QuestionDetail[]>([])
 const userCheckSkills = ref<number | undefined>(undefined)
 const trainingAnswer = ref({})
 const lastCheckSkills = ref({})
 const lastCourse = ref({})
-const isLoading  = ref<boolean>(true)
+const isLoading = ref<boolean>(true)
+const courseHistory = ref<GenerateCheck[]>([])
 const courseStatuses = ref([
   {id: 'All', name: 'Все курсы'},
   {id: 'New', name: 'Начатые'},
@@ -203,13 +208,38 @@ function endTraining(id: number) {
   return api.endTraining(id)
 }
 
+function getCourseHistory(id: number) {
+  return api.getCourseHistory(id)
+  .then((answer: GenerateCheck) => {
+    if (courseHistory) courseHistory.value = []
+    courseHistory.value = answer.reverse()
+  })
+}
+function getUserCkeckSkillsQuestions() {
+  return api.getUserCkeckSkillsQuestions()
+  .then((answer: GenerateCheckResponse[]) => {
+    return allQuestionsData.value = answer
+  })
+}
+
+function getMistakes() {
+  return api.getMistakes()
+  .then((answer: GenerateCheckResponse[]) => {
+    return allMistakes.value = answer.reverse()
+  })
+  .finally (() => {
+    isLoading.value = false
+  })
+}
+
+
 // Favorite
 
 function getFavoritesQuestions(){
   return api.favoritesQuestions()
   .then((questions: Question[]) => 
     favoritesQuestions.value = questions
-  );
+  )
 }
 
 function getLastCourse() {
@@ -318,5 +348,11 @@ function sendMail(data: SendMail){
     getLastCourse,
     isLoading,
     getCourseById,
+    courseHistory,
+    getCourseHistory,
+    getUserCkeckSkillsQuestions,
+    allQuestionsData,
+    getMistakes,
+    allMistakes,
   }
 });

@@ -57,50 +57,53 @@ class ApiClient {
 
 
   async getCurrentUser() {
-    return this.get('/users/api/current_user/');
+    return this.get('/users/api/current_user/')
   }
 
   async getCourses() {
-    return this.get('/api/courses/');
+    return this.get('/api/courses/')
   }
 
   async getCourseById(id) {
     const url = `/api/user-courses/${id}/`
-    return this.get(url);
+    return this.get(url)
   }
 
   async getCourseQuestions(id) {
     const url = `/api/user-courses/${id}/course_questions/`
-    return this.get(url);
+    return this.get(url)
   }
 
   async getUserCourses() {
-    return this.get('/api/user-courses/');
+    return this.get('/api/user-courses/')
   }
   async setUserCourse(body) {
-    return this.post('/api/user-courses/', body);
+    return this.post('/api/user-courses/', body)
   }
 
   async startCourse(id, body) {
-    const url = `/api/courses/${id}/start_course/`;
-    return this.post(url, body);
+    const url = `/api/courses/${id}/start_course/`
+    return this.post(url, body)
   }
 
   async smartGenerate(body) {
-    return this.post('api/user-check-skills/smart-generate-check/', body);
+    return this.post('api/user-check-skills/smart-generate-check/', body)
   }
   async getQuestionDetail(id) {
     const url = `/api/questions/${id}/detail/`
-    return this.get(url);
+    return this.get(url)
   }
 
   async createAnswer(id, body) {
     const url = `/api/user-check-skills-questions/${id}/create_answer/`
-    return this.post(url, body);
+    return this.post(url, body)
+  }
+  async getUserCkeckSkillsQuestions(){
+    return this.get('/api/user-check-skills-questions/')
   }
   async endTraining(id) {
     const url = `api/user-check-skills/${id}/end_check/`
-    return this.post(url);
+    return this.post(url)
   }
 
   async favoritesQuestions(){
@@ -109,12 +112,12 @@ class ApiClient {
 
   async markQuestionSelected(id) {
     const url = `/api/questions/${id}/change_favorite/`
-    return this.post(url);
+    return this.post(url)
   }
 
   async giveRating(id, body) {
     const url = `api/user-answers/${id}/post_user_memorization/`
-    return this.post(url, body);
+    return this.post(url, body)
   }
 
   async getUserCheckSkills(){
@@ -123,6 +126,14 @@ class ApiClient {
   async getLastCourse(){
     return this.get('api/user-courses/last-course/');
   }
+
+  async getCourseHistory(id) {
+    const url = `api/user-courses/${id}/course_history/`
+    return this.get(url)
+  }
+  async getMistakes(){
+    return this.get('/api/user-questions/memorization/bad/')
+  }
   
 
   async sendMail(body){
@@ -130,15 +141,15 @@ class ApiClient {
   }
 
   async login(body) {
-    return this.post('/api/login/', body);
+    return this.post('/api/login/', body)
   }
 
   async logout(body) {
-    return this.post('/api/logout/', body);
+    return this.post('/api/logout/', body)
   }
 
   async registration(body) {
-    return this.post('/api/registration/', body);
+    return this.post('/api/registration/', body)
   }
 
 }

@@ -371,7 +371,6 @@ function makeDone() {
 
 onMounted(async () => {
     startTimer()
-    aisStore.getLastUserCheckSkills()
 });
 
 </script>
