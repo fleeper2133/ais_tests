@@ -18,9 +18,17 @@ class NormativeDocumentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CourseSerializer(serializers.ModelSerializer):
+    testing = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
         fields = '__all__'
+
+    def get_testing(self, obj):
+        testing = Testing.objects.filter(course=obj).first()
+        if testing:
+            return TestingSerializer(testing).data
+        return None
 
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
