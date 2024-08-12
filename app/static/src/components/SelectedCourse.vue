@@ -108,10 +108,6 @@
                                         <p class="fs-14 main-blue">Билеты:</p>
                                         <p class="fs-14 main-blue fw-bold">9</p>
                                     </div>
-                                    <div class="selector__data">
-                                        <p class="fs-14 main-blue">Вопросы:</p>
-                                        <p class="fs-14 main-blue fw-bold">20 случайных</p>
-                                    </div>
                                     <!-- <div class="selector__data">
                                         <p class="fs-14 main-blue">Сложность:</p>
                                         <p class="fs-14 main-blue fw-bold">{{ difficultyText2 }}</p>

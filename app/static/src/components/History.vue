@@ -26,7 +26,7 @@
                                 <div class="history__items">
                                     <div class="history__item-header">
                                         <p class="fw-bold fs-18">{{ typeText(course.type) }}</p>
-                                        <div class="history__item-status" :style="`background-color: ${course.status === 'In Progress' ? '#c3effe' : '#c7ffdd'}`">{{ statusText(course.status) }}</div>
+                                        <div class="history__item-status fs-14" :style="`background-color: ${course.status === 'In Progress' ? '#c3effe' : '#c7ffdd'}`">{{ statusText(course.status) }}</div>
                                     </div>
                                     <div class="history__item-body">
                                         <div class="history__item-info">
