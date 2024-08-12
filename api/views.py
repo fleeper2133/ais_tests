@@ -78,6 +78,15 @@ class TestingViewSet(viewsets.ModelViewSet):
     queryset = Testing.objects.all()
     serializer_class = TestingSerializer
 
+    # получаем подробную информацию о тестирование, передавай id (берём из курса)
+    def retrieve(self, request, pk=None):
+        try:
+            testing = self.get_object()
+            serializer = self.get_serializer(testing)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Testing.DoesNotExist:
+            return Response({'detail': 'Тестирование не найдено.'}, status=status.HTTP_404_NOT_FOUND)
+
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
@@ -100,7 +109,7 @@ class TicketViewSet(viewsets.ModelViewSet):
         )
         user_ticket.update_attempt_count()
 
-        serializer = UserTicketSerializer(user_ticket, many=False)
+        serializer = UserTicketSerializer(user_ticket, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -313,21 +322,21 @@ class UserQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = UserQuestionSerializer
     permission_classes = [IsAuthenticated]
     
-    # получить избранные вопросы
-    @action(detail=False, methods=['get'], url_path='favorites')
-    def get_favorites(self, request):
-        user = request.user
-        favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
-        serializer = UserQuestionSerializer(favorite_questions, many=True)
-        return Response(serializer.data)
+    # # получить избранные вопросы
+    # @action(detail=False, methods=['get'], url_path='favorites')
+    # def get_favorites(self, request):
+    #     user = request.user
+    #     favorite_questions = UserQuestion.objects.filter(user=user, selected=True)
+    #     serializer = UserQuestionSerializer(favorite_questions, many=True)
+    #     return Response(serializer.data)
 
-    # получить вопросы с плохой степенью запоминания
-    @action(detail=False, methods=['get'], url_path='memorization/bad')
-    def get_bad_memorization(self, request):
-        user = request.user
-        bad_memorization_questions = UserQuestion.objects.filter(user=user, memorization='Bad')
-        serializer = UserQuestionSerializer(bad_memorization_questions, many=True)
-        return Response(serializer.data)
+    # # получить вопросы с плохой степенью запоминания
+    # @action(detail=False, methods=['get'], url_path='memorization/bad')
+    # def get_bad_memorization(self, request):
+    #     user = request.user
+    #     bad_memorization_questions = UserQuestion.objects.filter(user=user, memorization='Bad')
+    #     serializer = UserQuestionSerializer(bad_memorization_questions, many=True)
+    #     return Response(serializer.data)
 
 class UserTicketViewSet(viewsets.ModelViewSet):
     queryset = UserTicket.objects.all()
@@ -429,7 +438,8 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                 )
                 mass.append(temp)
 
-        serializer = QuestionTicketSerializer(mass, many=True)
+        #serializer = QuestionTicketSerializer(mass, many=True)
+        serializer = QuestionDetailSerializer(selected_questions, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserAnswerViewSet(viewsets.ModelViewSet):
@@ -574,10 +584,14 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
             id__in=UserQuestion.objects.filter(user=user, question__course_id=course_id).values_list('question_id', flat=True)
         )
 
-        # Деление вопросов по уровню запоминания
-        user_questions = UserQuestion.objects.filter(user=user, question__course_id=course_id)
+        # Фильтруем пользовательские вопросы только по тем, которые доступны в текущей ротации
+        user_questions = UserQuestion.objects.filter(
+            user=user, 
+            question__course_id=course_id, 
+            question_id__in=rotation_questions_ids
+        )
         answered_questions_count = len(user_questions)
-        
+        # Деление вопросов по уровню запоминания
         answ_new_questions = user_questions.filter(memorization='New')
         bad_questions = user_questions.filter(memorization='Bad')
         satisfy_questions = user_questions.filter(memorization='Satisfactorily')
@@ -652,6 +666,106 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
                     selected=False,
                     memorization='New',
                 )
+
+        questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
+        return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
+    
+    # Создание тестирования из избраных вопросов
+    @action(detail=False, methods=['post'], url_path='generate-favourite-check')
+    def generate_favourite_check(self, request):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_course_id = request.data.get('user_course_id')
+
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id)
+            course_id = user_course.course.id
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # избранные вопросы пользователя
+        user_questions = list(UserQuestion.objects.filter(
+            user=user, 
+            question__course_id=course_id, 
+            selected=True
+        ))
+        question_count = int(request.data.get('question_count', len(user_questions)))
+
+        # Создаем запись UserCheckSkills
+        user_check_skills = UserCheckSkills.objects.create(
+            user=user,
+            question_count=question_count,
+            status="In Progress",
+            user_course=user_course,
+        )
+        user_check_skills.save()
+
+        selected_questions = user_questions[:question_count]
+        with transaction.atomic():
+            created_questions = []
+            for index, question in enumerate(selected_questions):
+                if isinstance(question, UserQuestion):
+                    question = question.question
+                created_question = UserCheckSkillsQuestion.objects.create(
+                    user_check_skills=user_check_skills,
+                    question=question,
+                    number_in_check=index + 1,
+                    status='Not Answered',
+                    user_answer=None,
+                )
+                created_questions.append(created_question)
+
+        questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
+        return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
+    
+    # Создание тестирования из вопросов с плохой степенью запоминания
+    @action(detail=False, methods=['post'], url_path='generate-bad-check')
+    def generate_bad_check(self, request):
+        user = request.user
+        if not user.is_authenticated: 
+            return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_course_id = request.data.get('user_course_id')
+
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id)
+            course_id = user_course.course.id
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # избранные вопросы пользователя
+        user_questions = list(UserQuestion.objects.filter(
+            user=user, 
+            question__course_id=course_id, 
+            memorization="Bad"
+        ))
+        question_count = int(request.data.get('question_count', len(user_questions)))
+
+        # Создаем запись UserCheckSkills
+        user_check_skills = UserCheckSkills.objects.create(
+            user=user,
+            question_count=question_count,
+            status="In Progress",
+            user_course=user_course,
+        )
+        user_check_skills.save()
+
+        selected_questions = user_questions[:question_count]
+        with transaction.atomic():
+            created_questions = []
+            for index, question in enumerate(selected_questions):
+                if isinstance(question, UserQuestion):
+                    question = question.question
+                created_question = UserCheckSkillsQuestion.objects.create(
+                    user_check_skills=user_check_skills,
+                    question=question,
+                    number_in_check=index + 1,
+                    status='Not Answered',
+                    user_answer=None,
+                )
+                created_questions.append(created_question)
 
         questions_serializer = UserCheckSkillsQuestionSerializer(created_questions, many=True)
         return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
