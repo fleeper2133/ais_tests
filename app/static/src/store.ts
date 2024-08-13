@@ -44,6 +44,7 @@ export interface Course {
   available_until: string
   question_count: number
   image_link: string
+  testing?: []
   user_marks: number
   qualification: number
 }
@@ -122,6 +123,9 @@ const favoritesQuestions = ref<Question[]>([])
 const filteredFavouriteQuestions = ref<Question[]>([])
 const startedCourses = ref<UserCourse[]>([])
 const questionData = ref<GenerateCheckResponse[]>([])
+const selectedTestIndex = ref<number>(0)
+const testingInfo = ref({})
+const testingDetail = ref([])
 const allQuestionsData = ref<GenerateCheckResponse[]>([])
 const allMistakes = ref<GenerateCheckResponse[]>([])
 const questionDetailList = ref<QuestionDetail[]>([])
@@ -222,8 +226,8 @@ function getUserCkeckSkillsQuestions() {
   })
 }
 
-function getMistakes() {
-  return api.getMistakes()
+function getMistakes(body) {
+  return api.getMistakes(body)
   .then((answer: GenerateCheckResponse[]) => {
     return allMistakes.value = answer.reverse()
   })
@@ -232,6 +236,15 @@ function getMistakes() {
   })
 }
 
+function getTestingInfo(id) {
+  return api.getTestingInfo(id)
+  .then((answer) => {
+    return testingInfo.value = answer
+  })
+}
+function getTestingDetail(id) {
+  return api.getTestingDetail(id, null)
+}
 
 // Favorite
 
@@ -354,5 +367,10 @@ function sendMail(data: SendMail){
     allQuestionsData,
     getMistakes,
     allMistakes,
+    testingInfo,
+    getTestingInfo,
+    testingDetail,
+    getTestingDetail,
+    selectedTestIndex,
   }
 });

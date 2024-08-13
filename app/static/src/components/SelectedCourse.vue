@@ -8,7 +8,7 @@
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                             <path d="M14.2893 5.70708C13.8988 5.31655 13.2657 5.31655 12.8751 5.70708L7.98768 10.5993C7.20729 11.3805 7.2076 12.6463 7.98837 13.427L12.8787 18.3174C13.2693 18.7079 13.9024 18.7079 14.293 18.3174C14.6835 17.9269 14.6835 17.2937 14.293 16.9032L10.1073 12.7175C9.71678 12.327 9.71678 11.6939 10.1073 11.3033L14.2893 7.12129C14.6799 6.73077 14.6799 6.0976 14.2893 5.70708Z"/>
                         </svg>
-                        <p class="button-back__text fw-bold">Назад</p>
+                        <p class="fw-bold">Назад</p>
                     </button>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <router-link to="/testing">
+                                <router-link to="/training">
                                     <button class="selector__button" @click="generateCheck">Начать</button>
                                 </router-link>
                             </div>
@@ -178,14 +178,23 @@ import { useStore, GenerateCheck } from "../store"
 const router = useRouter()
 const aisStore = useStore()
 
-function goToTickets(): void {
+async function goToTickets(): void {
+    const id = aisStore.selectedCourse[0].testing.id
+    await aisStore.getTestingInfo(id)
+
+    if (aisStore.testingInfo) {
+        aisStore.testingDetail = []
+        for (const ticket of aisStore.testingInfo.tickets) {
+            const result = await aisStore.getTestingDetail(ticket.id)
+            aisStore.testingDetail.push(result)
+        }
+    }
     router.push('/ticket-selection')
 }
 function courseInfo(): void {
     aisStore.showCourseInfoButton = false
     router.push('/course-info')
 }
-
 function openHistory(): void {
     const whatCourseSelected = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
     aisStore.getCourseHistory(whatCourseSelected.id)
@@ -193,44 +202,41 @@ function openHistory(): void {
 }
 
 // Dropper
-
 const dropperStates = reactive({
     questions: false,
     difficulty1: false,
     difficulty2: false,
 });
 
-const questionCount = ref(20);
-const difficultyText1 = ref('Легко');
-const difficultyText2 = ref('Легко');
+const questionCount = ref(20)
+const difficultyText1 = ref('Легко')
+const difficultyText2 = ref('Легко')
 
 const toggleDropper = (dropper: keyof typeof dropperStates) => {
-    closeAllDroppers();
-    dropperStates[dropper] = true;
+    closeAllDroppers()
+    dropperStates[dropper] = true
 };
 
 const closeAllDroppers = () => {
-    dropperStates.questions = false;
-    dropperStates.difficulty1 = false;
-    dropperStates.difficulty2 = false;
+    dropperStates.questions = false
+    dropperStates.difficulty1 = false
+    dropperStates.difficulty2 = false
 };
 
 const selectQuestion = (count: number) => {
-    questionCount.value = count;
-    closeAllDroppers();
+    questionCount.value = count
+    closeAllDroppers()
 };
 
 const selectDifficulty = (dropper: 'difficulty1' | 'difficulty2', difficulty: string) => {
     if (dropper === 'difficulty1') {
-        difficultyText1.value = difficulty;
+        difficultyText1.value = difficulty
     } else if (dropper === 'difficulty2') {
-        difficultyText2.value = difficulty;
+        difficultyText2.value = difficulty
     }
 
     closeAllDroppers();
-};
-
-
+}
 // Dropper end
 
 function goBack(): void {
@@ -246,7 +252,13 @@ function openFavorite(): void {
 function openMistakes(): void {
     const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
     aisStore.getCourseQuestions(course.id)
-    aisStore.getMistakes()
+
+    const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    if (!startedCourse) throw new Error('Course not found!')
+    const check = {
+        "user_course_id": startedCourse.id
+    }
+    aisStore.getMistakes(check)
     router.push('/mistakes')
 }
 
@@ -285,7 +297,7 @@ async function generateCheck() {
         }
     }
     aisStore.getLastUserCheckSkills()
-    return router.push('/testing')
+    return router.push('/training')
 }
 
 // Генерация вопросов end
@@ -564,36 +576,5 @@ onMounted(async () => {
         display: none;
     }
 }
-
-
-
-
-// copied
-.fw-bold {
-  font-weight: bold;
-}
-.fw-medium {
-  font-weight: medium;
-}
-.main-blue {
-  color: $main-blue !important;
-}
-.grey-text {
-  color: $main-grey;
-}
-
-.fs-14 {
-  font-size: 14px;
-}
-.fs-18 {
-  font-size: 18px;
-}
-.fs-20 {
-  font-size: 20px;
-}
-.fs-24 {
-  font-size: 24px;
-}
-// copied
 
 </style>

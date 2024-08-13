@@ -131,10 +131,21 @@ class ApiClient {
     const url = `api/user-courses/${id}/course_history/`
     return this.get(url)
   }
-  async getMistakes(){
-    return this.get('/api/user-questions/memorization/bad/')
+  async getMistakes(body){
+    const url = `/api/user-questions/memorization/bad/`
+    const queryParams = new URLSearchParams(body).toString()
+    const fullUrl = `${url}?${queryParams}`
+    return this.get(fullUrl)
   }
-  
+
+  async getTestingInfo(id) {
+    const url = `/api/testings/${id}/`
+    return this.get(url)
+  }
+  async getTestingDetail(id, body) {
+    const url = `/api/tickets/${id}/detail_user_ticket/`
+    return this.post(url, body)
+  }
 
   async sendMail(body){
     return this.post(`/api/send-mail/`, body)

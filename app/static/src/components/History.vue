@@ -128,7 +128,7 @@ async function openTestPage(value) {
 
         console.log('value', value.id)
 
-        return router.push('/testing')
+        return router.push('/training')
     }
     
 }
@@ -137,7 +137,7 @@ function typeText(value) {
     if (value === 'check_skill') {
         return 'Режим обучения'
     }
-    if (value === 'testing') {
+    if (value === 'ticket') {
         return 'Тестирование'
     }
 }
