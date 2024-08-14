@@ -146,6 +146,10 @@ class ApiClient {
     const url = `/api/tickets/${id}/detail_user_ticket/`
     return this.post(url, body)
   }
+  async endTicket(id, body) {
+    const url = `/api/user-tickets/${id}/end_ticket/`
+    return this.post(url, body)
+  }
 
   async sendMail(body){
     return this.post(`/api/send-mail/`, body)
