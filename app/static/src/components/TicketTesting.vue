@@ -72,25 +72,29 @@
                         </div>
                         
                         <div v-if="isTestDone" class="statistic">
-                            <div class="statistic__answer">
+                            <div 
+                                v-for="(question, index) in allQuestions"
+                                class="statistic__answer" 
+                                @click="selectedQuestion = selectedQuestion === index ? null : index"
+                            >
                                 <div class="statistic__answer-header">
-                                    <p>Вопрос 1</p>
-                                    <p>На все организации независимо от их организационно-правовых форм и форм собственности, осуществляющие деятельность в области промышленной безопасности опасных производственных объектов только на территории Российской Федерации.</p>
+                                    <p class="fw-bold fs-14">Вопрос {{ index + 1 }}</p>
+                                    <p>{{ question.question_text }}</p>
                                 </div>
-                                <div class="statistic__answer-body">
+                                <div v-if="selectedQuestion === index" class="statistic__answer-body">
                                     <div class="statistic__showed-answers">
                                         <div class="statistic__showed-answer">
                                             <p class="fw-bold">Ваш ответ:</p>
-                                            <span>На все организации независимо от их организационно-правовых форм и форм собственности, осуществляющие деятельность в области промышленной безопасности опасных производственных объектов только на территории Российской Федерации.</span>
+                                            <span class="statistic__showed-item">1 {{ yourAnswer(question.answer_items, question.varients) }}</span>
                                         </div>
                                         <div class="statistic__showed-answer">
                                             <p class="fw-bold">Верный ответ:</p>
-                                            <span>Lorem ipsum dolor sit amet consectetur adipiscing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien.</span>
+                                            <span class="statistic__showed-item">2 {{ correctAnswer(question.varients) }}</span>
                                         </div>
                                     </div>
                                     <div class="statistic__normative">
-                                        <p class="fw-bold fs-18">ФЗ-116 «О промышленной безопасности опасных производственных объектов»</p>
-                                        <p>Настоящий Федеральный закон определяет правовые, экономические и социальные основы обеспечения безопасной эксплуатации опасных производственных объектов и направлен на предупреждение аварий на опасных производственных объектах и обеспечение готовности эксплуатирующих опасные производственные объекты юридических лиц и индивидуальных предпринимателей (далее также - организации, эксплуатирующие опасные производственные объекты) к локализации и ликвидации последствий указанных аварий. Положения настоящего Федерального закона распространяются на все организации независимо от их организационно-правовых форм и форм собственности, осуществляющие деятельность в области промышленной безопасности опасных производственных объектов на территории Российской Федерации и на иных территориях, над которыми Российская Федерация осуществляет юрисдикцию в соответствии с законодательством Российской Федерации и нормами международного права. </p>
+                                        <p class="fw-bold fs-18">{{ question.normative_documents.text }}</p>
+                                        <p>// Добавить описание документа<br>Настоящий Федеральный закон определяет правовые, экономические и социальные основы обеспечения безопасной эксплуатации опасных производственных объектов и направлен на предупреждение аварий на опасных производственных объектах и обеспечение готовности эксплуатирующих опасные производственные объекты юридических лиц и индивидуальных предпринимателей (далее также - организации, эксплуатирующие опасные производственные объекты) к локализации и ликвидации последствий указанных аварий. Положения настоящего Федерального закона распространяются на все организации независимо от их организационно-правовых форм и форм собственности, осуществляющие деятельность в области промышленной безопасности опасных производственных объектов на территории Российской Федерации и на иных территориях, над которыми Российская Федерация осуществляе</p>
                                     </div>
                                 </div>
                             </div>
@@ -136,6 +140,7 @@ const aisStore = useStore()
 
 type AnswerIndex = number;
 
+const selectedQuestion = ref<number | null>(0)
 const isTestDone = ref(false)
 const requiredDoneLength = ref(false)
 const currentQuestionIndex = ref(0)
@@ -147,6 +152,16 @@ const allQuestions = ref([])
 function back() {
 
     router.push('/ticket-selection')
+}
+
+function yourAnswer(myAnswer, variants) {
+    // Не работает correctVariant
+    const correctVariant = variants.find(v => v.answer_number === myAnswer)
+    return correctVariant ? correctVariant.answer_text : 'Нет ответа'
+}
+function correctAnswer(variants) {
+    const correctVariant = variants.find(variant => variant.correct === true)
+    return correctVariant ? correctVariant.answer_text : 'Нет верного ответа'
 }
 // function exitTesting() {
 //     aisStore.questionData = []
@@ -209,10 +224,8 @@ watch(timer, (newValue) => {
 // Timer end
 
 function getVarientsLength() {
-    if (aisStore.testingDetail) {
-        const variants = allQuestions
-        varientsLength.value = variants?.length
-    }
+    const variants = allQuestions
+    varientsLength.value = variants?.length
 } /////// ??????????????????????????? Исправить testingDetail на allQuestions
 let currentQuestion = computed(() => {
         getVarientsLength()
@@ -307,10 +320,6 @@ async function send() {
     setTimeout(() => {
         currentQuestionIndex.value++
     }, 200);
-
-    // setTimeout(() => {
-    //     scrollToBottom();
-    // }, 200);
 }
 
 // const scrollToBottom = () => {
@@ -324,13 +333,16 @@ async function send() {
 // Запоминание
 
 function whatBgColor(value) {
+    
+    if (isTestDone.value) {
+        // здесь логика для isTestDone === true
+
+        // if (status === 'Wrong') return '#ffb2c1' // если ошибка
+        return '#0098ff' // будет синий всегда
+    }
 
     if (value) return '#0098ff'
     return 'transparent'
-
-    // if (status === 'Wrong') return '#ffb2c1'
-    // if (status === 'Right') return '#acffac'
-    // return 'transparent'
 }
 function whatBorder(value) {
     if (value) return 'none'
@@ -675,23 +687,51 @@ onBeforeMount(async () => {
 // stats end
 
 .statistic {
-    height: 46vh;
-    overflow-y: scroll;
+    // height: 46vh;
+    // overflow-y: scroll;
     padding-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
+.statistic__answer {
+    background-color: #eff8ff;
+    border-radius: 0.5rem;
+}
 .statistic__answer-header {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
+    padding: 30px;
+    border-radius: 0.5rem;
+    border: 2px solid $main-blue;
+    background-color: #d4e8ff;
     gap: 10px;
+}
+.statistic__answer-body {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    gap: 20px;
 }
 .statistic__showed-answers {
     display: flex;
     gap: 10px;
 }
 .statistic__showed-answer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.statistic__showed-item {
+    border: 2px solid rgb(193, 199, 224);
+    border-radius: 0.5rem;
+    padding: 14px;
+    max-width: 500px;
+    background-color: white;
+    height: 100%;
+}
+.statistic__normative {
     display: flex;
     flex-direction: column;
     gap: 10px;
