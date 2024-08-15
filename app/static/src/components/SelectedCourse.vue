@@ -186,6 +186,7 @@ async function goToTickets(): void {
         aisStore.testingDetail = []
         for (const ticket of aisStore.testingInfo.tickets) {
             const result = await aisStore.getTestingDetail(ticket.id)
+            // aisStore.whatTicketSelectedId = ticket.id ?????
             aisStore.testingDetail.push(result)
         }
     }

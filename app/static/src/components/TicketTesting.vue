@@ -64,7 +64,7 @@
                                         'selected-answer': allQuestions[currentQuestionIndex].answer_items?.includes(answer.answer_number)
                                     }"
                                     :key="answerIndex"
-                                    @click="selectAnswer(answer, answer.answer_number, allQuestions[currentQuestionIndex].answer_items)"
+                                    @click="selectAnswer(answer.answer_number, allQuestions[currentQuestionIndex].answer_items)"
                                 >
                                     {{ answer.answer_text }}
                                 </div>
@@ -210,8 +210,28 @@ const updateTimer = () => {
 
     timer.value = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
+
+// timer for question
+const QuestionTimerValue = ref(0);
+let QuestionIntervalId = null;
+
+function startQuestionTimer() {
+
+    if (QuestionIntervalId !== null) {
+        clearInterval(QuestionIntervalId);
+    }
+
+    QuestionTimerValue.value = 0;
+
+    QuestionIntervalId = setInterval(() => {
+        QuestionTimerValue.value++;
+    }, 1000);
+}
+// timer for question END
+
 onMounted(() => {
     startTimer()
+    startQuestionTimer()
 })
 onUnmounted(() => {
     clearInterval(interval)
@@ -221,19 +241,18 @@ watch(timer, (newValue) => {
         endTesting()
     }
 })
-// Timer end
+// Timer END
 
 function getVarientsLength() {
-    const variants = allQuestions
+    const variants = allQuestions.value[currentQuestionIndex.value].varients
     varientsLength.value = variants?.length
-} /////// ??????????????????????????? Исправить testingDetail на allQuestions
+}
 let currentQuestion = computed(() => {
         getVarientsLength()
-        // return aisStore.testingDetail[aisStore.selectedTestIndex].questions[currentQuestionIndex.value]
         return allQuestions.value[currentQuestionIndex.value]
 })
 
-async function selectAnswer(answer, number, condition) {
+async function selectAnswer(number, condition) {
     if (condition) {
         return
     }
@@ -253,11 +272,13 @@ function selectedField(number) {
 }
 
 function selectQuestion(index) {
+    startQuestionTimer()
     currentQuestionIndex.value = index
     selectedAnswer.value = []
     varientsLength.value = 0
 }
 function previousQuestion() {
+    startQuestionTimer()
     if (currentQuestionIndex.value > 0) {
         currentQuestionIndex.value--
         selectedAnswer.value = []
@@ -269,6 +290,7 @@ function previousQuestion() {
     }
 }
 function nextQuestion() {
+    startQuestionTimer()
     if (currentQuestionIndex.value < allQuestions.value.length - 1) {
         currentQuestionIndex.value++
         selectedAnswer.value = []
@@ -281,33 +303,6 @@ function nextQuestion() {
 }
 
 async function send() {
-    // const way = aisStore.questionData.find(q => q.number_in_check === currentQuestionIndex.value + 1)
-    // selectedQuestionId.value = way.id
-
-    // if (selectedAnswer) {
-    //     const toSend: GenerateCheckResponse = {
-    //         "answer_items": selectedAnswer.value,
-    //         "answer_time": timerValue.value
-    //     }
-
-    //     await aisStore.createAnswer(selectedQuestionId.value, toSend)
-    // }
-    
-    // const index = aisStore.questionData.findIndex(q => q.id === aisStore.trainingAnswer['id'])
-    // if (index !== -1) {
-    //     aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
-    //     aisStore.questionData[index]['answer_items'] = [...selectedAnswer.value]
-
-    //     const rightVarientsArray = currentQuestion.value?.varients.filter(v => v.correct === true)
-    //     const answerNumbers = rightVarientsArray.map(v => v.answer_number)
-    //     aisStore.questionData[index]['correct_answer_items'] = [...answerNumbers]
-    // }
-
-    // const index = aisStore.questionData.findIndex(q => q.id === aisStore.trainingAnswer['id'])
-    // if (index !== -1) {
-        // aisStore.questionData.splice(index, 1, aisStore.trainingAnswer)
-
-    // }
 
     allQuestions.value[currentQuestionIndex.value]['answer_items'] = [...selectedAnswer.value]
 
@@ -316,19 +311,13 @@ async function send() {
     allQuestions.value[currentQuestionIndex.value]['correct_answer_items'] = [...answerNumbers]
 
     selectedAnswer.value = []
+
+    startQuestionTimer()
     
     setTimeout(() => {
         currentQuestionIndex.value++
     }, 200);
 }
-
-// const scrollToBottom = () => {
-//     window.scrollTo({
-//         top: document.documentElement.scrollHeight,
-//         behavior: 'smooth'
-//     });
-// };
-
 
 // Запоминание
 
@@ -366,27 +355,29 @@ function whatFontColor(value) {
 //     { deep: true }
 // )
 
-// Оценка 
-// function giveRating(value) {
-//     aisStore.questionData[currentQuestionIndex.value]['isRated'] = true
-
-//     if (value) {
-//         const toSend = {
-//             "user_memorization": value
-//         }
-
-//         if (aisStore.questionData[currentQuestionIndex.value].user_answer !== null) {
-//             const id = aisStore.questionData[currentQuestionIndex.value].user_answer
-//             console.log('id', id)
-//             aisStore.giveRating(id, toSend)
-//         }
-//     }
-// }
-// Оценка end
-
 function endTesting() {
     isTestDone.value = true
-    // aisStore.endTraining(aisStore.lastCheckSkills.id)
+
+
+    // Нужно получить 
+
+    // Завершаем вопросы
+    // Здесь вообще нужно завершать /api/question-tickets/{id}/ где id это id тикета, но фиг знает какого
+
+    // if (selectedAnswer) {
+    //     const toSend: GenerateCheckResponse = {
+    //         "answer_items": selectedAnswer.value,
+    //         "answer_time": QuestionTimerValue.value
+    //     }
+
+    //     aisStore.createAnswer(selectedQuestionId.value, toSend)
+    // }
+
+    aisStore.createTicketAnswer(id, body)
+    // Получаем обновленные данные
+    const result = aisStore.getTestingDetail(aisStore.whatTicketSelectedId)
+    aisStore.testingDetail.push(result)
+
 }
 
 const checkAllQuestionsAnswered = () => {

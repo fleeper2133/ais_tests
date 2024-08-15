@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="content" @click="closeAllDroppers">
         <div>
             <Header />
             <div class="container container__bg">
@@ -17,6 +17,32 @@
             </div>
             <div class="container">
                 <div class="content__items" v-if="!aisStore.isLoading">
+                    <div v-if="paginatedItems.length > 0" class="creator">
+                        <div class="creator__text">
+                            <h1 class="white fs-18 fw-bold">Создаете билет из избранных вопросов!</h1>
+                            <div class="creator__data">
+                                <div class="selector__data">
+                                    <p class="white fs-14">Всего вопросов:</p>
+                                    <p class="yellow fs-14 fw-bold">{{ paginatedItems.length }}</p>
+                                </div>
+                                <div class="selector__data">
+                                    <p class="white fs-14">Выбрано вопросов:</p>
+                                    <p class="yellow fs-14 fw-bold">{{ questionCount }}</p> 
+                                    <!-- Сделать логика на отображения questionCount, когда меньше 10 и так далее -->
+                                </div>
+                            </div>
+                            <div v-if="paginatedItems.length >= 20" class="dropper">
+                                <div class="dropper__title white" @click.stop="toggleDropper">Вопросы: {{ questionCount }}</div>
+                                <div v-show="questions" class="dropper__list">
+                                    <p class="dropper__item" @click.stop="showedValue(10)">10 вопросов</p>
+                                    <p class="dropper__item" @click.stop="showedValue(20)">20 вопросов</p>
+                                    <p v-if="paginatedItems.length >= 30" class="dropper__item" @click.stop="showedValue(30)">30 вопросов</p>
+                                    <p v-if="paginatedItems.length >= 40" class="dropper__item" @click.stop="showedValue(40)">40 вопросов</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="button">Сгенерировать билет</button>
+                    </div>
                     <div 
                         class="search" 
                         @click.stop="makeFocus"
@@ -110,6 +136,29 @@ const filterSearch = computed(() => {
         return question.question_text.toLowerCase().includes(inputText.value.toLowerCase())
     });
 });
+
+// Dropper
+const questionCount = ref(10)
+const questions = ref(false)
+function toggleDropper() {
+    closeAllDroppers()
+    questions.value = true
+}
+const closeAllDroppers = () => {
+    questions.value = false
+};
+const selectValue = (count: number) => {
+    questionCount.value = count
+    closeAllDroppers()
+};
+const showedValue = (count: number) => {
+    if (paginatedItems.value.length < 10) {
+        questionCount.value = paginatedItems.value.length
+        return questionCount.value
+    }
+    selectValue(count)
+}
+// Dropper
 
 const selectedQuestion = ref<number | null>(0)
 
@@ -280,6 +329,76 @@ watch(inputText, () => {
     color: $main;
     padding: 14px 20px;
 }
+
+
+.creator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #436175;
+    padding: 1.4rem;
+    border-radius: 0.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.creator__text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.creator__data {
+    display: flex;
+    gap: 10px;
+}
+.white {
+    color: white;
+}
+.yellow {
+   color: #ffca00;
+}
+.selector__data {
+    display: flex;
+    gap: 6px;
+}
+.dropper {
+    cursor: pointer;
+    position: relative;
+}
+.dropper__title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid $border;
+    border-radius: 0.5rem;
+    height: 40px;
+    width: 200px;
+
+    &:hover {
+        background-color: $border;
+    }
+}
+.dropper__list {
+    border-radius: 0.5rem;
+    width: 200px;
+    position: absolute;
+    top: 44px;
+    left: 0;
+    background-color: white;
+    box-shadow: 0px 0px 30px $border;
+}
+.dropper__item {
+    width: 100%;
+    padding: 10px 1rem;
+    text-align: center;
+    &:hover {
+        background-color: $border;
+    }
+}
+
+.button {
+    max-width: 300px;
+}
+
 
 
 @media (max-width: 600px) {

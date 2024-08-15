@@ -126,6 +126,7 @@ const questionData = ref<GenerateCheckResponse[]>([])
 const selectedTestIndex = ref<number>(0)
 const testingInfo = ref({})
 const testingDetail = ref([])
+const whatTicketSelectedId = ref<number>(0)
 const allQuestionsData = ref<GenerateCheckResponse[]>([])
 const allMistakes = ref<GenerateCheckResponse[]>([])
 const questionDetailList = ref<QuestionDetail[]>([])
@@ -244,6 +245,14 @@ function getTestingInfo(id) {
 }
 function getTestingDetail(id) {
   return api.getTestingDetail(id, null)
+}
+function createTicketAnswer(id, body) {
+  return api.createTicketAnswer(id, body)
+  // .then(() => {
+  //   testingDetail.value = []
+  //   const result = getTestingDetail(whatTiketSelectedId.value) 
+  //   return testingDetail.value.push(result)
+  // })
 }
 
 // Favorite
@@ -372,5 +381,7 @@ function sendMail(data: SendMail){
     testingDetail,
     getTestingDetail,
     selectedTestIndex,
+    whatTicketSelectedId,
+    createTicketAnswer,
   }
 });
