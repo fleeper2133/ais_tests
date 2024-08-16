@@ -36,9 +36,16 @@ class CourseSerializer(serializers.ModelSerializer):
         return None
 
 class TicketSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = Ticket
-        fields = '__all__'
+        fields = ['name', 'difficulty', 'question_count', 'status']
+    
+    def get_status(self, obj):
+        user = self.context['request'].user
+        user_ticket = UserTicket.objects.filter(user=user, ticket=obj).last()
+        return user_ticket.status if user_ticket else False
 
 class TestingSerializer(serializers.ModelSerializer):
     tickets = TicketSerializer(many=True, read_only=True, source='ticket_set')

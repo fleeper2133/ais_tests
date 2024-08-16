@@ -134,7 +134,7 @@ class TestingViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, pk=None):
         try:
             testing = self.get_object()
-            serializer = self.get_serializer(testing)
+            serializer = self.get_serializer(testing, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Testing.DoesNotExist:
             return Response({'detail': 'Тестирование не найдено.'}, status=status.HTTP_404_NOT_FOUND)
@@ -454,7 +454,7 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         user_ticket.update_attempt_count()
         user_ticket.save()
 
-        serializer = UserTicketSerializer(user_ticket, many=False)
+        serializer = UserTicketSerializer(user_ticket, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #генерируем случайный билет для проверки знаний
@@ -483,7 +483,7 @@ class UserTicketViewSet(viewsets.ModelViewSet):
             defaults={'week_start': start_of_week}
         )
         user_days.mark_active()  # Отметка дня как активного
-        
+
         # Получаем доступные вопросы из текущей активной ротации
         questions = user_course.course.get_available_questions()
         print(len(questions))
@@ -538,8 +538,8 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                 )
                 mass.append(temp)
 
-        #serializer = QuestionTicketSerializer(mass, many=True)
-        serializer = QuestionTicketDetailSerializer(mass, many=True, context={'request': request})
+        #serializer = QuestionTicketDetailSerializer(mass, many=True, context={'request': request})
+        serializer = UserTicketSerializer(user_ticket, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserAnswerViewSet(viewsets.ModelViewSet):
