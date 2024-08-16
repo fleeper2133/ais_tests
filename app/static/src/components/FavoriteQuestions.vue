@@ -19,7 +19,7 @@
                 <div class="content__items" v-if="!aisStore.isLoading">
                     <div v-if="paginatedItems.length > 0" class="creator">
                         <div class="creator__text">
-                            <h1 class="white fs-18 fw-bold">Создаете билет из избранных вопросов!</h1>
+                            <h1 class="white fs-18 fw-bold">Режим обучения из избранных вопросов!</h1>
                             <div class="creator__data">
                                 <div class="selector__data">
                                     <p class="white fs-14">Всего вопросов:</p>
@@ -371,7 +371,7 @@ watch(inputText, () => {
     border: 1px solid $border;
     border-radius: 0.5rem;
     height: 40px;
-    width: 200px;
+    width: 300px;
 
     &:hover {
         background-color: $border;
@@ -379,7 +379,7 @@ watch(inputText, () => {
 }
 .dropper__list {
     border-radius: 0.5rem;
-    width: 200px;
+    width: 300px;
     position: absolute;
     top: 44px;
     left: 0;
