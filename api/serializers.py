@@ -32,7 +32,8 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_testing(self, obj):
         testing = Testing.objects.filter(course=obj).first()
         if testing:
-            return TestingSerializer(testing).data
+            # Передаем контекст, включая request, в TestingSerializer
+            return TestingSerializer(testing, context=self.context).data
         return None
 
 class TicketSerializer(serializers.ModelSerializer):

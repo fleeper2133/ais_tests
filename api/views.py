@@ -85,6 +85,10 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     #permission_classes = [IsAuthenticated]
 
+    def get_serializer_context(self):
+        # Этот метод автоматически добавляет request в контекст сериализатора
+        return {'request': self.request}
+    
     # При нажатии кнопки начать у курса создаём курс-пользователя
     @action(detail=True, methods=['post'])
     def start_course(self, request, pk=None):
