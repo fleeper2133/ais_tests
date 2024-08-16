@@ -11,8 +11,60 @@ from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuest
 import random
 from django.db import transaction
 from django.utils import timezone
+from datetime import timedelta
 # создание + прохождение билета покрыть в тестах.
 
+from usercourse.models import UserDays
+from .serializers import UserDaysSerializer, QuestionTicketDetailSerializer
+
+class UserDaysViewSet(viewsets.ModelViewSet):
+    queryset = UserDays.objects.all()
+    serializer_class = UserDaysSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'], url_path='current-week-activity')
+    def get_current_week_activity(self, request):
+        user = request.user
+        user_course_id = request.query_params.get('user_course_id') # data
+
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id, user=user)
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_404_NOT_FOUND)
+
+        start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+
+        # Получаем или создаем объект UserDays
+        user_days, created = UserDays.objects.get_or_create(
+            user=user, 
+            user_course=user_course,
+            defaults={'week_start': start_of_week}
+        )
+
+        # Если объект существовал, проверяем и обновляем начало недели
+        if not created and user_days.week_start != start_of_week:
+            user_days.reset_week()
+            user_days.week_start = start_of_week
+            user_days.save()
+
+        serializer = UserDaysSerializer(user_days)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='mark-active')
+    def mark_day_active(self, request):
+        user = request.user
+        user_course_id = request.data.get('user_course_id')
+
+        try:
+            user_course = UserCourse.objects.get(id=user_course_id, user=user)
+            start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+            user_days, created = UserDays.objects.get_or_create(user=user, user_course=user_course, week_start=start_of_week)
+            user_days.mark_active()  # Отметка текущего дня как активного
+        except UserCourse.DoesNotExist:
+            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'detail': 'День помечен, как активный.'}, status=status.HTTP_200_OK)
+    
 class QualificationViewSet(viewsets.ModelViewSet):
     queryset = Qualification.objects.all()
     serializer_class = QualificationSerializer
@@ -101,13 +153,35 @@ class TicketViewSet(viewsets.ModelViewSet):
         if len(UserCourse.objects.filter(user=user, course=ticket.testing.course)) == 0:
             return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
         
+        user_course = UserCourse.objects.filter(user=user, course=ticket.testing.course).first()
         user_ticket = UserTicket.objects.create(
             ticket=ticket,
             user=user,
-            user_course=UserCourse.objects.filter(user=user, course=ticket.testing.course).first(),
+            user_course=user_course,
             attempt_count=0,
         )
         user_ticket.update_attempt_count()
+
+        # Создание объектов QuestionTicket для всех вопросов в билете
+        questions = Question.objects.filter(questionlist__ticket=ticket).order_by('questionlist__number_in_ticket')
+
+        # Создаём связь между пользовательским билетом и вопросами
+        for i, question in enumerate(questions):
+            QuestionTicket.objects.create(
+                user_ticket=user_ticket,
+                question=question,
+                number_in_ticket=i + 1,  # Номер вопроса в билете
+                user_answer=None,
+                status='Not Answered',
+            )
+
+        start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+        user_days, created = UserDays.objects.get_or_create(
+            user=user, 
+            user_course=user_course,
+            defaults={'week_start': start_of_week}
+        )
+        user_days.mark_active()  # Отметка дня как активного
 
         serializer = UserTicketSerializer(user_ticket, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -386,8 +460,6 @@ class UserTicketViewSet(viewsets.ModelViewSet):
     #генерируем случайный билет для проверки знаний
     @action(detail=False, methods=['post'])
     def generate_random_ticket(self, request):
-        from datetime import timedelta
-
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -404,12 +476,20 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         except Course.DoesNotExist:
             return Response({'detail': 'Курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+        user_days, created = UserDays.objects.get_or_create(
+            user=user, 
+            user_course=user_course,
+            defaults={'week_start': start_of_week}
+        )
+        user_days.mark_active()  # Отметка дня как активного
+        
         # Получаем доступные вопросы из текущей активной ротации
         questions = user_course.course.get_available_questions()
         print(len(questions))
         random.shuffle(questions)
 
-        total_questions_count = 5
+        total_questions_count = 1
 
         if (len(questions)) < total_questions_count:
             return Response({'detail': 'Недостаточно вопросов для генерации билета.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -430,7 +510,7 @@ class UserTicketViewSet(viewsets.ModelViewSet):
 
             #создаём вопросы в билете
             for i in range(len(selected_questions)):
-                question_list = QuestionList.objects.create(
+                QuestionList.objects.create(
                     ticket=ticket,
                     number_in_ticket=i + 1,  
                     question=selected_questions[i]  
@@ -459,7 +539,7 @@ class UserTicketViewSet(viewsets.ModelViewSet):
                 mass.append(temp)
 
         #serializer = QuestionTicketSerializer(mass, many=True)
-        serializer = QuestionDetailSerializer(selected_questions, many=True, context={'request': request})
+        serializer = QuestionTicketDetailSerializer(mass, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserAnswerViewSet(viewsets.ModelViewSet):
@@ -504,8 +584,6 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
     # создаём ответ на вопрос тестирования
     @action(detail=True, methods=['post'], url_path='create_answer')
     def create_answer(self, request, pk=None):
-        from datetime import timedelta
-
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -588,6 +666,14 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         except UserCourse.DoesNotExist:
             return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_400_BAD_REQUEST)
         
+        start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+        user_days, created = UserDays.objects.get_or_create(
+            user=user, 
+            user_course=user_course,
+            defaults={'week_start': start_of_week}
+        )
+        user_days.mark_active()  # Отметка дня как активного
+
         # Создаем запись UserCheckSkills
         user_check_skills = UserCheckSkills.objects.create(
             user=user,
@@ -796,8 +882,6 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], url_path='create_answer')
     def create_answer(self, request, pk=None):
-        from datetime import timedelta
-
         user = request.user
         if not user.is_authenticated: 
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)

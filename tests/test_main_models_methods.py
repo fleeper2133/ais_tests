@@ -1,13 +1,13 @@
-# import pytest
-# from django.contrib.auth.models import User
-# from django.urls import reverse
-# from django.test import Client
-# from django.utils import timezone
-# from datetime import timedelta
-# from course.models import QuestionList, Question, Course, Ticket, Varient
-# from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion, UserAnswerItem
-# from django.db import IntegrityError
-# from collections import Counter
+import pytest
+from django.contrib.auth.models import User
+from django.urls import reverse
+from django.test import Client
+from django.utils import timezone
+from datetime import timedelta
+from course.models import QuestionList, Question, Course, Ticket, Varient
+from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion, UserAnswerItem
+from django.db import IntegrityError
+from collections import Counter
 
 # # Функциональное тестирование моделей
 
@@ -320,34 +320,34 @@
 # #-------------------------------------------------------------------------------------------------
 
 
-# @pytest.mark.django_db
-# @pytest.mark.parametrize("user_answer_text, correct_answer, expected_status", [
-#     ('a', 'a', 'Right'),
-#     ('b', 'a', 'Wrong'),
-#     ('c', 'c', 'Right'),
-#     ('d', 'a', 'Wrong'),
-# ])
-# def test_question_ticket_status(create_test_data, user_answer_text, correct_answer, expected_status):
-#     question = create_test_data['questions'][0]
-#     question.correct_answer = correct_answer
-#     question.save()
-#     for status in ['False', 'True']:
-#         user_answer = UserAnswer.objects.create(
-#             user=create_test_data['user'],
-#             question=question,
-#             user_answer=user_answer_text,
-#             correct=status,
-#             answer_time=timedelta(seconds=30)
-#         )
-#         question_ticket = QuestionTicket.objects.create(
-#             user_ticket=create_test_data['user_tickets'][0],
-#             number_in_ticket=1,
-#             user_answer=user_answer,
-#             status='Wrong',
-#         )
-#         user_answer.check_correctness()
-#         question_ticket.update_status()
-#         assert question_ticket.status == expected_status
+@pytest.mark.django_db
+@pytest.mark.parametrize("user_answer_text, correct_answer, expected_status", [
+    ('a', 'a', 'Right'),
+    ('b', 'a', 'Wrong'),
+    ('c', 'c', 'Right'),
+    ('d', 'a', 'Wrong'),
+])
+def test_question_ticket_status(create_test_data, user_answer_text, correct_answer, expected_status):
+    question = create_test_data['questions'][0]
+    question.correct_answer = correct_answer
+    question.save()
+    for status in ['False', 'True']:
+        user_answer = UserAnswer.objects.create(
+            user=create_test_data['user'],
+            question=question,
+            user_answer=user_answer_text,
+            correct=status,
+            answer_time=timedelta(seconds=30)
+        )
+        question_ticket = QuestionTicket.objects.create(
+            user_ticket=create_test_data['user_tickets'][0],
+            number_in_ticket=1,
+            user_answer=user_answer,
+            status='Wrong',
+        )
+        user_answer.check_correctness()
+        question_ticket.update_status()
+        assert question_ticket.status == expected_status
 
 
 # #-------------------------------------------------------------------------------------------------

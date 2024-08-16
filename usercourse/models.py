@@ -68,6 +68,68 @@ class UserCourse(models.Model):
         self.prepare = prepare
         self.save()
 
+# Ударный режим
+class UserDays(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user_course = models.ForeignKey(UserCourse, on_delete=models.CASCADE)
+    
+    monday = models.BooleanField(default=False)
+    tuesday = models.BooleanField(default=False)
+    wednesday = models.BooleanField(default=False)
+    thursday = models.BooleanField(default=False)
+    friday = models.BooleanField(default=False)
+    saturday = models.BooleanField(default=False)
+    sunday = models.BooleanField(default=False)
+
+    # Поле для отслеживания начала недели
+    week_start = models.DateField(default=timezone.now)
+
+    class Meta:
+        unique_together = ('user', 'user_course')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.user_course.course.name} - Week: {self.week_start}"
+
+    # Отмечает текущий день недели как активный.
+    def mark_active(self):
+        today = timezone.localtime().date()
+
+        # Проверяем, не началась ли новая неделя
+        start_of_week = today - timedelta(days=today.weekday())
+        if self.week_start != start_of_week:
+            self.reset_week()
+
+        # Отмечаем текущий день недели как активный
+        weekday = today.weekday()
+        if weekday == 0:
+            self.monday = True
+        elif weekday == 1:
+            self.tuesday = True
+        elif weekday == 2:
+            self.wednesday = True
+        elif weekday == 3:
+            self.thursday = True
+        elif weekday == 4:
+            self.friday = True
+        elif weekday == 5:
+            self.saturday = True
+        elif weekday == 6:
+            self.sunday = True
+
+        self.save()
+    
+    # Обнуляет активность дней недели и устанавливает начало новой недели.
+    def reset_week(self):
+        self.monday = False
+        self.tuesday = False
+        self.wednesday = False
+        self.thursday = False
+        self.friday = False
+        self.saturday = False
+        self.sunday = False
+        self.week_start = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+        self.save()
+
 # Вопросы по заданию от пользователя
 class TaskQuestion(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
