@@ -19,7 +19,7 @@
                         <div v-for="(ticket, index) in ticketsInfo" class="ticket" :class="{ selected : index === selectedTicket }" @click="select(index)">
                             <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">Билет {{ index + 1 }}</p>
                             <div class="ticket__progress">
-                                {{ showStatus(ticket.id) }}
+                                <!-- {{ showStatus(ticket.id) Переделать на что-то свое, у ticket нет статуса }} --> Статус
                             </div>
                         </div>
                     </div>
@@ -69,19 +69,31 @@ function select(ticket) {
     selectedTicket.value = ticket
 }
 
-function startTesting() {
+async function startTesting() {
     if (selectedTicket.value) {
         aisStore.selectedTestIndex = selectedTicket.value
     }
+
+    // Тест
+    if (aisStore.testingInfo) {
+        aisStore.testingDetail = []
+        for (const ticket of aisStore.testingInfo.tickets) {
+            const result = await aisStore.getTestingDetail(ticket.id)
+            // aisStore.whatTicketSelectedId = ticket.id ?????
+            aisStore.testingDetail.push(result)
+        }
+    }
+    // Тест
+
     router.push('/testing')
 }
 
-function showStatus(id) {
-    const arr = aisStore.testingDetail.filter(td => td.ticket === id)
-    if (arr[0].status === "Not started") {
-        return "Не начат"
-    }
-}
+// function showStatus(id) {
+//     const arr = aisStore.testingDetail.filter(td => td.ticket === id)
+//     if (arr[0].status === "Not started") {
+//         return "Не начат"
+//     }
+// }
 
 </script>
 

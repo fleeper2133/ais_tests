@@ -454,7 +454,7 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         user_ticket.update_attempt_count()
         user_ticket.save()
 
-        serializer = UserTicketSerializer(user_ticket, many=False)
+        serializer = UserTicketSerializer(user_ticket, many=False, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     #генерируем случайный билет для проверки знаний

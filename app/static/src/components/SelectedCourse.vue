@@ -180,16 +180,9 @@ const aisStore = useStore()
 
 async function goToTickets(): void {
     const id = aisStore.selectedCourse[0].testing.id
+    
+    aisStore.testingInfo = []
     await aisStore.getTestingInfo(id)
-
-    if (aisStore.testingInfo) {
-        aisStore.testingDetail = []
-        for (const ticket of aisStore.testingInfo.tickets) {
-            const result = await aisStore.getTestingDetail(ticket.id)
-            // aisStore.whatTicketSelectedId = ticket.id ?????
-            aisStore.testingDetail.push(result)
-        }
-    }
     router.push('/ticket-selection')
 }
 function courseInfo(): void {

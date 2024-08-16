@@ -150,7 +150,7 @@ const selectedQuestionId = ref<number>(0)
 const allQuestions = ref([])
 
 function back() {
-
+    aisStore.testingDetail = []
     router.push('/ticket-selection')
 }
 
@@ -358,7 +358,6 @@ function whatFontColor(value) {
 function endTesting() {
     isTestDone.value = true
 
-
     // Нужно получить 
 
     // Завершаем вопросы
@@ -375,9 +374,9 @@ function endTesting() {
 
     aisStore.createTicketAnswer(id, body)
     // Получаем обновленные данные
-    const result = aisStore.getTestingDetail(aisStore.whatTicketSelectedId)
-    aisStore.testingDetail.push(result)
 
+    // Получаем обновленные локальные данные. Если нужно
+    allQuestions.value = aisStore.testingDetail[aisStore.selectedTestIndex].questions
 }
 
 const checkAllQuestionsAnswered = () => {
