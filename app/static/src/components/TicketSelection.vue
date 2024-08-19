@@ -16,15 +16,15 @@
                 <div class="tickets tickets--margin">
                     <p class="fw-bold fs-20">Выберите билет</p>
                     <div class="tickets__list">
-                        <div v-for="(ticket, index) in ticketsInfo" class="ticket" :class="{ selected : index === selectedTicket }" @click="select(index)">
+                        <div v-for="(ticket, index) in ticketsInfo" class="ticket" :class="{ selected : index === selectedTicket }" @click="select(index, ticket)">
                             <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">Билет {{ index + 1 }}</p>
                             <div class="ticket__progress">
-                                <!-- {{ showStatus(ticket.id) Переделать на что-то свое, у ticket нет статуса }} --> Статус
+                                {{ showStatus(ticket.status) }}
                             </div>
                         </div>
                     </div>
                     <div class="button-position" :class="{ disabled : selectedTicket === null }">
-                        <button :disabled="selectedTicket === null" class="button tickets__button" @click="startTesting()">Начать</button>
+                        <button :disabled="selectedTicket === null" class="button tickets__button" @click="startTesting">Начать</button>
                     </div>
                 </div>
             </div>
@@ -65,35 +65,25 @@ const ticketsInfo = computed(() => {
 // }
 
 const selectedTicket = ref(null)    
-function select(ticket) {
-    selectedTicket.value = ticket
+function select(index, ticket) {
+    selectedTicket.value = index
+    aisStore.selectedTestId = ticket.id
 }
 
 async function startTesting() {
-    if (selectedTicket.value) {
-        aisStore.selectedTestIndex = selectedTicket.value
-    }
 
-    // Тест
-    if (aisStore.testingInfo) {
-        aisStore.testingDetail = []
-        for (const ticket of aisStore.testingInfo.tickets) {
-            const result = await aisStore.getTestingDetail(ticket.id)
-            // aisStore.whatTicketSelectedId = ticket.id ?????
-            aisStore.testingDetail.push(result)
-        }
-    }
-    // Тест
+    aisStore.testingDetail = {}
+    const result = await aisStore.getTestingDetail(aisStore.selectedTestId)
+    aisStore.testingDetail = result
 
     router.push('/testing')
 }
 
-// function showStatus(id) {
-//     const arr = aisStore.testingDetail.filter(td => td.ticket === id)
-//     if (arr[0].status === "Not started") {
-//         return "Не начат"
-//     }
-// }
+function showStatus(id) {
+    if (id === "Not started") return "Не начат"
+    if (id === "Done") return "Пройден"
+    if (id === "Failed") return "Провален"
+}
 
 </script>
 

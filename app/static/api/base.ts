@@ -103,7 +103,7 @@ class ApiClient {
   }
   async endTraining(id) {
     const url = `api/user-check-skills/${id}/end_check/`
-    return this.post(url)
+    return this.post(url, null)
   }
 
   async favoritesQuestions(){
@@ -112,7 +112,7 @@ class ApiClient {
 
   async markQuestionSelected(id) {
     const url = `/api/questions/${id}/change_favorite/`
-    return this.post(url)
+    return this.post(url, null)
   }
 
   async giveRating(id, body) {

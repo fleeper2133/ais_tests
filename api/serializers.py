@@ -41,7 +41,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ticket
-        fields = ['name', 'difficulty', 'question_count', 'status']
+        fields = ['id', 'name', 'difficulty', 'question_count', 'status']
     
     def get_status(self, obj):
         user = self.context['request'].user
@@ -72,7 +72,7 @@ class QuestionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'name', 'question_text', 'explanations', 'normative_documents', 'varients', 'selected']
+        fields = ['id', 'name', 'question_text', 'explanations', 'normative_documents', 'varients', 'selected', 'normative_point']
 
     def get_selected(self, obj):
         user = self.context['request'].user

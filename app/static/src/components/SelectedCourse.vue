@@ -179,7 +179,7 @@ const router = useRouter()
 const aisStore = useStore()
 
 async function goToTickets(): void {
-    const id = aisStore.selectedCourse[0].testing.id
+    const id = aisStore.selectedCourse[0].testing?.id
     
     aisStore.testingInfo = []
     await aisStore.getTestingInfo(id)

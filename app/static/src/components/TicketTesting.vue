@@ -98,7 +98,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- <p>{{ aisStore.testingDetail[aisStore.selectedTestIndex].status }}</p> -->
+                            <!-- <p>{{ aisStore.testingDetail['status'] }}</p> -->
                         </div>
 
                         <div class="buttons-panel">
@@ -150,13 +150,15 @@ const selectedQuestionId = ref<number>(0)
 const allQuestions = ref([])
 
 function back() {
-    aisStore.testingDetail = []
+    aisStore.testingDetail = {}
     router.push('/ticket-selection')
 }
 
 function yourAnswer(myAnswer, variants) {
-    // Не работает correctVariant
-    const correctVariant = variants.find(v => v.answer_number === myAnswer)
+    const correctVariant = variants.find(v => myAnswer.includes(v.answer_number))
+    console.log('variants', variants)
+    console.log('myAnswer', myAnswer)
+    console.log('correctVariant', correctVariant)
     return correctVariant ? correctVariant.answer_text : 'Нет ответа'
 }
 function correctAnswer(variants) {
@@ -302,13 +304,14 @@ function nextQuestion() {
     }
 }
 
-async function send() {
+function send() {
 
-    allQuestions.value[currentQuestionIndex.value]['answer_items'] = [...selectedAnswer.value]
+    allQuestions.value[currentQuestionIndex.value].answer_items = [...selectedAnswer.value];
+    allQuestions.value[currentQuestionIndex.value].answer_time = QuestionTimerValue.value;
 
     const rightVarientsArray = currentQuestion.value?.varients.filter(v => v.correct === true)
     const answerNumbers = rightVarientsArray.map(v => v.answer_number)
-    allQuestions.value[currentQuestionIndex.value]['correct_answer_items'] = [...answerNumbers]
+    allQuestions.value[currentQuestionIndex.value].correct_answer_items = [...answerNumbers]
 
     selectedAnswer.value = []
 
@@ -355,7 +358,7 @@ function whatFontColor(value) {
 //     { deep: true }
 // )
 
-function endTesting() {
+async function endTesting() {
     isTestDone.value = true
 
     // Нужно получить 
@@ -363,31 +366,45 @@ function endTesting() {
     // Завершаем вопросы
     // Здесь вообще нужно завершать /api/question-tickets/{id}/ где id это id тикета, но фиг знает какого
 
-    // if (selectedAnswer) {
-    //     const toSend: GenerateCheckResponse = {
-    //         "answer_items": selectedAnswer.value,
-    //         "answer_time": QuestionTimerValue.value
-    //     }
+    // перебрать allQuestions и передать question_ticket_id в createTicketAnswer
+    // так же, перебрать allQuestion 
+    for(const q of allQuestions.value) {
+        const toSend = {
+            "answer_items": q['answer_items'],
+            "answer_time": q['answer_time']
+        }
 
-    //     aisStore.createAnswer(selectedQuestionId.value, toSend)
-    // }
+        const response = await aisStore.createTicketAnswer(q['question_ticket_id'], toSend)
+        // теперь status ответов нужно засунуть в allQuestions
+        allQuestions
+    }
 
-    aisStore.createTicketAnswer(id, body)
-    // Получаем обновленные данные
+    //передаем туда answer_items: [] (с нашими ответами) и answer_time: из QuestionTimerValue.value
+
+
+
+    // В allQuestions после, нужно будет засунуть полученный status (Right/Not Right)
+
+    // Затем получаем обновленные данные, чтобы использовать их для отображения верстки неправильных/правильных ответов
+
+    aisStore.selectedTestId // id выбранного ticketa. Для закрытия его (передаем )
 
     // Получаем обновленные локальные данные. Если нужно
-    allQuestions.value = aisStore.testingDetail[aisStore.selectedTestIndex].questions
+
+    // allQuestions.value = aisStore.testingDetail['questions'] // Временно убираем!!!!!!!!!!!!!!!!!!!!
 }
 
 const checkAllQuestionsAnswered = () => {
-    if (allQuestions.value.every(question => question.answer_items)) isTestDone.value = true
-    // Так же добавить смену статуса(отправка на сервер)
+    if (allQuestions.value.every(question => question['answer_items'])) {
+        isTestDone.value = true
+        endTesting()
+    }
 }
 watch(allQuestions, (newQuestions) => {
     checkAllQuestionsAnswered()
 }, { deep: true })
 onBeforeMount(async () => {
-    allQuestions.value = aisStore.testingDetail[aisStore.selectedTestIndex].questions
+    allQuestions.value = aisStore.testingDetail['questions']
 })
 
 </script>
