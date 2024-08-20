@@ -94,6 +94,16 @@ class ApiClient {
     return this.get(url)
   }
 
+  async generateFavouriteCheck(body) {
+    return this.post('/api/user-check-skills/generate-favourite-check/', body)
+  }
+  async generateBadCheck(body) {
+    return this.post('/api/user-check-skills/generate-bad-check/', body)
+  }
+  async generateRandomTicket(body) {
+    return this.post('/api/user-tickets/generate_random_ticket/', body)
+  }
+
   async createAnswer(id, body) {
     const url = `/api/user-check-skills-questions/${id}/create_answer/`
     return this.post(url, body)

@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="content" @click="closeAllDroppers">
         <div>
             <Header />
             <div class="container container__bg">
@@ -18,10 +18,38 @@
                     <div class="tickets__list">
                         <div v-for="(ticket, index) in ticketsInfo" class="ticket" :class="{ selected : index === selectedTicket }" @click="select(index, ticket)">
                             <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">Билет {{ index + 1 }}</p>
-                            <div class="ticket__progress">
+                            <div 
+                                class="ticket__progress"
+                                :style="{ backgroundColor: chooseBackgroundColor(ticket.status)}"
+                            >
                                 {{ showStatus(ticket.status) }}
                             </div>
                         </div>
+                    </div>
+                    <div class="creator">
+                        <div class="creator__text">
+                            <h1 class="white fs-18 fw-bold">Генерация нового билета</h1>
+                            <div class="creator__data">
+                                <div class="selector__data">
+                                    <p class="white fs-14">Вопросов в курсе:</p>
+                                    <p class="yellow fs-14 fw-bold">1000</p>
+                                </div>
+                                <div class="selector__data">
+                                    <p class="white fs-14">Вопросы для генерации:</p>
+                                    <p class="yellow fs-14 fw-bold">{{ questionCount }}</p> 
+                                </div>
+                            </div>
+                            <div class="dropper">
+                                <div class="dropper__title white" @click.stop="toggleDropper">Вопросы: {{ questionCount }}</div>
+                                <div v-show="questions" class="dropper__list">
+                                    <p class="dropper__item" @click.stop="selectQuestion(10)">10 вопросов</p>
+                                    <p class="dropper__item" @click.stop="selectQuestion(20)">20 вопросов</p>
+                                    <p class="dropper__item" @click.stop="selectQuestion(30)">30 вопросов</p>
+                                    <p class="dropper__item" @click.stop="selectQuestion(40)">40 вопросов</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="button" @click="generateCheck">Сгенерировать билет</button>
                     </div>
                     <div class="button-position" :class="{ disabled : selectedTicket === null }">
                         <button :disabled="selectedTicket === null" class="button tickets__button" @click="startTesting">Начать</button>
@@ -49,20 +77,20 @@ function goBack(): void {
 }
 
 const ticketsInfo = computed(() => {
-    return aisStore.testingInfo.tickets
+    return aisStore.testingInfo['tickets']
 })
 
-// function chooseBackgroundColor(status) {
-//     if (status === 'Не пройден') {
-//         return 'rgb(238, 252, 255)'
-//     }
-//     if (status === 'Сдан') {
-//         return 'rgb(202, 255, 209)'
-//     }
-//     if (status === 'Не сдан') {
-//         return 'rgb(255, 202, 204)'
-//     }
-// }
+function chooseBackgroundColor(status) {
+    if (status === 'Not started') {
+        return '#d8efff'
+    }
+    if (status === 'Done') {
+        return '#87ffc1'
+    }
+    if (status === 'Failed') {
+        return '#ffd4d4'
+    }
+}
 
 const selectedTicket = ref(null)    
 function select(index, ticket) {
@@ -84,6 +112,37 @@ function showStatus(id) {
     if (id === "Done") return "Пройден"
     if (id === "Failed") return "Провален"
 }
+
+// Generate Random Ticket
+// Dropper
+const questionCount = ref(10)
+const questions = ref(false)
+function toggleDropper() {
+    closeAllDroppers()
+    questions.value = true
+}
+const closeAllDroppers = () => {
+    questions.value = false
+};
+const selectQuestion = (count: number) => {
+    questionCount.value = count
+    closeAllDroppers()
+};
+
+// Dropper
+
+function generateCheck() {
+    const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    if (!startedCourse) throw new Error('Course not found!')
+    const data = {
+        "user_course_id": startedCourse?.id,
+        // "user_ticket": questionCount.value
+    }
+    aisStore.generateRandomTicket(data)
+
+    // При генерации билета, сделать обновление и его отображение
+}
+// Generate Random Ticket end
 
 </script>
 
@@ -156,8 +215,9 @@ function showStatus(id) {
     justify-content: center;
     align-items: center;
     height: 2.5rem;
-    width: 10rem;
     border-radius: 0.375rem;
+    width: 140px;
+    padding: 10px 10px;
 }
 .tickets__button {
     color: white;
@@ -168,6 +228,75 @@ function showStatus(id) {
     width: 100%;
     display: flex;
     justify-content: end;
+}
+
+.creator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #436175;
+    padding: 1.4rem;
+    border-radius: 0.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.creator__text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.creator__data {
+    display: flex;
+    gap: 10px;
+}
+.white {
+    color: white;
+}
+.yellow {
+   color: #ffca00;
+}
+.selector__data {
+    display: flex;
+    gap: 6px;
+}
+.dropper {
+    cursor: pointer;
+    position: relative;
+}
+.dropper__title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid $border;
+    border-radius: 0.5rem;
+    height: 40px;
+    width: 300px;
+
+    &:hover {
+        background-color: $border;
+    }
+}
+.dropper__list {
+    border-radius: 0.5rem;
+    width: 300px;
+    position: absolute;
+    top: 44px;
+    left: 0;
+    background-color: white;
+    box-shadow: 0px 0px 30px $border;
+    z-index: 10;
+}
+.dropper__item {
+    width: 100%;
+    padding: 10px 1rem;
+    text-align: center;
+    &:hover {
+        background-color: $border;
+    }
+}
+
+.button {
+    max-width: 300px;
 }
 
 @media (max-width: 430px) {

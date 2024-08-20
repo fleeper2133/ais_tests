@@ -43,7 +43,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="button">Сгенерировать билет</button>
+                        <button class="button" @click="generateCheck">Начать</button>
                     </div>
                     <div 
                         class="search" 
@@ -115,8 +115,8 @@ import Footer from './Footer.vue'
 import Pagination from './Pagination.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 
-import { computed, onMounted, ref, watch } from 'vue'
-import { useStore } from "../store"
+import { computed, ref, watch } from 'vue'
+import { useStore, GenerateCheck } from "../store"
 import { useRouter } from 'vue-router'
 
 const router = useRouter();
@@ -172,6 +172,29 @@ const showedValue = (count: number) => {
     selectValue(count)
 }
 // Dropper
+
+async function generateCheck() {
+    const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    if (!startedCourse) throw new Error('Course not found!')
+    const data: GenerateCheck = {
+        "question_count": 7,
+        "user_course_id": startedCourse.id
+    }
+    await aisStore.generateBadCheck(data)
+
+    if (aisStore.questionDetailList) {
+        aisStore.questionDetailList = []
+    }
+
+    if (aisStore.questionData) {
+        for(const q of aisStore.questionData) {
+            const result = await aisStore.getQuestionDetail(q.question)
+            aisStore.questionDetailList?.push(result)
+        }
+    }
+    aisStore.getLastUserCheckSkills()
+    return router.push('/training')
+}
 
 function selectQuestion(event, id){
 

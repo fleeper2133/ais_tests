@@ -77,9 +77,9 @@ export interface UserCourse {
 }
 
 export interface GenerateCheck {
-  question_count: number
+  question_count?: number
   status?: string
-  difficulty: string
+  difficulty?: string
   user_id?: number
   user_course_id: number
   type?: string
@@ -198,6 +198,24 @@ function smartGenerate(data: GenerateCheck) {
     userCheckSkills.value = answer[0].user_check_skills
     return questionData.value = answer
   })
+}
+
+function generateFavouriteCheck(data: GenerateCheck) {
+  return api.generateFavouriteCheck(data)
+  .then((answer: GenerateCheckResponse[]) => {
+    userCheckSkills.value = answer[0].user_check_skills
+    return questionData.value = answer
+  })
+}
+function generateBadCheck(data: GenerateCheck) {
+  return api.generateBadCheck(data)
+  .then((answer: GenerateCheckResponse[]) => {
+    userCheckSkills.value = answer[0].user_check_skills
+    return questionData.value = answer
+  })
+}
+function generateRandomTicket(data) {
+  return api.generateRandomTicket(data)
 }
 
 function getQuestionDetail(id: number) {
@@ -382,5 +400,8 @@ function sendMail(data: SendMail){
     whatTicketSelectedId,
     createTicketAnswer,
     makeEndTicket,
+    generateFavouriteCheck,
+    generateBadCheck,
+    generateRandomTicket,
   }
 });

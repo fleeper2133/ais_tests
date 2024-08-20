@@ -13,19 +13,22 @@
             </div>
             <div>
                 <div class="container ticket-list">
+                    <div v-if="isTestDone" class="fw-bold fs-18">
+                        Итог:
+                    </div>
                     <div class="tickets">
                         <div 
                             @click="selectQuestion(key)"
                             class="ticket"
                             :style="{ 
-                                backgroundColor: whatBgColor(value.answer_items),
-                                border: whatBorder(value.answer_items),
+                                backgroundColor: whatBgColor(value, value['answer_items']),
+                                border: whatBorder(value, value['answer_items']),
                                 transform: key === currentQuestionIndex ? 'scale(1.15)' : 'scale(1)',
                             }"
                             v-for="(value, key) in allQuestions"
                             :key="key"
                         >
-                            <p class="fw-bold" :style="{ color: whatFontColor(value.answer_items) }">{{ key + 1 }}</p>
+                            <p class="fw-bold" :style="{ color: whatFontColor(value['answer_items']) }">{{ key + 1 }}</p>
                         </div>
                     </div>
                     <div v-if="!isTestDone" class="timer">
@@ -53,7 +56,7 @@
                         <div v-if="currentQuestionIndex !== null && !isTestDone">
                             <div class="title">
                                 <p class="grey-text">Вопрос <span class="grey-text">{{ currentQuestionIndex + 1 }}</span></p>
-                                <h1 class="fs-18" >{{ currentQuestion.question_text }}</h1>
+                                <h1 class="fs-18" >{{ currentQuestion['question_text'] }}</h1>
                             </div>
                             <div class="answers">
                                 <div
@@ -64,7 +67,7 @@
                                         'selected-answer': allQuestions[currentQuestionIndex].answer_items?.includes(answer.answer_number)
                                     }"
                                     :key="answerIndex"
-                                    @click="selectAnswer(answer.answer_number, allQuestions[currentQuestionIndex].answer_items)"
+                                    @click="selectAnswer(answer.answer_number, allQuestions[currentQuestionIndex]['answer_items'])"
                                 >
                                     {{ answer.answer_text }}
                                 </div>
@@ -72,33 +75,40 @@
                         </div>
                         
                         <div v-if="isTestDone" class="statistic">
+                            <div class="statistic__status">
+                                <p class="fs-20 fw-bold">Результат:</p>
+                                <span class="fs-20 fw-bold statistic__status-item">{{ resultStatus }}</span>
+                            </div>
+                            <!-- Для отображения статуса, разобраться с обновление (баг на переключение вопросов) -->
                             <div 
                                 v-for="(question, index) in allQuestions"
-                                class="statistic__answer" 
-                                @click="selectedQuestion = selectedQuestion === index ? null : index"
+                                class="statistic__answer"
+                                @click="selectQuestion(index)"
                             >
-                                <div class="statistic__answer-header">
+                                <div 
+                                    class="statistic__answer-header" 
+                                    :style="{ backgroundColor: question['status'] === 'Wrong' ? '#fff2f2' : '#d4e8ff', 
+                                    border: question['status'] === 'Wrong' ? '2px solid #ff6969' : '2px solid #338DF4' }"
+                                >
                                     <p class="fw-bold fs-14">Вопрос {{ index + 1 }}</p>
-                                    <p>{{ question.question_text }}</p>
+                                    <p>{{ question['question_text'] }}</p>
                                 </div>
-                                <div v-if="selectedQuestion === index" class="statistic__answer-body">
+                                <div v-if="currentQuestionIndex === index" class="statistic__answer-body">
                                     <div class="statistic__showed-answers">
                                         <div class="statistic__showed-answer">
                                             <p class="fw-bold">Ваш ответ:</p>
-                                            <span class="statistic__showed-item">1 {{ yourAnswer(question.answer_items, question.varients) }}</span>
+                                            <span class="statistic__showed-item">{{ yourAnswer(question['answer_items'], question['varients']) }}</span>
                                         </div>
                                         <div class="statistic__showed-answer">
                                             <p class="fw-bold">Верный ответ:</p>
-                                            <span class="statistic__showed-item">2 {{ correctAnswer(question.varients) }}</span>
+                                            <span class="statistic__showed-item">{{ correctAnswer(question['varients']) }}</span>
                                         </div>
                                     </div>
                                     <div class="statistic__normative">
-                                        <p class="fw-bold fs-18">{{ question.normative_documents.text }}</p>
-                                        <p>// Добавить описание документа<br>Настоящий Федеральный закон определяет правовые, экономические и социальные основы обеспечения безопасной эксплуатации опасных производственных объектов и направлен на предупреждение аварий на опасных производственных объектах и обеспечение готовности эксплуатирующих опасные производственные объекты юридических лиц и индивидуальных предпринимателей (далее также - организации, эксплуатирующие опасные производственные объекты) к локализации и ликвидации последствий указанных аварий. Положения настоящего Федерального закона распространяются на все организации независимо от их организационно-правовых форм и форм собственности, осуществляющие деятельность в области промышленной безопасности опасных производственных объектов на территории Российской Федерации и на иных территориях, над которыми Российская Федерация осуществляе</p>
+                                        <p class="fw-bold fs-18">{{ question['normative_documents'].text }}<span class="fw-bold fs-18 statistic__normative-point">{{ question['normative_point'] }}</span></p>
                                     </div>
                                 </div>
                             </div>
-                            <!-- <p>{{ aisStore.testingDetail['status'] }}</p> -->
                         </div>
 
                         <div class="buttons-panel">
@@ -109,7 +119,7 @@
                                 <p class="button-skip__text fw-bold">Назад</p>
                             </button>
 
-                            <button v-if="!allQuestions[currentQuestionIndex].answer_items && !isTestDone" :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
+                            <button v-if="!allQuestions[currentQuestionIndex]['answer_items'] && !isTestDone" :disabled="selectedAnswer.length === 0" class="button answers__button" :class="{ disabled: selectedAnswer.length === 0 }" @click="send()">Ответить</button>
                             <button v-if="isTestDone" @click="back" class="button answers__button end__button">Выйти</button>
                             
                             <button v-if="!isTestDone" class="button-back button-skip" @click="nextQuestion">
@@ -140,56 +150,27 @@ const aisStore = useStore()
 
 type AnswerIndex = number;
 
-const selectedQuestion = ref<number | null>(0)
 const isTestDone = ref(false)
-const requiredDoneLength = ref(false)
 const currentQuestionIndex = ref(0)
 const selectedAnswer = ref<AnswerIndex[]>([])
 const varientsLength = ref(0)
-const selectedQuestionId = ref<number>(0)
 const allQuestions = ref([])
 
 function back() {
     aisStore.testingDetail = {}
+    const result = aisStore.getTestingDetail(aisStore.selectedTestId)
+    aisStore.testingDetail = result
     router.push('/ticket-selection')
 }
 
 function yourAnswer(myAnswer, variants) {
     const correctVariant = variants.find(v => myAnswer.includes(v.answer_number))
-    console.log('variants', variants)
-    console.log('myAnswer', myAnswer)
-    console.log('correctVariant', correctVariant)
     return correctVariant ? correctVariant.answer_text : 'Нет ответа'
 }
 function correctAnswer(variants) {
     const correctVariant = variants.find(variant => variant.correct === true)
     return correctVariant ? correctVariant.answer_text : 'Нет верного ответа'
 }
-// function exitTesting() {
-//     aisStore.questionData = []
-//     aisStore.questionDetailList = []
-//     router.push('/course')
-// }
-
-// function answers(value) {
-//     if (value === 'right') {
-//         const answers = aisStore.questionData.filter(q => q.status === "Right")
-//         return answers.length
-//     }
-//     if (value === 'wrong') {
-//         const answers = aisStore.questionData.filter(q => q.status === "Wrong")
-//         return answers.length
-//     }
-// }
-
-// function isAnswerRight(answerId) {
-
-//     const rightVarientsArray = currentQuestion.value?.varients.filter(v => v.correct === true)
-//     const answerNumbers = rightVarientsArray.map(v => v.answer_number)
-//     const isAnswered = !!aisStore.questionData[currentQuestionIndex.value]?.correct_answer_items
-//     return isAnswered && answerNumbers.includes(answerId)
-// }
-
 
 // Timer
 const timer = ref('30:00')
@@ -206,6 +187,20 @@ const startTimer = () => {
         }
     }, 1000)
 }
+
+const stopTimer = () => {
+    clearInterval(interval)
+}
+
+const getElapsedTime = () => {
+    const elapsedSeconds = (30 * 60) - totalSeconds.value
+    const hours = Math.floor(elapsedSeconds / 3600)
+    const minutes = Math.floor((elapsedSeconds % 3600) / 60)
+    const seconds = elapsedSeconds % 60
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
 const updateTimer = () => {
     const minutes = Math.floor((totalSeconds.value % 3600) / 60)
     const seconds = totalSeconds.value % 60
@@ -320,54 +315,41 @@ function send() {
     setTimeout(() => {
         currentQuestionIndex.value++
     }, 200);
+    
 }
 
 // Запоминание
 
-function whatBgColor(value) {
-    
-    if (isTestDone.value) {
-        // здесь логика для isTestDone === true
+function whatBgColor(value, answer) {
 
-        // if (status === 'Wrong') return '#ffb2c1' // если ошибка
-        return '#0098ff' // будет синий всегда
+    if (answer) {
+        if (value['status'] === 'Wrong') {
+            return '#ff6969'
+        }   
+        return '#0098ff'
     }
-
-    if (value) return '#0098ff'
     return 'transparent'
 }
-function whatBorder(value) {
-    if (value) return 'none'
-    // if (status === 'Wrong' || status === 'Right') return 'none'
+function whatBorder(value, answer) {
+    if (value['status'] === 'Wrong') {
+        return '#ff6969'
+    }
+    if (answer) return 'none'
 }
 function whatFontColor(value) {
     if (value) return '#ffffff'
 }
-
 // Запоминание end
 
-
-// watch(
-//     () => aisStore.questionData,
-//     (newData) => {
-//     const allAnswered = newData.every(question => question.status !== 'Not Answered');
-//     if (allAnswered) {
-//         requiredDoneLength.value = true
-//     }
-//     },
-//     { deep: true }
-// )
-
+const endTestingInfo = ref<Object>({})
+const resultStatus = computed(() => {
+    if (endTestingInfo.value['status'] === 'Failed') return 'Не сдан'
+    if (endTestingInfo.value['status'] === 'Done') return 'Сдан'
+})
 async function endTesting() {
     isTestDone.value = true
-
-    // Нужно получить 
-
-    // Завершаем вопросы
-    // Здесь вообще нужно завершать /api/question-tickets/{id}/ где id это id тикета, но фиг знает какого
-
-    // перебрать allQuestions и передать question_ticket_id в createTicketAnswer
-    // так же, перебрать allQuestion 
+    stopTimer()
+    
     for(const q of allQuestions.value) {
         const toSend = {
             "answer_items": q['answer_items'],
@@ -375,24 +357,19 @@ async function endTesting() {
         }
 
         const response = await aisStore.createTicketAnswer(q['question_ticket_id'], toSend)
-        // теперь status ответов нужно засунуть в allQuestions
-        allQuestions
+        if (response) {
+            q['status'] = response['status']
+        }
     }
+    
+    const sendingInfo = {
+        "time_ticket": getElapsedTime()
+    }
+    endTestingInfo.value = await aisStore.makeEndTicket(aisStore.testingDetail['id'], sendingInfo)
 
-    //передаем туда answer_items: [] (с нашими ответами) и answer_time: из QuestionTimerValue.value
-
-
-
-    // В allQuestions после, нужно будет засунуть полученный status (Right/Not Right)
-
-    // Затем получаем обновленные данные, чтобы использовать их для отображения верстки неправильных/правильных ответов
-
-    aisStore.selectedTestId // id выбранного ticketa. Для закрытия его (передаем )
-
-    // Получаем обновленные локальные данные. Если нужно
-
-    // allQuestions.value = aisStore.testingDetail['questions'] // Временно убираем!!!!!!!!!!!!!!!!!!!!
+    currentQuestionIndex.value = 0
 }
+
 
 const checkAllQuestionsAnswered = () => {
     if (allQuestions.value.every(question => question['answer_items'])) {
@@ -526,6 +503,7 @@ onBeforeMount(async () => {
     margin: 0 auto;
 }
 .end__button {
+    margin-top: 20px;
     background-color: #0fa5eb;
 }
 
@@ -694,12 +672,19 @@ onBeforeMount(async () => {
 // stats end
 
 .statistic {
-    // height: 46vh;
-    // overflow-y: scroll;
     padding-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+.statistic__status {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    gap: 10px;
+}
+.statistic__status-item{
+    color: #ff4e5d;
 }
 .statistic__answer {
     background-color: #eff8ff;
@@ -711,8 +696,6 @@ onBeforeMount(async () => {
     flex-direction: column;
     padding: 30px;
     border-radius: 0.5rem;
-    border: 2px solid $main-blue;
-    background-color: #d4e8ff;
     gap: 10px;
 }
 .statistic__answer-body {
@@ -740,8 +723,11 @@ onBeforeMount(async () => {
 }
 .statistic__normative {
     display: flex;
-    flex-direction: column;
     gap: 10px;
+}
+.statistic__normative-point {
+    margin-left: 10px;
+    color: #237aa3;
 }
 
 @media (max-width: 600px) {
