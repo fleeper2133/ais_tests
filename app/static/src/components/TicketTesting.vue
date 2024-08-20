@@ -157,9 +157,9 @@ const varientsLength = ref(0)
 const allQuestions = ref([])
 
 function back() {
-    aisStore.testingDetail = {}
-    const result = aisStore.getTestingDetail(aisStore.selectedTestId)
-    aisStore.testingDetail = result
+    // aisStore.testingDetail = {}
+    // const result = aisStore.getTestingDetail(aisStore.selectedTestId)
+    // aisStore.testingDetail = result
     router.push('/ticket-selection')
 }
 
@@ -357,13 +357,15 @@ async function endTesting() {
         }
 
         const response = await aisStore.createTicketAnswer(q['question_ticket_id'], toSend)
-        if (response) {
-            q['status'] = response['status']
-        }
+        // if (response) {
+        //     q['status'] = response['status']
+        // }
     }
     
     const sendingInfo = {
-        "time_ticket": getElapsedTime()
+        // "time_ticket": getElapsedTime()
+        "time_ticket": 10
+        // Передать в секундах
     }
     endTestingInfo.value = await aisStore.makeEndTicket(aisStore.testingDetail['id'], sendingInfo)
 

@@ -22,10 +22,10 @@ class UserDaysViewSet(viewsets.ModelViewSet):
     serializer_class = UserDaysSerializer
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['get'], url_path='current-week-activity')
+    @action(detail=False, methods=['post'], url_path='current-week-activity')
     def get_current_week_activity(self, request):
         user = request.user
-        user_course_id = request.query_params.get('user_course_id') # data
+        user_course_id = request.data.get('user_course_id') # data
 
         try:
             user_course = UserCourse.objects.get(id=user_course_id, user=user)
@@ -449,13 +449,15 @@ class UserTicketViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Пользователь не найден.'}, status=status.HTTP_401_UNAUTHORIZED)
 
         user_ticket = self.get_object()
+        time_ticket = request.data.get('time_ticket')
 
         if user_ticket not in list(UserTicket.objects.filter(user=user)):
             return Response({'detail': 'Пользователь не проходил этот билет.'}, status=status.HTTP_403_FORBIDDEN)
         
-        user_ticket.update_status()
+        user_ticket.time_ticket = timedelta(seconds=time_ticket)
         user_ticket.update_right_answers()
-        user_ticket.update_attempt_count()
+        user_ticket.update_status()
+        #user_ticket.update_attempt_count()
         user_ticket.save()
 
         serializer = UserTicketSerializer(user_ticket, many=False, context={'request': request})
@@ -493,7 +495,7 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         print(len(questions))
         random.shuffle(questions)
 
-        total_questions_count = 1
+        total_questions_count = 3
 
         if (len(questions)) < total_questions_count:
             return Response({'detail': 'Недостаточно вопросов для генерации билета.'}, status=status.HTTP_400_BAD_REQUEST)

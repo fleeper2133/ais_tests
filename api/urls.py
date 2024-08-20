@@ -4,10 +4,11 @@ from django.urls import path, include
 from rest_framework import routers
 from .views import QualificationViewSet, BlockViewSet, NormativeDocumentViewSet, CourseViewSet, TestingViewSet, TicketViewSet, QuestionViewSet, VarientViewSet, QuestionListViewSet, LearningMaterialViewSet
 from .views import UserCourseViewSet, TaskQuestionViewSet, UserQuestionViewSet, UserTicketViewSet, UserAnswerViewSet, UserAnswerItemViewSet, QuestionTicketViewSet, UserCheckSkillsViewSet, UserCheckSkillsQuestionViewSet
-
+from .views import UserDaysViewSet
 
 router = routers.DefaultRouter()
 
+router.register(r'user-days', UserDaysViewSet)
 router.register(r'qualifications', QualificationViewSet)
 router.register(r'blocks', BlockViewSet)
 router.register(r'normative-documents', NormativeDocumentViewSet)
