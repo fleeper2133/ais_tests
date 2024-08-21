@@ -156,10 +156,11 @@ const selectedAnswer = ref<AnswerIndex[]>([])
 const varientsLength = ref(0)
 const allQuestions = ref([])
 
-function back() {
-    // aisStore.testingDetail = {}
-    // const result = aisStore.getTestingDetail(aisStore.selectedTestId)
-    // aisStore.testingDetail = result
+async function back() {
+    const id = aisStore.selectedCourse[0].testing?.id
+    
+    aisStore.testingInfo = []
+    await aisStore.getTestingInfo(id)
     router.push('/ticket-selection')
 }
 
@@ -173,8 +174,8 @@ function correctAnswer(variants) {
 }
 
 // Timer
-const timer = ref('30:00')
-const totalSeconds = ref(30 * 60)
+const timer = ref('00:00')
+const totalSeconds = ref(aisStore.testingDetail['questions'].length * 2 * 60) // 2 минуты на каждый вопрос
 let interval
 
 const startTimer = () => {
@@ -193,12 +194,7 @@ const stopTimer = () => {
 }
 
 const getElapsedTime = () => {
-    const elapsedSeconds = (30 * 60) - totalSeconds.value
-    const hours = Math.floor(elapsedSeconds / 3600)
-    const minutes = Math.floor((elapsedSeconds % 3600) / 60)
-    const seconds = elapsedSeconds % 60
-
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+    return (aisStore.testingDetail['questions'].length * 2 * 60) - totalSeconds.value
 }
 
 const updateTimer = () => {
@@ -209,30 +205,32 @@ const updateTimer = () => {
 }
 
 // timer for question
-const QuestionTimerValue = ref(0);
-let QuestionIntervalId = null;
+const QuestionTimerValue = ref(0)
+let QuestionIntervalId = null
 
 function startQuestionTimer() {
 
     if (QuestionIntervalId !== null) {
-        clearInterval(QuestionIntervalId);
+        clearInterval(QuestionIntervalId)
     }
 
-    QuestionTimerValue.value = 0;
+    QuestionTimerValue.value = 0
 
     QuestionIntervalId = setInterval(() => {
-        QuestionTimerValue.value++;
-    }, 1000);
+        QuestionTimerValue.value++
+    }, 1000)
 }
 // timer for question END
 
 onMounted(() => {
     startTimer()
     startQuestionTimer()
-})
+});
+
 onUnmounted(() => {
     clearInterval(interval)
 })
+
 watch(timer, (newValue) => {
     if (newValue === '00:00') {
         endTesting()
@@ -301,8 +299,8 @@ function nextQuestion() {
 
 function send() {
 
-    allQuestions.value[currentQuestionIndex.value].answer_items = [...selectedAnswer.value];
-    allQuestions.value[currentQuestionIndex.value].answer_time = QuestionTimerValue.value;
+    allQuestions.value[currentQuestionIndex.value].answer_items = [...selectedAnswer.value]
+    allQuestions.value[currentQuestionIndex.value].answer_time = QuestionTimerValue.value
 
     const rightVarientsArray = currentQuestion.value?.varients.filter(v => v.correct === true)
     const answerNumbers = rightVarientsArray.map(v => v.answer_number)
@@ -346,28 +344,35 @@ const resultStatus = computed(() => {
     if (endTestingInfo.value['status'] === 'Failed') return 'Не сдан'
     if (endTestingInfo.value['status'] === 'Done') return 'Сдан'
 })
+
+const responseData = ref([])
 async function endTesting() {
     isTestDone.value = true
     stopTimer()
-    
-    for(const q of allQuestions.value) {
+
+    for (const q of allQuestions.value) {
         const toSend = {
             "answer_items": q['answer_items'],
             "answer_time": q['answer_time']
-        }
+        };
 
         const response = await aisStore.createTicketAnswer(q['question_ticket_id'], toSend)
+        responseData.value.push(response)
         // if (response) {
         //     q['status'] = response['status']
         // }
     }
-    
+    console.log('responseData', responseData.value)
+
     const sendingInfo = {
-        // "time_ticket": getElapsedTime()
-        "time_ticket": 10
-        // Передать в секундах
-    }
+        "time_ticket": getElapsedTime()
+    };
     endTestingInfo.value = await aisStore.makeEndTicket(aisStore.testingDetail['id'], sendingInfo)
+
+    console.log('response', response.value)
+
+    aisStore.testingDetail = endTestingInfo.value
+    allQuestions.value = aisStore.testingDetail['questions']
 
     currentQuestionIndex.value = 0
 }

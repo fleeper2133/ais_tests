@@ -1,5 +1,5 @@
 <template>
-    <div class="content" @click="closeAllDroppers">
+    <div class="content">
         <div>
             <Header />
             <div class="container container__bg">
@@ -35,17 +35,8 @@
                                     <p class="yellow fs-14 fw-bold">1000</p>
                                 </div>
                                 <div class="selector__data">
-                                    <p class="white fs-14">Вопросы для генерации:</p>
-                                    <p class="yellow fs-14 fw-bold">{{ questionCount }}</p> 
-                                </div>
-                            </div>
-                            <div class="dropper">
-                                <div class="dropper__title white" @click.stop="toggleDropper">Вопросы: {{ questionCount }}</div>
-                                <div v-show="questions" class="dropper__list">
-                                    <p class="dropper__item" @click.stop="selectQuestion(10)">10 вопросов</p>
-                                    <p class="dropper__item" @click.stop="selectQuestion(20)">20 вопросов</p>
-                                    <p class="dropper__item" @click.stop="selectQuestion(30)">30 вопросов</p>
-                                    <p class="dropper__item" @click.stop="selectQuestion(40)">40 вопросов</p>
+                                    <p class="white fs-14">Вопросов в билете:</p>
+                                    <p class="yellow fs-14 fw-bold">20</p> 
                                 </div>
                             </div>
                         </div>
@@ -73,7 +64,7 @@ const router = useRouter()
 const aisStore = useStore()
 
 function goBack(): void {
-    router.push('/courses')
+    router.push('/course')
 }
 
 const ticketsInfo = computed(() => {
@@ -114,29 +105,12 @@ function showStatus(id) {
 }
 
 // Generate Random Ticket
-// Dropper
-const questionCount = ref(10)
-const questions = ref(false)
-function toggleDropper() {
-    closeAllDroppers()
-    questions.value = true
-}
-const closeAllDroppers = () => {
-    questions.value = false
-};
-const selectQuestion = (count: number) => {
-    questionCount.value = count
-    closeAllDroppers()
-};
-
-// Dropper
 
 function generateCheck() {
     const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
     if (!startedCourse) throw new Error('Course not found!')
     const data = {
         "user_course_id": startedCourse?.id,
-        // "user_ticket": questionCount.value
     }
     aisStore.generateRandomTicket(data)
 

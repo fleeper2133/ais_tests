@@ -12,8 +12,8 @@
                     </button>
                 </div>
             </div>
-            <div class="container container__name">
-                <h1 class="fs-18 fw-bold">{{aisStore.selectedCourse[0].name}}</h1>
+            <div class="container-name">
+                <div class="container-name__title fs-20 fw-bold">{{aisStore.selectedCourse[0].name}}</div>
             </div>
             <div class="container container__flex">
                 <div class="info">
@@ -108,10 +108,6 @@
                                         <p class="fs-14 main-blue">Билеты:</p>
                                         <p class="fs-14 main-blue fw-bold">9</p>
                                     </div>
-                                    <!-- <div class="selector__data">
-                                        <p class="fs-14 main-blue">Сложность:</p>
-                                        <p class="fs-14 main-blue fw-bold">{{ difficultyText2 }}</p>
-                                    </div> -->
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний.</p>
                             </div>
@@ -123,14 +119,6 @@
                         </div>
                         <div class="selector__action">
                             <div class="selector__buttons">
-                                <!-- <div class="dropper">
-                                    <div class="dropper__title" @click.stop="toggleDropper('difficulty2')">Сложность: {{ difficultyText2 }}</div>
-                                    <div v-show="dropperStates.difficulty2" class="dropper__list">
-                                        <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Легко')">Легко</p>
-                                        <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Средне')">Средне</p>
-                                        <p class="dropper__item" @click.stop="selectDifficulty('difficulty2', 'Сложно')">Сложно</p>
-                                    </div>
-                                </div> -->
                                 <button class="selector__button" @click="goToTickets">Пройти</button>
                             </div>
                         </div>
@@ -229,7 +217,7 @@ const selectDifficulty = (dropper: 'difficulty1' | 'difficulty2', difficulty: st
         difficultyText2.value = difficulty
     }
 
-    closeAllDroppers();
+    closeAllDroppers()
 }
 // Dropper end
 
@@ -372,8 +360,14 @@ onMounted(async () => {
 .container__bg {
     background-color: $light-blue;
 }
-.container__name {
-    margin: 26px 0;
+.container-name {
+    width: 100%;
+    padding: 10px 20vw;
+}
+.container-name__title {
+    width: 100%;
+    padding: 20px 40px;
+    border-radius: 0.625rem;
 }
 
 .content {

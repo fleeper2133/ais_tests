@@ -1,6 +1,6 @@
-import { ref, computed } from "vue";
-import { api } from "../api/base";
-import { defineStore } from "pinia";
+import { ref, computed } from "vue"
+import { api } from "../api/base"
+import { defineStore } from "pinia"
 import router from "./router/routes"
 
 
@@ -112,239 +112,239 @@ export interface QuestionDetail {
 
 export const useStore = defineStore("tasks", () => {
 
-// Variables
-const currentUser = ref({})
-const allCourses = ref<Course[]>([])
-const selectedCourseId = ref<number | undefined>(undefined)
-const selectedCourse = ref<Course[]>([])
-const showCourseInfoButton = ref<boolean>(false)
-const courseQuestions = ref<Question[]>([])
-const favoritesQuestions = ref<Question[]>([])
-const filteredFavouriteQuestions = ref<Question[]>([])
-const startedCourses = ref<UserCourse[]>([])
-const questionData = ref<GenerateCheckResponse[]>([])
-const selectedTestIndex = ref<number>(0)
-const selectedTestId = ref<number>(0)
-const testingInfo = ref({})
-const testingDetail = ref({})
-const whatTicketSelectedId = ref<number>(0)
-const allQuestionsData = ref<GenerateCheckResponse[]>([])
-const allMistakes = ref<GenerateCheckResponse[]>([])
-const questionDetailList = ref<QuestionDetail[]>([])
-const userCheckSkills = ref<number | undefined>(undefined)
-const trainingAnswer = ref({})
-const lastCheckSkills = ref({})
-const lastCourse = ref({})
-const isLoading = ref<boolean>(true)
-const courseHistory = ref<GenerateCheck[]>([])
-const courseStatuses = ref([
-  {id: 'All', name: 'Все курсы'},
-  {id: 'New', name: 'Начатые'},
-])
+  // Variables
+  const currentUser = ref({})
+  const allCourses = ref<Course[]>([])
+  const selectedCourseId = ref<number | undefined>(undefined)
+  const selectedCourse = ref<Course[]>([])
+  const showCourseInfoButton = ref<boolean>(false)
+  const courseQuestions = ref<Question[]>([])
+  const favoritesQuestions = ref<Question[]>([])
+  const filteredFavouriteQuestions = ref<Question[]>([])
+  const startedCourses = ref<UserCourse[]>([])
+  const questionData = ref<GenerateCheckResponse[]>([])
+  const selectedTestIndex = ref<number>(0)
+  const selectedTestId = ref<number>(0)
+  const testingInfo = ref({})
+  const testingDetail = ref({})
+  const whatTicketSelectedId = ref<number>(0)
+  const allQuestionsData = ref<GenerateCheckResponse[]>([])
+  const allMistakes = ref<GenerateCheckResponse[]>([])
+  const questionDetailList = ref<QuestionDetail[]>([])
+  const userCheckSkills = ref<number | undefined>(undefined)
+  const trainingAnswer = ref({})
+  const lastCheckSkills = ref({})
+  const lastCourse = ref({})
+  const isLoading = ref<boolean>(true)
+  const courseHistory = ref<GenerateCheck[]>([])
+  const courseStatuses = ref([
+    {id: 'All', name: 'Все курсы'},
+    {id: 'New', name: 'Начатые'},
+  ])
 
-// Variables end
-
-
-function getCurrentUser() {
-  return api.getCurrentUser()
-  .then((user: Course[]) => {
-    currentUser.value = user
-  })
-}
-
-function getCourses() {
-  return api.getCourses()
-  .then((courses: Course[]) => {
-    allCourses.value = courses;
-  })
-}
-
-function getLastUserCheckSkills() {
-  return api.getUserCheckSkills()
-  .then((userCheckSkills) => {
-    lastCheckSkills.value = userCheckSkills[userCheckSkills.length - 1]
-  })
-}
-
-function getCourseQuestions(id) {
-  return api.getCourseQuestions(id)
-  .then((questions: Question[]) => {
-    courseQuestions.value = questions
-  }) .finally (() => {
-    isLoading.value = false
-  })
-}
-
-function getCourseById(id) {
-  return api.getCourseById(id)
-}
-
-function getUserCourses() {
-  return api.getUserCourses()
-  .then((courses: UserCourse[]) => {
-    const course = courses.filter(c => c.user === currentUser.value['id'])
-    return startedCourses.value = course
-  })
-}
-function setUserCourse(courseData: UserCourse) {
-  return api.setUserCourse(courseData)
-}
-function startCourse(id: number, courseData: UserCourse) {
-  return api.startCourse(id, courseData)
-}
-function smartGenerate(data: GenerateCheck) {
-  return api.smartGenerate(data)
-  .then((answer: GenerateCheckResponse[]) => {
-    userCheckSkills.value = answer[0].user_check_skills
-    return questionData.value = answer
-  })
-}
-
-function generateFavouriteCheck(data: GenerateCheck) {
-  return api.generateFavouriteCheck(data)
-  .then((answer: GenerateCheckResponse[]) => {
-    userCheckSkills.value = answer[0].user_check_skills
-    return questionData.value = answer
-  })
-}
-function generateBadCheck(data: GenerateCheck) {
-  return api.generateBadCheck(data)
-  .then((answer: GenerateCheckResponse[]) => {
-    userCheckSkills.value = answer[0].user_check_skills
-    return questionData.value = answer
-  })
-}
-function generateRandomTicket(data) {
-  return api.generateRandomTicket(data)
-}
-
-function getQuestionDetail(id: number) {
-  return api.getQuestionDetail(id);
-}
-
-function createAnswer(id: number, data: GenerateCheckResponse) {
-  return api.createAnswer(id, data)
-  .then((answer: GenerateCheckResponse) => {
-    trainingAnswer.value = answer
-  })
-}
-function endTraining(id: number) {
-  return api.endTraining(id)
-}
-
-function getCourseHistory(id: number) {
-  return api.getCourseHistory(id)
-  .then((answer: GenerateCheck) => {
-    if (courseHistory) courseHistory.value = []
-    courseHistory.value = answer.reverse()
-  })
-}
-function getUserCkeckSkillsQuestions() {
-  return api.getUserCkeckSkillsQuestions()
-  .then((answer: GenerateCheckResponse[]) => {
-    return allQuestionsData.value = answer
-  })
-}
-
-function getMistakes(body) {
-  return api.getMistakes(body)
-  .then((answer: GenerateCheckResponse[]) => {
-    return allMistakes.value = answer.reverse()
-  })
-  .finally (() => {
-    isLoading.value = false
-  })
-}
-
-function getTestingInfo(id) {
-  return api.getTestingInfo(id)
-  .then((answer) => {
-    return testingInfo.value = answer
-  })
-}
-function getTestingDetail(id) {
-  return api.getTestingDetail(id, null)
-}
-function createTicketAnswer(id, body) {
-  return api.createTicketAnswer(id, body)
-}
-function makeEndTicket(id, body) {
-  return api.endTicket(id, body)
-}
-
-function getFavoritesQuestions(){
-  return api.favoritesQuestions()
-  .then((questions: Question[]) => 
-    favoritesQuestions.value = questions
-  )
-}
-
-function getLastCourse() {
-  return api.getLastCourse()
-  .then((course) => 
-    lastCourse.value = course
-  );
-}
-
-function markQuestionSelected(id: number){
-  return api.markQuestionSelected(id);
-}
-
-function giveRating(id: number, body: string) {
-  return api.giveRating(id, body)
-}
-
-// Favorite end
+  // Variables end
 
 
-// Authentication
-function login(loginData: Login) {
-  api.login(loginData)
-  .then(response => {
-    if (response) {
-        
-        localStorage.setItem('accessToken', response.access);
-        localStorage.setItem('refreshToken', response.refresh);
-        router.push({path: "/courses"})
-    } else {
-        console.error('Ошибка:', response.statusText);
-        
-    }
-  })
-  .catch(error => {
-    console.error('Ошибка отправки данных:', error);
-    
-  });
-}
+  function getCurrentUser() {
+    return api.getCurrentUser()
+    .then((user: Course[]) => {
+      currentUser.value = user
+    })
+  }
 
-function logout(token) {
-  api.logout(token)
-  .then(response => {
-    if (response) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('email'); // email
-      
-      document.location.href = '/login/', true;
-    } else {
-      console.error('Ошибка:', response.statusText);
-  }})
-  .catch(error => {
-    console.error('Ошибка отправки данных:', error);
-  });
-}
+  function getCourses() {
+    return api.getCourses()
+    .then((courses: Course[]) => {
+      allCourses.value = courses;
+    })
+  }
 
-function registration(registrationData: Registration) {
-  api.registration(registrationData)
+  function getLastUserCheckSkills() {
+    return api.getUserCheckSkills()
+    .then((userCheckSkills) => {
+      lastCheckSkills.value = userCheckSkills[userCheckSkills.length - 1]
+    })
+  }
+
+  function getCourseQuestions(id) {
+    return api.getCourseQuestions(id)
+    .then((questions: Question[]) => {
+      courseQuestions.value = questions
+    }) .finally (() => {
+      isLoading.value = false
+    })
+  }
+
+  function getCourseById(id) {
+    return api.getCourseById(id)
+  }
+
+  function getUserCourses() {
+    return api.getUserCourses()
+    .then((courses: UserCourse[]) => {
+      const course = courses.filter(c => c.user === currentUser.value['id'])
+      return startedCourses.value = course
+    })
+  }
+  function setUserCourse(courseData: UserCourse) {
+    return api.setUserCourse(courseData)
+  }
+  function startCourse(id: number, courseData: UserCourse) {
+    return api.startCourse(id, courseData)
+  }
+  function smartGenerate(data: GenerateCheck) {
+    return api.smartGenerate(data)
+    .then((answer: GenerateCheckResponse[]) => {
+      userCheckSkills.value = answer[0].user_check_skills
+      return questionData.value = answer
+    })
+  }
+
+  function generateFavouriteCheck(data: GenerateCheck) {
+    return api.generateFavouriteCheck(data)
+    .then((answer: GenerateCheckResponse[]) => {
+      userCheckSkills.value = answer[0].user_check_skills
+      return questionData.value = answer
+    })
+  }
+  function generateBadCheck(data: GenerateCheck) {
+    return api.generateBadCheck(data)
+    .then((answer: GenerateCheckResponse[]) => {
+      userCheckSkills.value = answer[0].user_check_skills
+      return questionData.value = answer
+    })
+  }
+  function generateRandomTicket(data) {
+    return api.generateRandomTicket(data)
+  }
+
+  function getQuestionDetail(id: number) {
+    return api.getQuestionDetail(id);
+  }
+
+  function createAnswer(id: number, data: GenerateCheckResponse) {
+    return api.createAnswer(id, data)
+    .then((answer: GenerateCheckResponse) => {
+      trainingAnswer.value = answer
+    })
+  }
+  function endTraining(id: number) {
+    return api.endTraining(id)
+  }
+
+  function getCourseHistory(id: number) {
+    return api.getCourseHistory(id)
+    .then((answer: GenerateCheck) => {
+      if (courseHistory) courseHistory.value = []
+      courseHistory.value = answer.reverse()
+    })
+  }
+  function getUserCkeckSkillsQuestions() {
+    return api.getUserCkeckSkillsQuestions()
+    .then((answer: GenerateCheckResponse[]) => {
+      return allQuestionsData.value = answer
+    })
+  }
+
+  function getMistakes(body) {
+    return api.getMistakes(body)
+    .then((answer: GenerateCheckResponse[]) => {
+      return allMistakes.value = answer.reverse()
+    })
+    .finally (() => {
+      isLoading.value = false
+    })
+  }
+
+  function getTestingInfo(id) {
+    return api.getTestingInfo(id)
+    .then((answer) => {
+      return testingInfo.value = answer
+    })
+  }
+  function getTestingDetail(id) {
+    return api.getTestingDetail(id, null)
+  }
+  function createTicketAnswer(id, body) {
+    return api.createTicketAnswer(id, body)
+  }
+  function makeEndTicket(id, body) {
+    return api.endTicket(id, body)
+  }
+
+  function getFavoritesQuestions(){
+    return api.favoritesQuestions()
+    .then((questions: Question[]) => 
+      favoritesQuestions.value = questions
+    )
+  }
+
+  function getLastCourse() {
+    return api.getLastCourse()
+    .then((course) => 
+      lastCourse.value = course
+    );
+  }
+
+  function markQuestionSelected(id: number){
+    return api.markQuestionSelected(id);
+  }
+
+  function giveRating(id: number, body: string) {
+    return api.giveRating(id, body)
+  }
+
+  // Favorite end
+
+
+  // Authentication
+  function login(loginData: Login) {
+    api.login(loginData)
+    .then(response => {
+      if (response) {
+          
+          localStorage.setItem('accessToken', response.access);
+          localStorage.setItem('refreshToken', response.refresh);
+          router.push({path: "/courses"})
+      } else {
+          console.error('Ошибка:', response.statusText);
+          
+      }
+    })
     .catch(error => {
-      console.log(error);
+      console.error('Ошибка отправки данных:', error);
+      
     });
-}
-// Authentication end
+  }
 
-function sendMail(data: SendMail){
-  api.sendMail(data)
-}
+  function logout(token) {
+    api.logout(token)
+    .then(response => {
+      if (response) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('email'); // email
+        
+        document.location.href = '/login/', true;
+      } else {
+        console.error('Ошибка:', response.statusText);
+    }})
+    .catch(error => {
+      console.error('Ошибка отправки данных:', error);
+    });
+  }
+
+  function registration(registrationData: Registration) {
+    api.registration(registrationData)
+      .catch(error => {
+        console.log(error);
+      });
+  }
+  // Authentication end
+
+  function sendMail(data: SendMail){
+    api.sendMail(data)
+  }
 
 
   return {
