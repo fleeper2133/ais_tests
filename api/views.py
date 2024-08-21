@@ -289,6 +289,11 @@ class UserCourseViewSet(viewsets.ModelViewSet):
     serializer_class = UserCourseSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        # Возвращаем только те курсы, которые связаны с текущим пользователем
+        user = self.request.user
+        return UserCourse.objects.filter(user=user)
+        
     # обновление всех курсов перед получением списка
     def list(self, request, *args, **kwargs):
         # Получаем все курсы пользователя
@@ -301,8 +306,8 @@ class UserCourseViewSet(viewsets.ModelViewSet):
             user_course.calculate_prepare()  # Пересчёт подготовки
 
         # Выполняем стандартное поведение list
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     # Статистика по вопросам
     @action(detail=True, methods=['get'])
