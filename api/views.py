@@ -25,30 +25,74 @@ class UserDaysViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='current-week-activity')
     def get_current_week_activity(self, request):
         user = request.user
-        user_course_id = request.data.get('user_course_id') # data
+        user_course_id = request.data.get('user_course_id')
 
+        # Проверка наличия курса у пользователя
         try:
             user_course = UserCourse.objects.get(id=user_course_id, user=user)
         except UserCourse.DoesNotExist:
             return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_404_NOT_FOUND)
 
-        start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+        # Получаем текущее время и определяем начало текущей недели и дня
+        current_time = timezone.localtime()
+        start_of_week = current_time.date() - timedelta(days=current_time.weekday())
+        start_of_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
 
-        # Получаем или создаем объект UserDays
         user_days, created = UserDays.objects.get_or_create(
-            user=user, 
+            user=user,
             user_course=user_course,
             defaults={'week_start': start_of_week}
         )
 
-        # Если объект существовал, проверяем и обновляем начало недели
+        # Если объект существовал и началась новая неделя, обновляем week_start
         if not created and user_days.week_start != start_of_week:
             user_days.reset_week()
             user_days.week_start = start_of_week
             user_days.save()
 
+
+        # Подсчет количества завершенных тестирований за сегодня
+        tests_today = UserTicket.objects.filter(
+            user=user,
+            ticket__testing__course=user_course.course,
+            updated_at__gte=start_of_day,
+            status='Done'  # Завершенные тестирования
+        ).count()
+
+        # Подсчет количества завершенных тестирований за неделю
+        tests_this_week = UserTicket.objects.filter(
+            user=user,
+            ticket__testing__course=user_course.course,
+            updated_at__gte=start_of_week,
+            status='Done'
+        ).count()
+
+        skills_today = UserCheckSkills.objects.filter(
+            user=user,
+            user_course=user_course,
+            updated_at__gte=start_of_day,
+            status='Completed'
+        ).count()
+
+        skills_this_week = UserCheckSkills.objects.filter(
+            user=user,
+            user_course=user_course,
+            updated_at__gte=start_of_week,
+            status='Completed'
+        ).count()
+
+        # Сериализация объекта UserDays
         serializer = UserDaysSerializer(user_days)
-        return Response(serializer.data)
+
+        # Добавляем данные о тестированиях и проверках навыков
+        data = serializer.data
+        data['tests_today'] = tests_today
+        data['tests_this_week'] = tests_this_week
+        data['skills_today'] = skills_today
+        data['skills_this_week'] = skills_this_week
+
+        # Возвращаем ответ с дополнительными данными
+        return Response(data)
 
     @action(detail=False, methods=['post'], url_path='mark-active')
     def mark_day_active(self, request):
@@ -245,6 +289,26 @@ class UserCourseViewSet(viewsets.ModelViewSet):
     serializer_class = UserCourseSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        # Возвращаем только те курсы, которые связаны с текущим пользователем
+        user = self.request.user
+        return UserCourse.objects.filter(user=user)
+        
+    # обновление всех курсов перед получением списка
+    def list(self, request, *args, **kwargs):
+        # Получаем все курсы пользователя
+        queryset = self.get_queryset()
+
+        # Обновляем данные для каждого курса
+        for user_course in queryset:
+            user_course.calculate_progress()  # Пересчёт прогресса
+            user_course.calculate_course_time()  # Пересчёт времени на курсе
+            user_course.calculate_prepare()  # Пересчёт подготовки
+
+        # Выполняем стандартное поведение list
+        serializer = self.get_serializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     # Статистика по вопросам
     @action(detail=True, methods=['get'])
     def get_statistic(self, request, pk=None):
@@ -312,6 +376,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
                 'created_at': ticket.created_at,
                 'status': ticket.status,
                 'attempt_count': ticket.attempt_count,
+                'question_count': ticket.ticket.question_count,
                 'right_answers': ticket.right_answers,
                 'time_ticket': ticket.time_ticket
             })

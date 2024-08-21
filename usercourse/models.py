@@ -60,12 +60,13 @@ class UserCourse(models.Model):
             if user_question and user_question.correct_count >= 3:
                 successful_questions += 1
 
-        # Расчёт процента подготовки
-        if total_questions > 0:
-            prepare = int((successful_questions / total_questions) * 100)
-        else:
-            prepare = 0
-        self.prepare = prepare
+        # # Расчёт процента подготовки
+        # if total_questions > 0:
+        #     prepare = int((successful_questions / total_questions) * 100)
+        # else:
+        #     prepare = 0
+        #self.prepare = prepare
+        self.prepare = successful_questions
         self.save()
 
 # Ударный режим
