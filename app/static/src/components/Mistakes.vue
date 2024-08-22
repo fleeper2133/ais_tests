@@ -34,7 +34,10 @@
                             <div v-if="paginatedItems.length >= 15" class="dropper">
                                 <!-- Доделать логику v-if="paginatedItems.length >= 15", сейчас всегда paginatedItems === 15 
                                 paginatedItems здесь вообще не подойдет -->
-                                <div class="dropper__title white" @click.stop="toggleDropper">Вопросы: {{ questionCount }}</div>
+                                <div class="dropper__title white" @click.stop="toggleDropper">
+                                    Вопросы: {{ questionCount }}
+                                    <span :class="['dropper__arrow', { 'dropper__arrow--up': questions }]"></span>
+                                </div>
                                 <div v-show="questions" class="dropper__list">
                                     <p class="dropper__item" @click.stop="showedValue(10)">10 вопросов</p>
                                     <p class="dropper__item" @click.stop="showedValue(20)">20 вопросов</p>
@@ -177,7 +180,7 @@ async function generateCheck() {
     const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
     if (!startedCourse) throw new Error('Course not found!')
     const data: GenerateCheck = {
-        "question_count": 7,
+        "question_count": 10,
         "user_course_id": startedCourse.id
     }
     await aisStore.generateBadCheck(data)
@@ -420,6 +423,19 @@ watch(inputText, () => {
     &:hover {
         background-color: $border;
     }
+}
+.dropper__arrow {
+    display: inline-block;
+    margin-left: 10px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid rgb(255, 255, 255);
+    transition: transform 0.3s;
+}
+.dropper__arrow--up {
+    transform: rotate(180deg);
 }
 
 .button {

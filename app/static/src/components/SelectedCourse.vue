@@ -76,7 +76,10 @@
                             <div class="selector__buttons">
                                 <div class="droppers">
                                     <div class="dropper">
-                                        <div class="dropper__title" @click.stop="toggleDropper('questions')">Вопросы: {{ questionCount }}</div>
+                                        <div class="dropper__title" @click.stop="toggleDropper('questions')">
+                                            Вопросы: {{ questionCount }}
+                                            <span :class="['dropper__arrow', { 'dropper__arrow--up': dropperStates.questions }]"></span>
+                                        </div>
                                         <div v-show="dropperStates.questions" class="dropper__list">
                                             <p class="dropper__item" @click.stop="selectQuestion(10)">10 вопросов</p>
                                             <p class="dropper__item" @click.stop="selectQuestion(20)">20 вопросов</p>
@@ -85,7 +88,10 @@
                                         </div>
                                     </div>
                                     <div class="dropper">
-                                        <div class="dropper__title" @click.stop="toggleDropper('difficulty1')">Сложность: {{ difficultyText1 }}</div>
+                                        <div class="dropper__title" @click.stop="toggleDropper('difficulty1')">
+                                            Сложность: {{ difficultyText1 }}
+                                            <span :class="['dropper__arrow', { 'dropper__arrow--up': dropperStates.difficulty1 }]"></span>
+                                        </div>
                                         <div v-show="dropperStates.difficulty1" class="dropper__list">
                                             <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Легко'), testDifficultyLevel = 'Easy'">Легко</p>
                                             <p class="dropper__item" @click.stop="selectDifficulty('difficulty1', 'Средне'), testDifficultyLevel = 'Medium'">Средне</p>
@@ -102,11 +108,11 @@
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Пройти тестрирование</p>
+                                <p class="selector__title fw-bold">Пройти тестирование</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Билеты:</p>
-                                        <p class="fs-14 main-blue fw-bold">9</p>
+                                        <p class="fs-14 main-blue fw-bold">{{ aisStore.selectedCourse[0].testing?.tickets.length}}</p>
                                     </div>
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний.</p>
@@ -190,7 +196,7 @@ const dropperStates = reactive({
     difficulty2: false,
 });
 
-const questionCount = ref(20)
+const questionCount = ref(10)
 const difficultyText1 = ref('Легко')
 const difficultyText2 = ref('Легко')
 
@@ -517,6 +523,19 @@ onMounted(async () => {
     &:hover {
         background-color: $border;
     }
+}
+.dropper__arrow {
+    display: inline-block;
+    margin-left: 10px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid black;
+    transition: transform 0.3s;
+}
+.dropper__arrow--up {
+    transform: rotate(180deg);
 }
 
 @media (max-width: 360px) {

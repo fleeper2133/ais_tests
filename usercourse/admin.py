@@ -1,6 +1,6 @@
 from django.contrib import admin
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer,\
-      QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
+      QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion, UserDays
 
 #admin.site.register(Profile)
 admin.site.register(UserCourse)
@@ -11,3 +11,4 @@ admin.site.register(UserAnswer)
 admin.site.register(QuestionTicket)
 admin.site.register(UserCheckSkills)
 admin.site.register(UserCheckSkillsQuestion)
+admin.site.register(UserDays)

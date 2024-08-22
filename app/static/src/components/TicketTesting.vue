@@ -341,6 +341,7 @@ function whatFontColor(value) {
 
 const endTestingInfo = ref<Object>({})
 const resultStatus = computed(() => {
+    currentQuestionIndex.value = 0
     if (endTestingInfo.value['status'] === 'Failed') return 'Не сдан'
     if (endTestingInfo.value['status'] === 'Done') return 'Сдан'
 })
@@ -358,9 +359,9 @@ async function endTesting() {
 
         const response = await aisStore.createTicketAnswer(q['question_ticket_id'], toSend)
         responseData.value.push(response)
-        // if (response) {
-        //     q['status'] = response['status']
-        // }
+        if (response) {
+            q['status'] = response['status']
+        }
     }
     console.log('responseData', responseData.value)
 

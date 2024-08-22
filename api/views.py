@@ -25,13 +25,6 @@ class UserDaysViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='current-week-activity')
     def get_current_week_activity(self, request):
         user = request.user
-        user_course_id = request.data.get('user_course_id')
-
-        # Проверка наличия курса у пользователя
-        try:
-            user_course = UserCourse.objects.get(id=user_course_id, user=user)
-        except UserCourse.DoesNotExist:
-            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_404_NOT_FOUND)
 
         # Получаем текущее время и определяем начало текущей недели и дня
         current_time = timezone.localtime()
@@ -40,7 +33,6 @@ class UserDaysViewSet(viewsets.ModelViewSet):
 
         user_days, created = UserDays.objects.get_or_create(
             user=user,
-            user_course=user_course,
             defaults={'week_start': start_of_week}
         )
 
@@ -54,7 +46,6 @@ class UserDaysViewSet(viewsets.ModelViewSet):
         # Подсчет количества завершенных тестирований за сегодня
         tests_today = UserTicket.objects.filter(
             user=user,
-            ticket__testing__course=user_course.course,
             updated_at__gte=start_of_day,
             status='Done'  # Завершенные тестирования
         ).count()
@@ -62,21 +53,18 @@ class UserDaysViewSet(viewsets.ModelViewSet):
         # Подсчет количества завершенных тестирований за неделю
         tests_this_week = UserTicket.objects.filter(
             user=user,
-            ticket__testing__course=user_course.course,
             updated_at__gte=start_of_week,
             status='Done'
         ).count()
 
         skills_today = UserCheckSkills.objects.filter(
             user=user,
-            user_course=user_course,
             updated_at__gte=start_of_day,
             status='Completed'
         ).count()
 
         skills_this_week = UserCheckSkills.objects.filter(
             user=user,
-            user_course=user_course,
             updated_at__gte=start_of_week,
             status='Completed'
         ).count()
@@ -97,16 +85,9 @@ class UserDaysViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='mark-active')
     def mark_day_active(self, request):
         user = request.user
-        user_course_id = request.data.get('user_course_id')
-
-        try:
-            user_course = UserCourse.objects.get(id=user_course_id, user=user)
-            start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
-            user_days, created = UserDays.objects.get_or_create(user=user, user_course=user_course, week_start=start_of_week)
-            user_days.mark_active()  # Отметка текущего дня как активного
-        except UserCourse.DoesNotExist:
-            return Response({'detail': 'Пользовательский курс не найден.'}, status=status.HTTP_404_NOT_FOUND)
-
+        start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
+        user_days, created = UserDays.objects.get_or_create(user=user, week_start=start_of_week)
+        user_days.mark_active()  # Отметка текущего дня как активного
         return Response({'detail': 'День помечен, как активный.'}, status=status.HTTP_200_OK)
     
 class QualificationViewSet(viewsets.ModelViewSet):
@@ -226,7 +207,6 @@ class TicketViewSet(viewsets.ModelViewSet):
         start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
         user_days, created = UserDays.objects.get_or_create(
             user=user, 
-            user_course=user_course,
             defaults={'week_start': start_of_week}
         )
         user_days.mark_active()  # Отметка дня как активного
@@ -550,7 +530,6 @@ class UserTicketViewSet(viewsets.ModelViewSet):
         start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
         user_days, created = UserDays.objects.get_or_create(
             user=user, 
-            user_course=user_course,
             defaults={'week_start': start_of_week}
         )
         user_days.mark_active()  # Отметка дня как активного
@@ -740,7 +719,6 @@ class UserCheckSkillsViewSet(viewsets.ModelViewSet):
         start_of_week = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
         user_days, created = UserDays.objects.get_or_create(
             user=user, 
-            user_course=user_course,
             defaults={'week_start': start_of_week}
         )
         user_days.mark_active()  # Отметка дня как активного

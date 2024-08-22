@@ -312,7 +312,7 @@ export const useStore = defineStore("tasks", () => {
   function getWeekActivity() {
     return api.getWeekActivity()
     .then((answer) => {
-      return questionData.value = answer
+      return weekActivityData.value = answer
     })
   }
 

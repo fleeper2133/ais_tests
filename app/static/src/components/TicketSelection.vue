@@ -32,11 +32,11 @@
                             <div class="creator__data">
                                 <div class="selector__data">
                                     <p class="white fs-14">Вопросов в курсе:</p>
-                                    <p class="yellow fs-14 fw-bold">1000</p>
+                                    <p class="yellow fs-14 fw-bold">444</p>
                                 </div>
                                 <div class="selector__data">
                                     <p class="white fs-14">Вопросов в билете:</p>
-                                    <p class="yellow fs-14 fw-bold">20</p> 
+                                    <p class="yellow fs-14 fw-bold">3</p> 
                                 </div>
                             </div>
                         </div>
@@ -106,13 +106,17 @@ function showStatus(id) {
 
 // Generate Random Ticket
 
-function generateCheck() {
+async function generateCheck() {
     const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
     if (!startedCourse) throw new Error('Course not found!')
     const data = {
         "user_course_id": startedCourse?.id,
     }
-    aisStore.generateRandomTicket(data)
+    await aisStore.generateRandomTicket(data)
+
+    const id = aisStore.selectedCourse[0].testing?.id
+    
+    aisStore.getTestingInfo(id)
 
     // При генерации билета, сделать обновление и его отображение
 }

@@ -24,6 +24,7 @@ class Command(BaseCommand):
         count = options["count"]
 
         course = Course.objects.get(id=course_id)
+        course.question_count = count
         
         # Извлекаем все вопросы, использованные в предыдущих ротациях
         old_questions = set(

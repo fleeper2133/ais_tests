@@ -22,17 +22,21 @@
                             <h1 class="white fs-18 fw-bold">Режим обучения из избранных вопросов!</h1>
                             <div class="creator__data">
                                 <div class="selector__data">
-                                    <p class="white fs-14">Всего вопросов:</p>
+                                    <p class="white fs-14">Всего избранных вопросов:</p>
                                     <p class="yellow fs-14 fw-bold">{{ paginatedItems.length }}</p>
                                 </div>
-                                <div class="selector__data">
+                                <!-- <div class="selector__data">
                                     <p class="white fs-14">Выбрано вопросов:</p>
-                                    <p class="yellow fs-14 fw-bold">{{ questionCount }}</p> 
-                                    <!-- Сделать логика на отображения questionCount, когда меньше 10 и так далее -->
-                                </div>
+                                    <p class="yellow fs-14 fw-bold">{{ paginatedItems.length }}</p> 
+                                    Потом {{ questionCount }}
+                                    Сделать логика на отображения questionCount, когда меньше 10 и так далее
+                                </div> -->
                             </div>
                             <div v-if="paginatedItems.length >= 20" class="dropper">
-                                <div class="dropper__title white" @click.stop="toggleDropper">Вопросы: {{ questionCount }}</div>
+                                <div class="dropper__title white" @click.stop="toggleDropper">
+                                    Вопросы: {{ questionCount }}
+                                    <span :class="['dropper__arrow', { 'dropper__arrow--up': questions }]"></span>
+                                </div>
                                 <div v-show="questions" class="dropper__list">
                                     <p class="dropper__item" @click.stop="showedValue(10)">10 вопросов</p>
                                     <p class="dropper__item" @click.stop="showedValue(20)">20 вопросов</p>
@@ -82,7 +86,7 @@
                                     </p>
                                 </div>
                                 <p class="grey-text fs-14">Описание:</p>
-                                <div class="question__title fw-bold">{{ question['normative_documents'].text }}</div>
+                                <p class="question__title fw-bold fs-18">{{ question['normative_documents'].text }}<span class="fw-bold fs-18 statistic__normative-point">{{ question['normative_point'] }}</span></p>
                             </div>
                         </div>
 
@@ -205,6 +209,8 @@ function selectQuestion(event, id){
     event.currentTarget.setAttribute('fill', 'none')
     aisStore.markQuestionSelected(id)
 
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    aisStore.getCourseQuestions(course.id)
 }
 
 function goBack(): void {
@@ -336,6 +342,11 @@ watch(inputText, () => {
     padding-right: 3.75rem;
 }
 
+.statistic__normative-point {
+    margin-left: 10px;
+    color: #237aa3;
+}
+
 .line {
     width: 100%;
     height: 1px;
@@ -416,6 +427,19 @@ watch(inputText, () => {
     &:hover {
         background-color: $border;
     }
+}
+.dropper__arrow {
+    display: inline-block;
+    margin-left: 10px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid rgb(255, 255, 255);
+    transition: transform 0.3s;
+}
+.dropper__arrow--up {
+    transform: rotate(180deg);
 }
 
 .button {

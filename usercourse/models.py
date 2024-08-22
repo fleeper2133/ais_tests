@@ -72,7 +72,7 @@ class UserCourse(models.Model):
 # Ударный режим
 class UserDays(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    user_course = models.ForeignKey(UserCourse, on_delete=models.CASCADE)
+    #user_course = models.ForeignKey(UserCourse, on_delete=models.CASCADE)
     
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)
@@ -85,11 +85,8 @@ class UserDays(models.Model):
     # Поле для отслеживания начала недели
     week_start = models.DateField(default=timezone.now)
 
-    class Meta:
-        unique_together = ('user', 'user_course')
-
     def __str__(self):
-        return f"{self.user.username} - {self.user_course.course.name} - Week: {self.week_start}"
+        return f"{self.user.username} - Week: {self.week_start}"
 
     # Отмечает текущий день недели как активный.
     def mark_active(self):

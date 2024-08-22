@@ -5,7 +5,7 @@ from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket
 class UserDaysSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDays
-        fields = ['id', 'user', 'user_course', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'week_start']
+        fields = ['id', 'user', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'week_start']
 
 class QualificationSerializer(serializers.ModelSerializer):
     class Meta:

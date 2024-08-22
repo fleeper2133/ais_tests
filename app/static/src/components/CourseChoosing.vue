@@ -8,12 +8,12 @@
                         <div class="graph__title fs-18">Ударный режим</div>
                         <div class="graph__info">
                             <div class="graph__info-item">
-                                <p class="fs-14 grey-text">Ваш ударный режим:</p>
-                                <p class="fw-bold fs-14">3 дня</p>
+                                <p class="fs-14 grey-text">Выполнено за сегодня:</p>
+                                <p class="fw-bold fs-14">{{ aisStore.weekActivityData['skills_today'] + aisStore.weekActivityData['tests_today'] }} заданий</p>
                             </div>
                             <div class="graph__info-item">
-                                <p class="fs-14 grey-text">Вы выполнили:</p>
-                                <p class="fw-bold fs-14">5 заданий</p>
+                                <p class="fs-14 grey-text">Выполнено за неделю:</p>
+                                <p class="fw-bold fs-14">{{ aisStore.weekActivityData['skills_this_week'] + aisStore.weekActivityData['tests_this_week']  }} заданий</p>
                             </div>
                         </div>
                         <div class="graph__days">
@@ -294,6 +294,7 @@ watch(inputText, () => {
 onMounted(async () => {
     aisStore.getCurrentUser()
     aisStore.getLastCourse()
+    aisStore.getWeekActivity()
     await aisStore.getCourses()
     await aisStore.getUserCourses()
 });
@@ -381,6 +382,7 @@ onMounted(async () => {
 }
 .graph__info-item {
     display: flex;
+    flex-direction: column;
     gap: 6px;
 }
 .graph__days {

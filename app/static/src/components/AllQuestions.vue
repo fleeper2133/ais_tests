@@ -56,7 +56,7 @@
                                     </p>
                                 </div>
                                 <p class="grey-text fs-14">Описание:</p>
-                                <div class="question__title fw-bold">{{ question.normative_documents.text }}</div>
+                                <p class="question__title fw-bold fs-18">{{ question['normative_documents'].text }}<span class="fw-bold fs-18 statistic__normative-point">{{ question['normative_point'] }}</span></p>
                             </div>
                         </div>
 
@@ -118,7 +118,7 @@ function makeFocus() {
     }
 }
 
-function selectQuestion(event, id){
+async function selectQuestion(event, id){
 
     event.target.classList.add('star--scaled');
     setTimeout(() => {
@@ -129,7 +129,10 @@ function selectQuestion(event, id){
     event.currentTarget.setAttribute('fill', 'yellow')
     else
     event.currentTarget.setAttribute('fill', 'none')
-    aisStore.markQuestionSelected(id)
+    await aisStore.markQuestionSelected(id)
+
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    aisStore.getCourseQuestions(course.id)
 }
 
 function goBack(): void {
@@ -259,6 +262,11 @@ watch(inputText, () => {
     flex-direction: column;
     gap: 10px;
     padding-right: 3.75rem;
+}
+
+.statistic__normative-point {
+    margin-left: 10px;
+    color: #237aa3;
 }
 
 .line {
