@@ -79,7 +79,7 @@
                                 <p class="fs-20 fw-bold">Результат:</p>
                                 <span class="fs-20 fw-bold statistic__status-item">{{ resultStatus }}</span>
                             </div>
-                            <!-- Для отображения статуса, разобраться с обновление (баг на переключение вопросов) -->
+                            
                             <div 
                                 v-for="(question, index) in allQuestions"
                                 class="statistic__answer"

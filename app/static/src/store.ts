@@ -108,6 +108,20 @@ export interface QuestionDetail {
   selected: boolean
 }
 
+export interface Schedule {
+  id: number;
+  user: number;
+  user_course: number;
+  monday: boolean;
+  tuesday: boolean;
+  wednesday: boolean;
+  thursday: boolean;
+  friday: boolean;
+  saturday: boolean;
+  sunday: boolean;
+  week_start: string;
+}
+
 
 
 export const useStore = defineStore("tasks", () => {
@@ -137,6 +151,7 @@ export const useStore = defineStore("tasks", () => {
   const lastCourse = ref({})
   const isLoading = ref<boolean>(true)
   const courseHistory = ref<GenerateCheck[]>([])
+  const weekActivityData = ref<Schedule>({} as Schedule)
   const courseStatuses = ref([
     {id: 'All', name: 'Все курсы'},
     {id: 'New', name: 'Начатые'},
@@ -294,6 +309,13 @@ export const useStore = defineStore("tasks", () => {
     return api.giveRating(id, body)
   }
 
+  function getWeekActivity() {
+    return api.getWeekActivity()
+    .then((answer) => {
+      return questionData.value = answer
+    })
+  }
+
   // Favorite end
 
 
@@ -403,5 +425,7 @@ export const useStore = defineStore("tasks", () => {
     generateFavouriteCheck,
     generateBadCheck,
     generateRandomTicket,
+    getWeekActivity,
+    weekActivityData
   }
 });

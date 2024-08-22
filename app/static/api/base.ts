@@ -181,6 +181,9 @@ class ApiClient {
     return this.post('/api/registration/', body)
   }
 
+  async getWeekActivity(){
+    return this.get('/api/user-days/current-week-activity/')
+  }
 }
 
 

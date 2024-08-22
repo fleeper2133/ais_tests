@@ -17,49 +17,13 @@
                             </div>
                         </div>
                         <div class="graph__days">
-                            <div class="graph__day">
-                                <div class="graph__day-icon graph__day-icon--filed">
+                            <div class="graph__day" v-for="(day, index) in days" :key="index">
+                                <div class="graph__day-icon" :class="{ 'graph__day-icon--filed': aisStore.weekActivityData[day] }">
                                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none">
                                         <path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                 </div>
-                                <p class="fs-14">Пн</p>
-                            </div>
-                            <div class="graph__day">
-                                <div class="graph__day-icon">
-                                </div>
-                                <p class="fs-14">Вт</p>
-                            </div>
-                            <div class="graph__day">
-                                <div class="graph__day-icon">
-                                </div>
-                                <p class="fs-14">Ср</p>
-                            </div>
-                            <div class="graph__day">
-                                <div class="graph__day-icon graph__day-icon--filed">
-                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none">
-                                        <path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                                <p class="fs-14">Чт</p>
-                            </div>
-                            <div class="graph__day">
-                                <div class="graph__day-icon graph__day-icon--filed">
-                                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none">
-                                        <path d="M4 12.6111L8.92308 17.5L20 6.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </div>
-                                <p class="fs-14">Пн</p>
-                            </div>
-                            <div class="graph__day">
-                                <div class="graph__day-icon">
-                                </div>
-                                <p class="fs-14">Сб</p>
-                            </div>
-                            <div class="graph__day">
-                                <div class="graph__day-icon">
-                                </div>
-                                <p class="fs-14">Вс</p>
+                                <p class="fs-14">{{ translatedDays[index] }}</p>
                             </div>
                         </div>
                     </div>
@@ -68,12 +32,12 @@
                         <p class="fs-18">{{ truncatedCourseName }}</p>
                         <div class="info-text">
                             <div class="info-text__stats">
+                                <p class="main-blue">Вопросов:</p>
                                 <p class="main-blue fw-bold">{{ showQuestions }}</p>
-                                <p class="main-blue">вопросов</p>
                             </div>
                             <div class="info-text__stats">
-                                <p class="main-blue fw-bold">{{ showLastCourseProgress }}</p>
-                                <p class="main-blue">прогресс</p>
+                                <p class="main-blue">Прогресс:</p>
+                                <p class="main-blue fw-bold">{{ showLastCourseProgress }}%</p>
                             </div>
                         </div>
                         <div class="progress">
@@ -165,9 +129,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from "../store"
+import { useStore, Schedule } from "../store"
 
 import Header from './Header.vue'
 import Footer from './Footer.vue'
@@ -175,6 +139,9 @@ import Pagination from './Pagination.vue'
 
 const router = useRouter()
 const aisStore = useStore()
+
+const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+const translatedDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
 function goToCourseInfo(id: number): void {
     const course = aisStore.allCourses.filter(c => c.id === id)
@@ -318,6 +285,7 @@ const selectedTasks = computed(() => {
 })
 
 // Status end
+
 
 
 watch(inputText, () => {

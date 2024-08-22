@@ -22,7 +22,7 @@ class UserDaysViewSet(viewsets.ModelViewSet):
     serializer_class = UserDaysSerializer
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['post'], url_path='current-week-activity')
+    @action(detail=False, methods=['get'], url_path='current-week-activity')
     def get_current_week_activity(self, request):
         user = request.user
         user_course_id = request.data.get('user_course_id')

@@ -26,17 +26,13 @@
                                 <div class="history__items">
                                     <div class="history__item-header">
                                         <p class="fw-bold fs-18">{{ typeText(course.type) }}</p>
-                                        <div class="history__item-status fs-14" :style="`background-color: ${course.status === 'In Progress' ? '#c3effe' : '#c7ffdd'}`">{{ statusText(course.status) }}</div>
+                                        <div class="history__item-status fs-14 fw-bold" :style="`background-color: ${course.status === 'In Progress' ? '#c3effe' : '#c7ffdd'}`">{{ statusText(course.status) }}</div>
                                     </div>
                                     <div class="history__item-body">
                                         <div class="history__item-info">
                                             <div class="selector__data">
-                                                <p class="fs-14 main-blue">Создано:</p>
+                                                <p class="fs-14 main-blue">Начато:</p>
                                                 <p class="fs-14 main-blue fw-bold">{{ createTime(course.created_at) }}</p>
-                                            </div>
-                                            <div class="selector__data">
-                                                <p class="fs-14 main-blue">Сложность:</p>
-                                                <p class="fs-14 main-blue fw-bold">{{ showDifText(course.difficulty) }}</p>
                                             </div>
                                             <div class="selector__data">
                                                 <p class="fs-14 main-blue">Вопросов:</p>
@@ -148,6 +144,12 @@ function statusText(value) {
     if (value === 'Completed') {
         return 'Пройдено'
     }
+    if (value === 'Failed') {
+        return 'Провален'
+    }
+    if (value === 'Done') {
+        return 'Пройден'
+    }
 }
 function showDifText(value) {
     if (value === 'Easy') {
@@ -247,6 +249,7 @@ function createTime(value) {
 .history__item-status {
     padding: 8px 14px;
     border-radius: 0.375rem;
+    color: #4c5771;
 }
 .history__item-body {
     display: flex;
