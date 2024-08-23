@@ -110,9 +110,40 @@ class LearningMaterialSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserCourseSerializer(serializers.ModelSerializer):
+    good_memorization_count = serializers.SerializerMethodField()
+    bad_memorization_count = serializers.SerializerMethodField()
+    medium_memorization_count = serializers.SerializerMethodField()
+
     class Meta:
         model = UserCourse
         fields = '__all__'
+
+    def get_good_memorization_count(self, obj):
+        user = self.context['request'].user
+        available_questions = obj.course.get_available_questions()  # Получаем доступные вопросы для курса
+        return UserQuestion.objects.filter(
+            user=user, 
+            question__in=available_questions,  # Фильтруем вопросы, которые находятся в ротации
+            memorization__in=['Good', 'Excellent']  # Учитываем "Good" и "Excellent"
+        ).count()
+
+    def get_bad_memorization_count(self, obj):
+        user = self.context['request'].user
+        available_questions = obj.course.get_available_questions()  # Получаем доступные вопросы для курса
+        return UserQuestion.objects.filter(
+            user=user, 
+            question__in=available_questions,  # Фильтруем вопросы, которые находятся в ротации
+            memorization__in=['Bad', 'New']  # Учитываем "Bad" и "New"
+        ).count()
+
+    def get_medium_memorization_count(self, obj):
+        user = self.context['request'].user
+        available_questions = obj.course.get_available_questions()  # Получаем доступные вопросы для курса
+        return UserQuestion.objects.filter(
+            user=user, 
+            question__in=available_questions,  # Фильтруем вопросы, которые находятся в ротации
+            memorization='Satisfactorily'  # Учитываем только "Satisfactorily"
+        ).count()
 
 class TaskQuestionSerializer(serializers.ModelSerializer):
     class Meta:
