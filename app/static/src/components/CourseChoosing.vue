@@ -27,9 +27,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="last-course">
-                        <p>Последний курс:</p>
-                        <p class="fs-18">{{ truncatedCourseName }}</p>
+                    <div v-if="showLastCourseInfo" class="last-course">
+                        <p class="fs-14 grey-text">Последний курс:</p>
+                        <p class="fw-bold">{{ truncatedCourseName }}</p>
                         <div class="info-text">
                             <div class="info-text__stats">
                                 <p class="main-blue">Вопросов:</p>
@@ -172,9 +172,9 @@ const truncatedCourseName = computed(() => {
         return ''
     }
     const courseName = course.name
-    if (courseName.length > 50) {
-        return courseName.slice(0, 50) + '...'
-    }
+    // if (courseName.length > 50) {
+    //     return courseName.slice(0, 50) + '...'
+    // }
     return courseName
 })
 const showQuestions = computed(() => {
@@ -419,6 +419,7 @@ onMounted(async () => {
     padding: 20px;
     background-color: #E0F1FF;
     border-radius: 10px;
+    max-width: 500px;
 }
 .last-course__button {
     background-color: $main-blue;

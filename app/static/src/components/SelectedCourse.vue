@@ -108,11 +108,11 @@
                     <div class="selector">
                         <div class="selector__header">
                             <div class="selector__text">
-                                <p class="selector__title fw-bold">Пройти тестирование</p>
+                                <p class="selector__title fw-bold">Режим тестирования</p>
                                 <div class="selector__info">
                                     <div class="selector__data">
                                         <p class="fs-14 main-blue">Билеты:</p>
-                                        <p class="fs-14 main-blue fw-bold">{{ aisStore.selectedCourse[0].testing?.tickets.length}}</p>
+                                        <p class="fs-14 main-blue fw-bold">{{ aisStore.selectedCourse[0].testing?.['tickets'].length}}</p>
                                     </div>
                                 </div>
                                 <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний.</p>
@@ -172,8 +172,8 @@ import { useStore, GenerateCheck } from "../store"
 const router = useRouter()
 const aisStore = useStore()
 
-async function goToTickets(): void {
-    const id = aisStore.selectedCourse[0].testing?.id
+async function goToTickets() {
+    const id = aisStore.selectedCourse[0].testing?.['id']
     
     aisStore.testingInfo = []
     await aisStore.getTestingInfo(id)
@@ -185,7 +185,9 @@ function courseInfo(): void {
 }
 function openHistory(): void {
     const whatCourseSelected = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
-    aisStore.getCourseHistory(whatCourseSelected.id)
+    if (whatCourseSelected) {
+        aisStore.getCourseHistory(whatCourseSelected.id)
+    }
     router.push('/history')
 }
 
@@ -233,13 +235,13 @@ function goBack(): void {
 
 function openFavorite(): void {
     const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
-    aisStore.getCourseQuestions(course.id)
+    aisStore.getCourseQuestions(course?.id)
     router.push('/favorite-questions')
 }
 
 function openMistakes(): void {
     const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
-    aisStore.getCourseQuestions(course.id)
+    aisStore.getCourseQuestions(course?.id)
 
     const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
     if (!startedCourse) throw new Error('Course not found!')
@@ -253,7 +255,7 @@ function openMistakes(): void {
 
 function openCourseQuestions(): void {
     const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
-    aisStore.getCourseQuestions(course.id)
+    aisStore.getCourseQuestions(course?.id)
     router.push('/all-questions')
 }
 
@@ -291,7 +293,7 @@ async function generateCheck() {
 // Генерация вопросов end
 onMounted(async () => {
     const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
-    await aisStore.getCourseById(course.id)
+    await aisStore.getCourseById(course?.id)
 });
 
 </script>

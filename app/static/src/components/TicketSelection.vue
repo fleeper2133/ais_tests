@@ -14,19 +14,27 @@
             </div>
             <div class="container">
                 <div class="tickets tickets--margin">
-                    <p class="fw-bold fs-20">Выберите билет</p>
+                    <div class="tickets__title">
+                        <p class="fw-bold fs-20">Режим тестирования</p>
+                        <p class="grey-text">Выберите билет</p>
+                    </div>
                     <div class="tickets__list">
-                        <div v-for="(ticket, index) in ticketsInfo" class="ticket" :class="{ selected : index === selectedTicket }" @click="select(index, ticket)">
-                            <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">Билет {{ index + 1 }}</p>
-                            <div 
-                                class="ticket__progress"
-                                :style="{ backgroundColor: chooseBackgroundColor(ticket.status)}"
-                            >
-                                {{ showStatus(ticket.status) }}
+                        <div v-for="(ticket, index) in ticketsInfo" @click="select(index, ticket)" class="ticket">
+                            <div class="ticket-content" :class="{ selected : index === selectedTicket }">
+                                <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">Билет {{ index + 1 }}</p>
+                                <div 
+                                    class="ticket__progress"
+                                    :style="{ backgroundColor: chooseBackgroundColor(ticket.status)}"
+                                >
+                                    {{ showStatus(ticket.status) }}
+                                </div>
+                            </div>
+                            <div v-if="index === selectedTicket" class="button-position">
+                                <button class="button tickets__button" @click="startTesting">Начать</button>
                             </div>
                         </div>
                     </div>
-                    <div class="creator">
+                    <div v-if="allTicketsStarted" class="creator">
                         <div class="creator__text">
                             <h1 class="white fs-18 fw-bold">Генерация нового билета</h1>
                             <div class="creator__data">
@@ -41,9 +49,6 @@
                             </div>
                         </div>
                         <button class="button" @click="generateCheck">Сгенерировать билет</button>
-                    </div>
-                    <div class="button-position" :class="{ disabled : selectedTicket === null }">
-                        <button :disabled="selectedTicket === null" class="button tickets__button" @click="startTesting">Начать</button>
                     </div>
                 </div>
             </div>
@@ -122,6 +127,10 @@ async function generateCheck() {
 }
 // Generate Random Ticket end
 
+const allTicketsStarted = computed(() => {
+      return !aisStore.testingInfo.tickets.some(ticket => ticket.status === "Not started");
+})
+
 </script>
 
 <style scoped lang="scss">
@@ -157,7 +166,12 @@ async function generateCheck() {
     gap: 1.25rem;
 }
 .tickets--margin {
-    margin-top: 2.5rem;
+    margin-top: 1.5rem;
+}
+.tickets__title {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .tickets__list {
     display: flex;
@@ -165,6 +179,11 @@ async function generateCheck() {
     gap: 0.625rem;
 }
 .ticket {
+    display: flex;
+    flex-direction: column;
+    gap: 4px
+}
+.ticket-content {
     cursor: pointer;
     display: flex;
     align-items: center;

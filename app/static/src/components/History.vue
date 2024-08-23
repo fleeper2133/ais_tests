@@ -26,7 +26,10 @@
                                 <div class="history__items">
                                     <div class="history__item-header">
                                         <p class="fw-bold fs-18">{{ typeText(course.type) }}</p>
-                                        <div class="history__item-status fs-14 fw-bold" :style="`background-color: ${course.status === 'In Progress' ? '#c3effe' : '#c7ffdd'}`">{{ statusText(course.status) }}</div>
+                                        <div 
+                                            class="history__item-status fs-14 fw-bold" 
+                                            :style="{ backgroundColor: chooseBackgroundColor(course.status)}"
+                                        >{{ statusText(course.status) }}</div>
                                     </div>
                                     <div class="history__item-body">
                                         <div class="history__item-info">
@@ -143,7 +146,7 @@ function statusText(value) {
         return 'В процессе'
     }
     if (value === 'Completed') {
-        return 'Пройдено'
+        return 'Завершен'
     }
     if (value === 'Not started') {
         return 'Не окончен'
@@ -153,6 +156,17 @@ function statusText(value) {
     }
     if (value === 'Done') {
         return 'Пройден'
+    }
+}
+function chooseBackgroundColor(status) {
+    if (status === 'Not started' || status === 'In Progress') {
+        return '#d8efff'
+    }
+    if (status === 'Done' || status === 'Completed') {
+        return '#87ffc1'
+    }
+    if (status === 'Failed') {
+        return '#ffd4d4'
     }
 }
 function showDifText(value) {
