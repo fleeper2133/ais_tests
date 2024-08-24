@@ -147,7 +147,7 @@ class UserQuestion(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     memorization = models.CharField(max_length=255, choices=degree, default='New')
-    selected = models.BooleanField()  # как избранный
+    selected = models.BooleanField(default=False)  # как избранный
     correct_count = models.PositiveIntegerField(default=0)
     incorrect_count = models.PositiveIntegerField(default=0)
     average_answer_time = models.DurationField(default=timedelta()) #проверить на изменение при миграциях (удалить скобки при необходимости)

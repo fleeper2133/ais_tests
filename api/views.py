@@ -269,6 +269,10 @@ class UserCourseViewSet(viewsets.ModelViewSet):
     serializer_class = UserCourseSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_serializer_context(self):
+        # Этот метод автоматически добавляет request в контекст сериализатора
+        return {'request': self.request}
+    
     def get_queryset(self):
         # Возвращаем только те курсы, которые связаны с текущим пользователем
         user = self.request.user
@@ -404,7 +408,7 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         last_course = UserCourse.objects.filter(user=user).order_by('-last_visited').first()
 
         if last_course:
-            serializer = UserCourseSerializer(last_course)
+            serializer = UserCourseSerializer(last_course, context={'request': request}, many=False)
             return Response(serializer.data)
         else:
             return Response({'detail': 'Пользователь не записан ни на один курс.'}, status=status.HTTP_404_NOT_FOUND)
@@ -658,6 +662,9 @@ class QuestionTicketViewSet(viewsets.ModelViewSet):
                 )
             user_answer.check_correctness()
             q = UserQuestion.objects.filter(user=user, question=user_answer.question).last()
+            # Если ещё не существует UserQuestion
+            if not q:
+                q = UserQuestion.objects.create(user=user, question=user_answer.question)
             q.update_memorization()
             q.save()
             question_ticket.update_status()
