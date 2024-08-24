@@ -375,9 +375,9 @@ async function endTesting() {
 
         const response = await aisStore.createTicketAnswer(q['question_ticket_id'], toSend)
         responseData.value.push(response)
-        if (response) {
-            q['status'] = response['status']
-        }
+        // if (response) {
+        //     q['status'] = response['status']
+        // }
     }
     console.log('responseData', responseData.value)
 
