@@ -29,12 +29,14 @@ class UserCourse(models.Model):
 
     # вычисляет прогресс курса, на основании сданных билетов из тестирования
     def calculate_progress(self):
-        tickets = UserTicket.objects.filter(user=self.user, ticket__testing__course=self.course)
-        completed_tickets = tickets.filter(status='Done').count()
+        user_tickets = UserTicket.objects.filter(user=self.user, ticket__testing__course=self.course)
+        completed_tickets = user_tickets.filter(status='Done')
+
+        unique_completed_tickets = completed_tickets.values('ticket').distinct().count()
         total_tickets = Ticket.objects.filter(testing__course=self.course).count()
 
         if total_tickets > 0:
-            self.progress = int((completed_tickets / total_tickets) * 100)
+            self.progress = int((unique_completed_tickets / total_tickets) * 100)
         else:
             self.progress = 0
         self.save()

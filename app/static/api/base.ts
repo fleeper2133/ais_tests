@@ -184,6 +184,10 @@ class ApiClient {
   async getWeekActivity(){
     return this.get('/api/user-days/current-week-activity/')
   }
+
+  async issueСomplain(body) {
+    return this.post('/api/task-questions/', body)
+  }
 }
 
 

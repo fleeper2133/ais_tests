@@ -78,7 +78,7 @@
                         <div v-if="isTestDone" class="statistic">
                             <div class="statistic__status">
                                 <p class="fs-20 fw-bold">Результат:</p>
-                                <span class="fs-20 fw-bold statistic__status-item">{{ resultStatus }}</span>
+                                <span :style="`color: ${endTestingInfo['status'] === 'Failed' ? '#9b1e1e' : '#269b37'}`" class="fs-20 fw-bold">{{ resultStatus }}</span>
                             </div>
                             
                             <div 
@@ -375,32 +375,30 @@ async function endTesting() {
 
         const response = await aisStore.createTicketAnswer(q['question_ticket_id'], toSend)
         responseData.value.push(response)
-        // if (response) {
-        //     q['status'] = response['status']
-        // }
+        if (response) {
+            q['status'] = response['status']
+        }
     }
-    console.log('responseData', responseData.value)
 
     const sendingInfo = {
         "time_ticket": getElapsedTime()
     };
-    endTestingInfo.value = await aisStore.makeEndTicket(aisStore.testingDetail['id'], sendingInfo)
 
-    console.log('response', response.value)
-
-    aisStore.testingDetail = endTestingInfo.value
-    allQuestions.value = aisStore.testingDetail['questions']
-
-    currentQuestionIndex.value = 0
+    const endTesting = await aisStore.makeEndTicket(aisStore.testingDetail['id'], sendingInfo)
+    endTestingInfo.value = endTesting
 }
 
 
+let testCompleted = false
+
 const checkAllQuestionsAnswered = () => {
-    if (allQuestions.value.every(question => question['answer_items'])) {
+    if (allQuestions.value.every(question => question['answer_items']) && !testCompleted) {
+        testCompleted = true
         isTestDone.value = true
         endTesting()
     }
 }
+
 watch(allQuestions, (newQuestions) => {
     checkAllQuestionsAnswered()
 }, { deep: true })
@@ -613,12 +611,6 @@ onBeforeMount(async () => {
     width: 100%;
     text-align: center;
 }
-.question-status__text-wrong {
-    color: #9b1e1e;
-}
-.question-status__text-right {
-    color: #269b37;
-}
 .question-status__description {
     display: flex;
     flex-direction: column;
@@ -712,8 +704,11 @@ onBeforeMount(async () => {
     display: flex;
     gap: 10px;
 }
-.statistic__status-item{
+.statistic__status-failed{
     color: #ff4e5d;
+}
+.statistic__status-done{
+    color: #4eff89;
 }
 .statistic__answer {
     background-color: #eff8ff;

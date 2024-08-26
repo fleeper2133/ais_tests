@@ -19,15 +19,31 @@
                 <div class="info">
                     <div class="progress-bar">
                         <p class="fw-bold">Ваш прогресс</p>
-                        <div class="circle-big">
-                            <div class="circle-big__text">
-                                20%
-                                <div class="circle-big__text-progress">прогресс</div>
+                        <div class="progress-bar__content">
+                            <div class="statistic">
+                                <div class="statistic__column">
+                                    <p class="fs-14 grey-text">Времени потрачено</p>
+                                    <div class="statistic__value fw-bold">{{ aisStore.lastCourse['course_time'] }}</div>
+                                </div>
+                                <div class="statistic__column">
+                                    <p class="fs-14 grey-text">Хорошо изучено</p>
+                                    <div class="statistic__value fw-bold">{{ aisStore.lastCourse['good_memorization_count'] }}</div>
+                                </div>
+                                <div class="statistic__column">
+                                    <p class="fs-14 grey-text">Плохо изучено</p>
+                                    <div class="statistic__value fw-bold">{{ aisStore.lastCourse['bad_memorization_count'] }}</div>
+                                </div>
                             </div>
-                            <svg>
-                                <circle class="bg" cx="57" cy="57" r="52"></circle>
-                                <circle class="progress" cx="57" cy="57" r="52"></circle>
-                            </svg>
+                            <div class="circle-big">
+                                <div class="circle-big__text">
+                                    {{ progressPercentage }}%
+                                    <div class="circle-big__text-progress">прогресс</div>
+                                </div>
+                                <svg>
+                                    <circle class="bg" cx="57" cy="57" r="52"></circle>
+                                    <circle :style="progressStyle" class="progress" cx="57" cy="57" r="52"></circle>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                     <div class="info__buttons">
@@ -191,6 +207,25 @@ function openHistory(): void {
     router.push('/history')
 }
 
+// Progress Circle
+
+const progressPercentage = ref(0)
+
+const progressStyle = computed(() => {
+    const newStrokeDashoffset = 326.56 - (326.56 * (progressPercentage.value / 100))
+    return {
+    strokeDashoffset: newStrokeDashoffset,
+    };
+});
+
+onMounted(() => {
+    const progressFromStore = aisStore.lastCourse['progress']
+    progressPercentage.value = progressFromStore
+});
+
+// Progress Circle
+
+
 // Dropper
 const dropperStates = reactive({
     questions: false,
@@ -321,15 +356,14 @@ onMounted(async () => {
     stroke: #ffffff;
 }
 .progress {
-    fill: none;
-    stroke-width: 10px;
-    stroke: $main-blue;
-    stroke-linecap: round;
-    stroke-dasharray: 326.56;
-    stroke-dashoffset: 280;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-    animation: big 1s ease-in-out;
+  fill: none;
+  stroke-width: 10px;
+  stroke: $main-blue;
+  stroke-linecap: round;
+  stroke-dasharray: 326.56;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  animation: big 2s ease-in-out;
 }
 .circle-big__text {
     position: absolute;
@@ -349,9 +383,6 @@ onMounted(async () => {
 @keyframes big {
   from {
     stroke-dashoffset: 326.56;
-  }
-  to {
-    stroke-dashoffset: 280;
   }
 }
 //circle end
@@ -472,6 +503,32 @@ onMounted(async () => {
 }
 .progress-bar {
     width: 100%;
+}
+.progress-bar__content {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.statistic {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.statistic__column {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.statistic__value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    padding: 10px 0;
+    background-color: #d7dfef;
+    border-radius: 6px;
 }
 
 .info__buttons {

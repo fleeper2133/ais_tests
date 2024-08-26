@@ -152,6 +152,7 @@ export const useStore = defineStore("tasks", () => {
   const isLoading = ref<boolean>(true)
   const courseHistory = ref<GenerateCheck[]>([])
   const weekActivityData = ref<Schedule>({} as Schedule)
+  const isQuestionComplanePopupVisible = ref(false)
   const courseStatuses = ref([
     {id: 'All', name: 'Все курсы'},
     {id: 'New', name: 'Начатые'},
@@ -316,6 +317,10 @@ export const useStore = defineStore("tasks", () => {
     })
   }
 
+  function issueСomplain(body) {
+    return api.issueСomplain(body)
+  }
+
   // Favorite end
 
 
@@ -426,6 +431,8 @@ export const useStore = defineStore("tasks", () => {
     generateBadCheck,
     generateRandomTicket,
     getWeekActivity,
-    weekActivityData
+    weekActivityData,
+    issueСomplain,
+    isQuestionComplanePopupVisible
   }
 });

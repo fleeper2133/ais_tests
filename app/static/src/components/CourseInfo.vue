@@ -16,13 +16,13 @@
                         <h1 class="grey-text fw-medium">{{course.description}}</h1>
                         <div class="card__desc">
                             <p class="fw-bold">Включает в себя :</p>
-                            <p class="grey-text fw-medium main-blue">1708 вопросов</p>
+                            <p class="grey-text fw-medium main-blue">{{ course.question_count }} вопросов</p>
                         </div>
-                        <div class="card__desc">
+                        <!-- <div class="card__desc">
                             <p class="fw-bold">Примерное время прохождения :</p>
                             <p class="grey-text fw-medium main-blue">2 недели</p>
-                        </div>
-                        <div class="card__list">
+                        </div> -->
+                        <!-- <div class="card__list">
                             <p class="fw-bold">Содержание курса:</p>
                             <div class="card__list">
                                 <p class="grey-text">· Общие требования по промышленной безопасности</p>
@@ -32,7 +32,7 @@
                                 <p class="grey-text">· Организация производственного контроля за соблюдением требований промышленной безопасности</p>
                                 <p class="grey-text">· Экспертиза промышленной безопасности</p>
                             </div>
-                        </div>
+                        </div> -->
                         </div>
                     </div>
                     <div v-if="aisStore.showCourseInfoButton" class="button-position">
@@ -50,9 +50,9 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
-import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useStore, UserCourse } from "../store";
+import { computed} from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore, UserCourse } from "../store"
 
 const router = useRouter();
 const aisStore = useStore()
@@ -154,8 +154,6 @@ const currentCourse = computed(() => {
 .button-position {
     margin: 0 auto;
 }
-
-
 
 @media (max-width: 600px) {
     * {
