@@ -24,6 +24,7 @@ class NormativeDocumentSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     testing = serializers.SerializerMethodField()
+    titles = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -35,6 +36,13 @@ class CourseSerializer(serializers.ModelSerializer):
             # Передаем контекст, включая request, в TestingSerializer
             return TestingSerializer(testing, context=self.context).data
         return None
+    
+    def get_titles(self, obj):
+        qualification = obj.qualification
+        if qualification:
+            blocks = Block.objects.filter(qualification=qualification)
+            return [block.title for block in blocks]
+        return []
 
 class TicketSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField()
