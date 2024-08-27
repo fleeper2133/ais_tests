@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, re_path
+from django.views.generic import TemplateView
 
 app_name = 'app'
 
 import app.views as app
 
 urlpatterns = [
-    path("", app.index, name="index")
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
 ]
