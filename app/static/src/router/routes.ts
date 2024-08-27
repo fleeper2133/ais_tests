@@ -9,6 +9,7 @@ import Testing from '../components/Testing.vue'
 import History from '../components/History.vue'
 import Mistakes from '../components/Mistakes.vue'
 import FavoriteQuestions from '../components/FavoriteQuestions.vue'
+import TicketTesting from '../components/TicketTesting.vue'
 
 const routes = [
     {
@@ -42,9 +43,14 @@ const routes = [
       component: TicketSelection
     },
     {
-      path: '/testing',
+      path: '/training',
       name: 'Testing',
       component: Testing
+    },
+    {
+      path: '/testing',
+      name: 'TicketTesting',
+      component: TicketTesting
     },
     {
       path: '/history',

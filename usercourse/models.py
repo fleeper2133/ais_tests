@@ -29,20 +29,23 @@ class UserCourse(models.Model):
 
     # вычисляет прогресс курса, на основании сданных билетов из тестирования
     def calculate_progress(self):
-        tickets = UserTicket.objects.filter(user=self.user, ticket__testing__course=self.course)
-        completed_tickets = tickets.filter(status='Done').count()
+        user_tickets = UserTicket.objects.filter(user=self.user, ticket__testing__course=self.course)
+        completed_tickets = user_tickets.filter(status='Done')
+
+        unique_completed_tickets = completed_tickets.values('ticket').distinct().count()
         total_tickets = Ticket.objects.filter(testing__course=self.course).count()
 
         if total_tickets > 0:
-            self.progress = int((completed_tickets / total_tickets) * 100)
+            self.progress = int((unique_completed_tickets / total_tickets) * 100)
         else:
             self.progress = 0
         self.save()
     
     # обновление времени нахождении пользователя в системе
     def calculate_course_time(self):
-        answer_question_time = UserQuestion.objects.filter(user=self.user, question__course=self.course).aggregate(total_time=sum('average_answer_time'))['total_time'] or timedelta()
-        self.course_time = answer_question_time
+        user_answers = UserAnswer.objects.filter(user=self.user, question__course=self.course)
+        total_time = sum((answer.answer_time for answer in user_answers), timedelta())
+        self.course_time = total_time
         self.save()
 
     # Рассчитывает степень подготовки пользователя на основе количества успешно отвеченных вопросов.
@@ -59,12 +62,72 @@ class UserCourse(models.Model):
             if user_question and user_question.correct_count >= 3:
                 successful_questions += 1
 
-        # Расчёт процента подготовки
-        if total_questions > 0:
-            prepare = int((successful_questions / total_questions) * 100)
-        else:
-            prepare = 0
-        self.prepare = prepare
+        # # Расчёт процента подготовки
+        # if total_questions > 0:
+        #     prepare = int((successful_questions / total_questions) * 100)
+        # else:
+        #     prepare = 0
+        #self.prepare = prepare
+        self.prepare = successful_questions
+        self.save()
+
+# Ударный режим
+class UserDays(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    #user_course = models.ForeignKey(UserCourse, on_delete=models.CASCADE)
+    
+    monday = models.BooleanField(default=False)
+    tuesday = models.BooleanField(default=False)
+    wednesday = models.BooleanField(default=False)
+    thursday = models.BooleanField(default=False)
+    friday = models.BooleanField(default=False)
+    saturday = models.BooleanField(default=False)
+    sunday = models.BooleanField(default=False)
+
+    # Поле для отслеживания начала недели
+    week_start = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user.username} - Week: {self.week_start}"
+
+    # Отмечает текущий день недели как активный.
+    def mark_active(self):
+        today = timezone.localtime().date()
+
+        # Проверяем, не началась ли новая неделя
+        start_of_week = today - timedelta(days=today.weekday())
+        if self.week_start != start_of_week:
+            self.reset_week()
+
+        # Отмечаем текущий день недели как активный
+        weekday = today.weekday()
+        if weekday == 0:
+            self.monday = True
+        elif weekday == 1:
+            self.tuesday = True
+        elif weekday == 2:
+            self.wednesday = True
+        elif weekday == 3:
+            self.thursday = True
+        elif weekday == 4:
+            self.friday = True
+        elif weekday == 5:
+            self.saturday = True
+        elif weekday == 6:
+            self.sunday = True
+
+        self.save()
+    
+    # Обнуляет активность дней недели и устанавливает начало новой недели.
+    def reset_week(self):
+        self.monday = False
+        self.tuesday = False
+        self.wednesday = False
+        self.thursday = False
+        self.friday = False
+        self.saturday = False
+        self.sunday = False
+        self.week_start = timezone.localtime().date() - timedelta(days=timezone.localtime().weekday())
         self.save()
 
 # Вопросы по заданию от пользователя
@@ -86,7 +149,7 @@ class UserQuestion(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     memorization = models.CharField(max_length=255, choices=degree, default='New')
-    selected = models.BooleanField()  # как избранный
+    selected = models.BooleanField(default=False)  # как избранный
     correct_count = models.PositiveIntegerField(default=0)
     incorrect_count = models.PositiveIntegerField(default=0)
     average_answer_time = models.DurationField(default=timedelta()) #проверить на изменение при миграциях (удалить скобки при необходимости)

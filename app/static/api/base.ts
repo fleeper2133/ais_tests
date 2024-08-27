@@ -57,81 +57,137 @@ class ApiClient {
 
 
   async getCurrentUser() {
-    return this.get('/users/api/current_user/');
+    return this.get('/users/api/current_user/')
   }
 
   async getCourses() {
-    return this.get('/api/courses/');
+    return this.get('/api/courses/')
+  }
+
+  async getCourseById(id) {
+    const url = `/api/user-courses/${id}/`
+    return this.get(url)
   }
 
   async getCourseQuestions(id) {
     const url = `/api/user-courses/${id}/course_questions/`
-    return this.get(url);
+    return this.get(url)
   }
 
   async getUserCourses() {
-    return this.get('/api/user-courses/');
+    return this.get('/api/user-courses/')
   }
-  // async getCurrentUserCourses(id) {
-  //   const url = `/api/user-courses/${id}/`
-  //   return this.get(url);
-  // }
-
   async setUserCourse(body) {
-    return this.post('/api/user-courses/', body);
+    return this.post('/api/user-courses/', body)
   }
 
   async startCourse(id, body) {
-    const url = `/api/courses/${id}/start_course/`;
-    return this.post(url, body);
+    const url = `/api/courses/${id}/start_course/`
+    return this.post(url, body)
   }
 
   async smartGenerate(body) {
-    return this.post('api/user-check-skills/smart-generate-check/', body);
+    return this.post('api/user-check-skills/smart-generate-check/', body)
   }
   async getQuestionDetail(id) {
     const url = `/api/questions/${id}/detail/`
-    return this.get(url);
+    return this.get(url)
+  }
+
+  async generateFavouriteCheck(body) {
+    return this.post('/api/user-check-skills/generate-favourite-check/', body)
+  }
+  async generateBadCheck(body) {
+    return this.post('/api/user-check-skills/generate-bad-check/', body)
+  }
+  async generateRandomTicket(body) {
+    return this.post('/api/user-tickets/generate_random_ticket/', body)
   }
 
   async createAnswer(id, body) {
     const url = `/api/user-check-skills-questions/${id}/create_answer/`
-    return this.post(url, body);
+    return this.post(url, body)
+  }
+  async getUserCkeckSkillsQuestions(){
+    return this.get('/api/user-check-skills-questions/')
   }
   async endTraining(id) {
     const url = `api/user-check-skills/${id}/end_check/`
-    return this.post(url);
+    return this.post(url, null)
   }
 
   async favoritesQuestions(){
-    const url = '/api/user-questions/favorites-questions/'
-    return this.get(url);
+    return this.get('/api/user-questions/favorites/')
   }
 
   async markQuestionSelected(id) {
-    const url = `/api/questions/${id}/mark-as-favorite/`
-    return this.post(url);
+    const url = `/api/questions/${id}/change_favorite/`
+    return this.post(url, null)
   }
 
+  async giveRating(id, body) {
+    const url = `api/user-answers/${id}/post_user_memorization/`
+    return this.post(url, body)
+  }
 
-  
+  async getUserCheckSkills(){
+    return this.get('/api/user-check-skills/');
+  }
+  async getLastCourse(){
+    return this.get('api/user-courses/last-course/');
+  }
+
+  async getCourseHistory(id) {
+    const url = `api/user-courses/${id}/course_history/`
+    return this.get(url)
+  }
+  async getMistakes(body){
+    const url = `/api/user-questions/memorization/bad/`
+    const queryParams = new URLSearchParams(body).toString()
+    const fullUrl = `${url}?${queryParams}`
+    return this.get(fullUrl)
+  }
+
+  async getTestingInfo(id) {
+    const url = `/api/testings/${id}/`
+    return this.get(url)
+  }
+  async getTestingDetail(id, body) {
+    const url = `/api/tickets/${id}/detail_user_ticket/`
+    return this.post(url, body)
+  }
+  async createTicketAnswer(id, body) {
+    const url = `/api/question-tickets/${id}/create_answer/`
+    return this.post(url, body)
+  }
+  async endTicket(id, body) {
+    const url = `/api/user-tickets/${id}/end_ticket/`
+    return this.post(url, body)
+  }
 
   async sendMail(body){
     return this.post(`/api/send-mail/`, body)
   }
 
   async login(body) {
-    return this.post('/api/login/', body);
+    return this.post('/api/login/', body)
   }
 
   async logout(body) {
-    return this.post('/api/logout/', body);
+    return this.post('/api/logout/', body)
   }
 
   async registration(body) {
-    return this.post('/api/registration/', body);
+    return this.post('/api/registration/', body)
   }
 
+  async getWeekActivity(){
+    return this.get('/api/user-days/current-week-activity/')
+  }
+
+  async issueСomplain(body) {
+    return this.post('/api/task-questions/', body)
+  }
 }
 
 
