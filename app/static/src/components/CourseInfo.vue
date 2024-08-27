@@ -22,17 +22,12 @@
                             <p class="fw-bold">Примерное время прохождения :</p>
                             <p class="grey-text fw-medium main-blue">2 недели</p>
                         </div> -->
-                        <!-- <div class="card__list">
+                        <div class="card__list">
                             <p class="fw-bold">Содержание курса:</p>
                             <div class="card__list">
-                                <p class="grey-text">· Общие требования по промышленной безопасности</p>
-                                <p class="grey-text">· Организация производственного контроля за соблюдением требований промышленной безопасности</p>
-                                <p class="grey-text">· Экспертиза промышленной безопасности</p>
-                                <p class="grey-text">· Общие требования по промышленной безопасности</p>
-                                <p class="grey-text">· Организация производственного контроля за соблюдением требований промышленной безопасности</p>
-                                <p class="grey-text">· Экспертиза промышленной безопасности</p>
+                                <p v-for="c in course['titles']" class="grey-text">· {{ c }}</p>
                             </div>
-                        </div> -->
+                        </div>
                         </div>
                     </div>
                     <div v-if="aisStore.showCourseInfoButton" class="button-position">

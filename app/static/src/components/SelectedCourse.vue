@@ -322,6 +322,7 @@ async function generateCheck() {
         }
     }
     aisStore.getLastUserCheckSkills()
+    aisStore.questionDataForComplane = aisStore.questionDetailList[0]
     return router.push('/training')
 }
 

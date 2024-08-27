@@ -37,10 +37,17 @@
                                                 <p class="fs-14 main-blue">Начато:</p>
                                                 <p class="fs-14 main-blue fw-bold">{{ createTime(course.created_at) }}</p>
                                             </div>
-                                            <!-- Добавить сложность для Обучения (showDifText) -->
+                                            <div v-if="course.difficulty" class="selector__data">
+                                                <p class="fs-14 main-blue">Сложность:</p>
+                                                <p class="fs-14 main-blue fw-bold">{{ showDifText(course.difficulty) }}</p>
+                                            </div>
                                             <div class="selector__data">
                                                 <p class="fs-14 main-blue">Вопросов:</p>
                                                 <p class="fs-14 main-blue fw-bold">{{ course.question_count }}</p>
+                                            </div>
+                                            <div class="selector__data">
+                                                <p class="fs-14 main-blue">Правильных ответов:</p>
+                                                <p class="fs-14 main-blue fw-bold">{{ course['right_answers'] }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -146,16 +153,16 @@ function statusText(value) {
         return 'В процессе'
     }
     if (value === 'Completed') {
-        return 'Завершен'
+        return 'Завершено'
     }
     if (value === 'Not started') {
-        return 'Не окончен'
+        return 'Не окончено'
     }
     if (value === 'Failed') {
-        return 'Провален'
+        return 'Провалено'
     }
     if (value === 'Done') {
-        return 'Пройден'
+        return 'Пройдено'
     }
 }
 function chooseBackgroundColor(status) {

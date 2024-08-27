@@ -344,13 +344,15 @@ class UserCourseViewSet(viewsets.ModelViewSet):
         # Собираем события в один список и сортируем по времени
         events = []
         for check in check_skills:
+            right_question = UserCheckSkillsQuestion.objects.filter(user_check_skills=check, status='Right').count()
             events.append({
                 'type': 'check_skill',
                 'id': check.id,
                 'created_at': check.created_at,
                 'status': check.status,
                 'difficulty': check.difficulty,
-                'question_count': check.question_count
+                'question_count': check.question_count,
+                'right_answers': right_question
             })
 
         for ticket in tickets:

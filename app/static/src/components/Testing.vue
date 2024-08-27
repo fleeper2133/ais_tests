@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, reactive, watch, nextTick } from 'vue'
+import { computed, onMounted, ref, watch, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore, GenerateCheckResponse } from "../store"
 
@@ -190,10 +190,12 @@ function startTimer() {
 
 function back() {
 
+    aisStore.questionDataForComplane = {}
     aisStore.questionData = []
     aisStore.questionDetailList = []
 }
 function exitTesting() {
+    aisStore.questionDataForComplane = {}
     aisStore.questionData = []
     aisStore.questionDetailList = []
     router.push('/course')
@@ -266,11 +268,16 @@ function selectedField(number) {
     return selectedAnswer.value.indexOf(number) !== -1
 }
 
+function setQuestionDataToStorage() {
+    return aisStore.questionDataForComplane = aisStore.questionDetailList[currentQuestionIndex.value]
+}
+
 function selectQuestion(index) {
     startTimer()
     currentQuestionIndex.value = index
     selectedAnswer.value = []
     varientsLength.value = 0
+    setQuestionDataToStorage()
 }
 function previousQuestion() {
     startTimer()
@@ -278,10 +285,12 @@ function previousQuestion() {
         currentQuestionIndex.value--
         selectedAnswer.value = []
         varientsLength.value = 0
+        setQuestionDataToStorage()
     } else {
         currentQuestionIndex.value = aisStore.questionDetailList.length - 1
         selectedAnswer.value = []
         varientsLength.value = 0
+        setQuestionDataToStorage()
     }
 }
 function nextQuestion() {
@@ -290,10 +299,12 @@ function nextQuestion() {
         currentQuestionIndex.value++
         selectedAnswer.value = []
         varientsLength.value = 0
+        setQuestionDataToStorage()
     } else {
         currentQuestionIndex.value = 0
         selectedAnswer.value = []
         varientsLength.value = 0
+        setQuestionDataToStorage()
     }
 }
 
@@ -322,8 +333,6 @@ async function send() {
     }
 
     selectedAnswer.value = []
-    
-    console.log(timerValue.value)
 
     setTimeout(() => {
         scrollToBottom();
@@ -391,6 +400,7 @@ function makeDone() {
 
 onMounted(async () => {
     startTimer()
+    setQuestionDataToStorage()
 });
 
 </script>

@@ -153,6 +153,7 @@ export const useStore = defineStore("tasks", () => {
   const courseHistory = ref<GenerateCheck[]>([])
   const weekActivityData = ref<Schedule>({} as Schedule)
   const isQuestionComplanePopupVisible = ref(false)
+  const questionDataForComplane = ref<QuestionDetail>({} as QuestionDetail)
   const courseStatuses = ref([
     {id: 'All', name: 'Все курсы'},
     {id: 'New', name: 'Начатые'},
@@ -433,6 +434,7 @@ export const useStore = defineStore("tasks", () => {
     getWeekActivity,
     weekActivityData,
     issueСomplain,
-    isQuestionComplanePopupVisible
+    isQuestionComplanePopupVisible,
+    questionDataForComplane
   }
 });
