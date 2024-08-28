@@ -84,7 +84,7 @@ import Header from './Header.vue'
 import Footer from './Footer.vue'
 import Pagination from './Pagination.vue'
 
-import { computed, onMounted, ref, reactive } from 'vue'
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 import { useStore } from "../store"
 import { useRouter } from 'vue-router'
 
@@ -197,16 +197,28 @@ function createTime(value) {
     return `${formattedDate} в ${formattedTime}`
 }
 
+
+// Page Reload
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  event.preventDefault()
+  event.returnValue = ''
+  localStorage.setItem('shouldRedirect', 'true')
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+// Page Reload
 </script>
 
 <style scoped lang="scss">
 
 @import '../sass/main.scss';
 
-.container {
-  padding: 0 20vw;
-  width: 100%;
-}
 .container__bg {
     background-color: $light-blue;
 }

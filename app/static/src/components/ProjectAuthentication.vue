@@ -111,10 +111,6 @@ function login() {
     flex-direction: column;
     justify-content: space-between;
 }
-.container {
-    padding: 0 20vw;
-}
-
 
 .logo__text {
     color: $main-blue;

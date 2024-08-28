@@ -45,7 +45,7 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
-import { computed} from 'vue'
+import { computed, onMounted, onBeforeUnmount} from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore, UserCourse } from "../store"
 
@@ -76,6 +76,22 @@ const currentCourse = computed(() => {
     return aisStore.selectedCourse
 })
 
+
+// Page Reload
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  event.preventDefault()
+  event.returnValue = ''
+  localStorage.setItem('shouldRedirect', 'true')
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+// Page Reload
 </script>
 
 <style scoped lang="scss">
@@ -88,10 +104,6 @@ const currentCourse = computed(() => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-.container {
-  padding: 0 20vw;
-  width: 100%;
 }
 
 .card {

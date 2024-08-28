@@ -181,7 +181,7 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
-import { computed, onMounted, ref, reactive } from 'vue'
+import { computed, onMounted, ref, reactive, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore, GenerateCheck } from "../store"
 
@@ -332,6 +332,21 @@ onMounted(async () => {
     await aisStore.getCourseById(course?.id)
 });
 
+// Page Reload
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  event.preventDefault()
+  event.returnValue = ''
+  localStorage.setItem('shouldRedirect', 'true')
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+// Page Reload
 </script>
 
 <style scoped lang="scss">
@@ -388,11 +403,6 @@ onMounted(async () => {
 }
 //circle end
 
-
-.container {
-  padding: 0 20vw;
-  width: 100%;
-}
 .container__flex {
     display: flex;
     gap: 20px;
@@ -402,12 +412,23 @@ onMounted(async () => {
 }
 .container-name {
     width: 100%;
-    padding: 10px 20vw;
+    padding: 10px 15vw;
+
+    @media (max-width: 1440px) {
+        padding: 10px 10vw;
+    }
+    @media (max-width: 440px) {
+        padding: 10px 0;
+    }
 }
 .container-name__title {
     width: 100%;
     padding: 20px 40px;
     border-radius: 0.625rem;
+
+    @media (max-width: 440px) {
+        font-size: 16px;
+    }
 }
 
 .content {
@@ -510,6 +531,11 @@ onMounted(async () => {
     gap: 10px;
     align-items: center;
     margin-top: 10px;
+
+    @media (max-width: 440px) {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 }
 
 .statistic {

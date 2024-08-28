@@ -317,9 +317,6 @@ onMounted(async () => {
 
 @import '../sass/main.scss';
 
-.container {
-  padding: 0 20vw;
-}
 .content {
     height: 100%;
     display: flex;
@@ -360,11 +357,6 @@ onMounted(async () => {
     cursor: pointer;
     transition: .2s;
     height: 100%;
-
-    // &:hover {
-    //     transition: .2s;
-    //     color: #7DB1FF;
-    // }
 }
 .tabs__text {
     &:hover {
@@ -433,6 +425,8 @@ onMounted(async () => {
     background-color: #E0F1FF;
     border-radius: 10px;
     max-width: 500px;
+
+    
 }
 .last-course__button {
     background-color: $main-blue;
@@ -596,7 +590,7 @@ onMounted(async () => {
     }
 
     .last-course {
-        width: 100%;    
+        max-width: 100%;    
     }
     .last-course__button {
         max-width: 300px;

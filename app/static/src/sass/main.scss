@@ -25,6 +25,15 @@ html,body {
 
 // copied Start
 
+.container {
+  padding: 0 15vw;
+  width: 100%;
+
+  @media (max-width: 1440px) {
+    padding: 0 10vw;
+  }
+}
+
 .fw-bold {
   font-weight: bold;
 }

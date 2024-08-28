@@ -59,11 +59,17 @@ function sendQuestionComplane(id) {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  @media (max-width: 1440px) {
+    padding: 0 10vw;
+  }
+  @media (max-width: 600px) {
+    padding: 0 2vw;
+  }
 }
 
 .complaint-content {
   width: 1000px;
-  height: 500px;
   background: white;
   padding: 40px;
   border-radius: 8px;

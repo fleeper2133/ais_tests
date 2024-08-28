@@ -117,7 +117,7 @@ import Footer from './Footer.vue'
 import Pagination from './Pagination.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, onBeforeUnmount } from 'vue'
 import { useStore, GenerateCheck } from "../store"
 import { useRouter } from 'vue-router'
 
@@ -253,6 +253,23 @@ const paginatedItems = computed(() =>
 watch(inputText, () => {
   currentPage.value = 1;
 });
+
+
+// Page Reload
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  event.preventDefault()
+  event.returnValue = ''
+  localStorage.setItem('shouldRedirect', 'true')
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+// Page Reload
 </script>
 
 <style scoped lang="scss">
@@ -274,10 +291,6 @@ watch(inputText, () => {
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-.container {
-  padding: 0 20vw;
-  width: 100%;
 }
 .container__header {
     padding-top: 20px;

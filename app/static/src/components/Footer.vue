@@ -19,7 +19,7 @@
 .footer {
     display: flex;
     justify-content: space-between;
-    padding: 1.25rem 20vw;
+    padding: 1.25rem 15vw;
     flex-wrap: wrap;
     gap: 10px;
 }
@@ -41,6 +41,11 @@
 @media (max-width: 600px) {
     .footer {
       padding: 1.25rem 4vw;
+    }
+}
+@media (max-width: 1440px) {
+    .footer {
+        padding: 1.25rem 10vw;
     }
 }
 </style>

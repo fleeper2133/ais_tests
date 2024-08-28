@@ -61,7 +61,7 @@
 import Header from './Header.vue'
 import Footer from './Footer.vue'
 
-import { computed, onMounted, ref, reactive } from 'vue'
+import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from "../store"
 
@@ -131,6 +131,21 @@ const allTicketsStarted = computed(() => {
       return !aisStore.testingInfo.tickets.some(ticket => ticket.status === "Not started");
 })
 
+// Page Reload
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  event.preventDefault()
+  event.returnValue = ''
+  localStorage.setItem('shouldRedirect', 'true')
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
+// Page Reload
 </script>
 
 <style scoped lang="scss">
@@ -143,10 +158,6 @@ const allTicketsStarted = computed(() => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-.container {
-  padding: 0 20vw;
-  width: 100%;
 }
 .container__bg {
     background-color: $light-blue;

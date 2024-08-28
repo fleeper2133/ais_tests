@@ -105,5 +105,28 @@ const goToPage = (page: number) => {
     cursor: pointer;
 }
 
+@media (max-width: 768px) {
+    .pagination-button {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .word-button {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-button {
+        width: 25px;
+        height: 25px;
+        font-size: 12px;
+    }
+
+    .word-button {
+        font-size: 12px;
+    }
+}
 </style>
 
