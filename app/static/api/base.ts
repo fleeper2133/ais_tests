@@ -173,6 +173,10 @@ class ApiClient {
     return this.post('/api/login/', body)
   }
 
+  async demo(){
+    return this.post('/users/create_demo_user/', {})
+  }
+
   async logout(body) {
     return this.post('/api/logout/', body)
   }
@@ -217,9 +221,13 @@ api.client.interceptors.request.use(async (config) => {
   if (accessToken && tokenExpire()) {
     try {
       const response = await axios.post('/api/token/refresh/', { refresh: localStorage.getItem('refreshToken') });
+      console.log(response.data);
       const newAccessToken = response.data.access;
       const newRefreshToken = response.data.refresh;
-
+      if (localStorage.getItem('demo')){
+        localStorage.setItem('accessTokenDemo', newAccessToken);
+      localStorage.setItem('refreshTokenDemo', newRefreshToken);
+      }
       localStorage.setItem('accessToken', newAccessToken);
       localStorage.setItem('refreshToken', newRefreshToken);
 
