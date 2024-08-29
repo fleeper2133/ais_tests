@@ -25,7 +25,7 @@ from .models import CustomUser
 class CreateDemoUserAPIView(APIView):
     def post(self, request):
         # Генерируем случайное имя пользователя
-        username = 'demo_test_user_' + get_random_string(10)
+        #username = 'demo_test_user_' + get_random_string(10)
         # альтернативное создание (но не думаю, что 10 символов могут совпасть когда-нибудь)
         # i = 1
         # while True:
@@ -39,10 +39,10 @@ class CreateDemoUserAPIView(APIView):
         #         break
         #     i += 1
 
-        email = f'{username}@example.com'
+        email = f'{get_random_string(10)}@example.com'
         password = get_random_string(8)
 
-        demo_user = CustomUser.objects.create_user(username=username, email=email, password=password)
+        demo_user = CustomUser.objects.create_user(email=email, password=password)
         demo_user.save()
 
         user = authenticate(email=email, password=password)

@@ -47,6 +47,7 @@ const email = computed(() => {
 
 function exit() {
     aisStore.currentUser = {}
+    aisStore.logout();
     router.push('/')
 }
 

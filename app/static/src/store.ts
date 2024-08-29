@@ -9,7 +9,7 @@ export interface Login {
   password: string
 }
 
-export interface SendMail{
+export interface SendMail {
   email?: string,
   title: string,
   description: string
@@ -155,8 +155,8 @@ export const useStore = defineStore("tasks", () => {
   const isQuestionComplanePopupVisible = ref(false)
   const questionDataForComplane = ref<QuestionDetail>({} as QuestionDetail)
   const courseStatuses = ref([
-    {id: 'All', name: 'Все курсы'},
-    {id: 'New', name: 'Начатые'},
+    { id: 'All', name: 'Все курсы' },
+    { id: 'New', name: 'Начатые' },
   ])
 
   // Variables end
@@ -164,32 +164,32 @@ export const useStore = defineStore("tasks", () => {
 
   function getCurrentUser() {
     return api.getCurrentUser()
-    .then((user: Course[]) => {
-      currentUser.value = user
-    })
+      .then((user: Course[]) => {
+        currentUser.value = user
+      })
   }
 
   function getCourses() {
     return api.getCourses()
-    .then((courses: Course[]) => {
-      allCourses.value = courses;
-    })
+      .then((courses: Course[]) => {
+        allCourses.value = courses;
+      })
   }
 
   function getLastUserCheckSkills() {
     return api.getUserCheckSkills()
-    .then((userCheckSkills) => {
-      lastCheckSkills.value = userCheckSkills[userCheckSkills.length - 1]
-    })
+      .then((userCheckSkills) => {
+        lastCheckSkills.value = userCheckSkills[userCheckSkills.length - 1]
+      })
   }
 
   function getCourseQuestions(id) {
     return api.getCourseQuestions(id)
-    .then((questions: Question[]) => {
-      courseQuestions.value = questions
-    }) .finally (() => {
-      isLoading.value = false
-    })
+      .then((questions: Question[]) => {
+        courseQuestions.value = questions
+      }).finally(() => {
+        isLoading.value = false
+      })
   }
 
   function getCourseById(id) {
@@ -198,10 +198,10 @@ export const useStore = defineStore("tasks", () => {
 
   function getUserCourses() {
     return api.getUserCourses()
-    .then((courses: UserCourse[]) => {
-      const course = courses.filter(c => c.user === currentUser.value['id'])
-      return startedCourses.value = course
-    })
+      .then((courses: UserCourse[]) => {
+        const course = courses.filter(c => c.user === currentUser.value['id'])
+        return startedCourses.value = course
+      })
   }
   function setUserCourse(courseData: UserCourse) {
     return api.setUserCourse(courseData)
@@ -211,25 +211,25 @@ export const useStore = defineStore("tasks", () => {
   }
   function smartGenerate(data: GenerateCheck) {
     return api.smartGenerate(data)
-    .then((answer: GenerateCheckResponse[]) => {
-      userCheckSkills.value = answer[0].user_check_skills
-      return questionData.value = answer
-    })
+      .then((answer: GenerateCheckResponse[]) => {
+        userCheckSkills.value = answer[0].user_check_skills
+        return questionData.value = answer
+      })
   }
 
   function generateFavouriteCheck(data: GenerateCheck) {
     return api.generateFavouriteCheck(data)
-    .then((answer: GenerateCheckResponse[]) => {
-      userCheckSkills.value = answer[0].user_check_skills
-      return questionData.value = answer
-    })
+      .then((answer: GenerateCheckResponse[]) => {
+        userCheckSkills.value = answer[0].user_check_skills
+        return questionData.value = answer
+      })
   }
   function generateBadCheck(data: GenerateCheck) {
     return api.generateBadCheck(data)
-    .then((answer: GenerateCheckResponse[]) => {
-      userCheckSkills.value = answer[0].user_check_skills
-      return questionData.value = answer
-    })
+      .then((answer: GenerateCheckResponse[]) => {
+        userCheckSkills.value = answer[0].user_check_skills
+        return questionData.value = answer
+      })
   }
   function generateRandomTicket(data) {
     return api.generateRandomTicket(data)
@@ -241,9 +241,9 @@ export const useStore = defineStore("tasks", () => {
 
   function createAnswer(id: number, data: GenerateCheckResponse) {
     return api.createAnswer(id, data)
-    .then((answer: GenerateCheckResponse) => {
-      trainingAnswer.value = answer
-    })
+      .then((answer: GenerateCheckResponse) => {
+        trainingAnswer.value = answer
+      })
   }
   function endTraining(id: number) {
     return api.endTraining(id)
@@ -251,33 +251,33 @@ export const useStore = defineStore("tasks", () => {
 
   function getCourseHistory(id: number) {
     return api.getCourseHistory(id)
-    .then((answer: GenerateCheck) => {
-      if (courseHistory) courseHistory.value = []
-      courseHistory.value = answer.reverse()
-    })
+      .then((answer: GenerateCheck) => {
+        if (courseHistory) courseHistory.value = []
+        courseHistory.value = answer.reverse()
+      })
   }
   function getUserCkeckSkillsQuestions() {
     return api.getUserCkeckSkillsQuestions()
-    .then((answer: GenerateCheckResponse[]) => {
-      return allQuestionsData.value = answer
-    })
+      .then((answer: GenerateCheckResponse[]) => {
+        return allQuestionsData.value = answer
+      })
   }
 
   function getMistakes(body) {
     return api.getMistakes(body)
-    .then((answer: GenerateCheckResponse[]) => {
-      return allMistakes.value = answer.reverse()
-    })
-    .finally (() => {
-      isLoading.value = false
-    })
+      .then((answer: GenerateCheckResponse[]) => {
+        return allMistakes.value = answer.reverse()
+      })
+      .finally(() => {
+        isLoading.value = false
+      })
   }
 
   function getTestingInfo(id) {
     return api.getTestingInfo(id)
-    .then((answer) => {
-      return testingInfo.value = answer
-    })
+      .then((answer) => {
+        return testingInfo.value = answer
+      })
   }
   function getTestingDetail(id) {
     return api.getTestingDetail(id, null)
@@ -289,21 +289,21 @@ export const useStore = defineStore("tasks", () => {
     return api.endTicket(id, body)
   }
 
-  function getFavoritesQuestions(){
+  function getFavoritesQuestions() {
     return api.favoritesQuestions()
-    .then((questions: Question[]) => 
-      favoritesQuestions.value = questions
-    )
+      .then((questions: Question[]) =>
+        favoritesQuestions.value = questions
+      )
   }
 
   function getLastCourse() {
     return api.getLastCourse()
-    .then((course) => 
-      lastCourse.value = course
-    );
+      .then((course) =>
+        lastCourse.value = course
+      );
   }
 
-  function markQuestionSelected(id: number){
+  function markQuestionSelected(id: number) {
     return api.markQuestionSelected(id);
   }
 
@@ -313,9 +313,9 @@ export const useStore = defineStore("tasks", () => {
 
   function getWeekActivity() {
     return api.getWeekActivity()
-    .then((answer) => {
-      return weekActivityData.value = answer
-    })
+      .then((answer) => {
+        return weekActivityData.value = answer
+      })
   }
 
   function issueСomplain(body) {
@@ -328,38 +328,55 @@ export const useStore = defineStore("tasks", () => {
   // Authentication
   function login(loginData: Login) {
     api.login(loginData)
-    .then(response => {
-      if (response) {
-          
+      .then(response => {
+        if (response) {
+
           localStorage.setItem('accessToken', response.access);
           localStorage.setItem('refreshToken', response.refresh);
-          router.push({path: "/courses"})
-      } else {
+          localStorage.removeItem('demo');
+          router.push({ path: "/courses" })
+        } else {
           console.error('Ошибка:', response.statusText);
-          
-      }
-    })
-    .catch(error => {
-      console.error('Ошибка отправки данных:', error);
-      
-    });
+
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка отправки данных:', error);
+
+      });
   }
 
-  function logout(token) {
-    api.logout(token)
-    .then(response => {
-      if (response) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('email'); // email
-        
-        document.location.href = '/login/', true;
-      } else {
-        console.error('Ошибка:', response.statusText);
-    }})
-    .catch(error => {
-      console.error('Ошибка отправки данных:', error);
-    });
+  async function demo() {
+    await api.demo()
+      .then(response => {
+        if (response) {
+          console.log("demo create");
+          localStorage.setItem('accessToken', response.access);
+          localStorage.setItem('refreshToken', response.refresh);
+          localStorage.setItem('accessTokenDemo', response.access);
+          localStorage.setItem('refreshTokenDemo', response.refresh);
+          localStorage.setItem('demo', 'true');
+          router.push({ path: "/courses" })
+        } else {
+          console.error('Ошибка:', response.statusText);
+
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка отправки данных:', error);
+
+      });
+
+  }
+
+  function logout() {
+
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('email'); // email
+
+
   }
 
   function registration(registrationData: Registration) {
@@ -370,7 +387,7 @@ export const useStore = defineStore("tasks", () => {
   }
   // Authentication end
 
-  function sendMail(data: SendMail){
+  function sendMail(data: SendMail) {
     api.sendMail(data)
   }
 
@@ -385,6 +402,7 @@ export const useStore = defineStore("tasks", () => {
     logout,
     sendMail,
     login,
+    demo,
     registration,
     getUserCourses,
     startedCourses,
