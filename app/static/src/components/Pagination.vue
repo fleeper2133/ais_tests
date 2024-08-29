@@ -34,6 +34,13 @@ const props = defineProps({
   },
 });
 
+const scrollToBottom = () => {
+    window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+    })
+}
+
 const emit = defineEmits(['update:currentPage']);
 
 const visiblePagesCount = 5;
@@ -43,41 +50,44 @@ const totalPages = computed(() =>
 );
 
 const visiblePages = computed(() => {
-  const halfVisiblePagesCount = Math.floor(visiblePagesCount / 2);
-  let startPage = props.currentPage - halfVisiblePagesCount;
-  let endPage = props.currentPage + halfVisiblePagesCount;
+  const halfVisiblePagesCount = Math.floor(visiblePagesCount / 2)
+  let startPage = props.currentPage - halfVisiblePagesCount
+  let endPage = props.currentPage + halfVisiblePagesCount
   if (startPage < 1) {
-    endPage -= startPage - 1;
-    startPage = 1;
+    endPage -= startPage - 1
+    startPage = 1
   }
 
   if (endPage > totalPages.value) {
-    startPage -= endPage - totalPages.value;
-    endPage = totalPages.value;
+    startPage -= endPage - totalPages.value
+    endPage = totalPages.value
   }
   if( startPage < 1) startPage = 1
-    const pages = [];
+    const pages = []
     for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
+        pages.push(i)
   }
 
-  return pages;
+  return pages
 });
 
 const prevPage = () => {
   if (props.currentPage > 1) {
-    emit('update:currentPage', props.currentPage - 1);
+    emit('update:currentPage', props.currentPage - 1)
   }
 };
 
 const nextPage = () => {
   if (props.currentPage < totalPages.value) {
-    emit('update:currentPage', props.currentPage + 1);
+    emit('update:currentPage', props.currentPage + 1)
   }
 };
 
 const goToPage = (page: number) => {
-  emit('update:currentPage', page);
+  emit('update:currentPage', page)
+  setTimeout(() => {
+        scrollToBottom()
+    }, 0)
 };
 
 </script>
@@ -118,14 +128,9 @@ const goToPage = (page: number) => {
 }
 
 @media (max-width: 480px) {
-    .pagination-button {
-        width: 25px;
-        height: 25px;
-        font-size: 12px;
-    }
-
     .word-button {
-        font-size: 12px;
+      display: none;
+      font-size: 12px;
     }
 }
 </style>

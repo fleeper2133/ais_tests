@@ -312,11 +312,22 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
+    .question {
+        padding: 14px 20px;
+    }
     .question__title {
-        padding-right: 1.5rem;
+        padding: 0;
+        font-size: 16px;
     }
     .question__desc {
-        padding-right: 1rem;
+        padding: 0;
+    }
+    .statistic__normative-point {
+        font-size: 16px;
+    }
+    .question__main {
+        flex-wrap: wrap;
+        gap: 10px;
     }
 }
 </style>

@@ -335,8 +335,8 @@ async function send() {
     selectedAnswer.value = []
 
     setTimeout(() => {
-        scrollToBottom();
-    }, 200);
+        scrollToBottom()
+    }, 200)
 }
 
 const scrollToBottom = () => {
@@ -693,6 +693,14 @@ onBeforeUnmount(() => {
     }
     .button-skip {
         width: 100%;
+    }
+    .rate {
+        flex-direction: column;
+        background-color: transparent;
+        gap: 4px;
+    }
+    .rate__item {
+        background-color: #f0faff;
     }
 }
 

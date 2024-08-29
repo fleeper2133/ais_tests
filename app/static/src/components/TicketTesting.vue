@@ -777,6 +777,12 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
+    .statistic__showed-answers {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 600px) {
     .container {
         padding: 0 4vw;
     }

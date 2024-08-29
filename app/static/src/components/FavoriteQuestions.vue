@@ -218,10 +218,11 @@ function selectQuestion(event, id){
     event.currentTarget.setAttribute('fill', 'yellow')
     else
     event.currentTarget.setAttribute('fill', 'none')
+
     aisStore.markQuestionSelected(id)
 
     const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
-    aisStore.getCourseQuestions(course.id)
+    aisStore.getCourseQuestions(course?.id) 
 }
 
 function goBack(): void {
@@ -481,11 +482,31 @@ onBeforeUnmount(() => {
     .container {
         padding: 0 4vw;
     }
+    .container__header {
+        padding: 20px 4vw 20px 4vw;
+    }
+    .question {
+        padding: 14px 20px;
+    }
     .question__title {
         padding-right: 1.5rem;
+        font-size: 16px;
+    }
+    .statistic__normative-point {
+        font-size: 16px;
+    }
+    .question__main {
+        flex-wrap: wrap;
+        gap: 10px;
     }
     .question__desc {
-        padding-right: 1rem;
+        padding: 0;
+    }
+    .dropper__title {
+        width: 100%;
+    }
+    .button {
+        max-width: 100%;
     }
 }
 </style>

@@ -128,7 +128,7 @@ async function generateCheck() {
 // Generate Random Ticket end
 
 const allTicketsStarted = computed(() => {
-      return !aisStore.testingInfo.tickets.some(ticket => ticket.status === "Not started");
+      return !aisStore.testingInfo['tickets'].some(ticket => ticket.status === "Not started");
 })
 
 // Page Reload

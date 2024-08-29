@@ -65,15 +65,15 @@ export interface Question {
 }
 
 export interface UserCourse {
-  id: number
-  start_date: string
-  progress: number
-  status: string
-  selected: boolean
-  review_text: string
-  mark: number
-  user: number
-  course: number
+  id?: number
+  start_date?: string
+  progress?: number
+  status?: string
+  selected?: boolean
+  review_text?: string
+  mark?: number
+  user?: number
+  course?: number
 }
 
 export interface GenerateCheck {

@@ -23,15 +23,15 @@
                             <div class="statistic">
                                 <div class="statistic__column">
                                     <p class="fs-14 grey-text">Времени потрачено</p>
-                                    <div class="statistic__value fw-bold">{{ aisStore.lastCourse['course_time'] }}</div>
+                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId! - 1]['course_time'] }}</div>
                                 </div>
                                 <div class="statistic__column">
                                     <p class="fs-14 grey-text">Хорошо изучено</p>
-                                    <div class="statistic__value fw-bold">{{ aisStore.lastCourse['good_memorization_count'] }}</div>
+                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId! - 1]['good_memorization_count'] }}</div>
                                 </div>
                                 <div class="statistic__column">
                                     <p class="fs-14 grey-text">Плохо изучено</p>
-                                    <div class="statistic__value fw-bold">{{ aisStore.lastCourse['bad_memorization_count'] }}</div>
+                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId! - 1]['bad_memorization_count'] }}</div>
                                 </div>
                             </div>
                             <div class="circle-big">
@@ -219,7 +219,7 @@ const progressStyle = computed(() => {
 });
 
 onMounted(() => {
-    const progressFromStore = aisStore.lastCourse['progress']
+    const progressFromStore = aisStore.startedCourses[aisStore.selectedCourseId! - 1]['progress']
     progressPercentage.value = progressFromStore
 });
 
@@ -417,7 +417,7 @@ onBeforeUnmount(() => {
     @media (max-width: 1440px) {
         padding: 10px 10vw;
     }
-    @media (max-width: 440px) {
+    @media (max-width: 600px) {
         padding: 10px 0;
     }
 }

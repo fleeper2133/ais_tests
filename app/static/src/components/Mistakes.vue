@@ -133,7 +133,7 @@ function clearSearch() {
 }
 const filterSearch = computed(() => {
     const mistakeIds = aisStore.allMistakes.map(m => m.question)
-    const selectedCourseQuestions = aisStore.courseQuestions.filter(cq => mistakeIds.includes(cq.id))
+    const selectedCourseQuestions = aisStore.courseQuestions.filter(cq => mistakeIds.includes(cq.id!))
 
     if (!inputText.value) {
         return selectedCourseQuestions
@@ -222,6 +222,14 @@ function selectQuestion(event, id){
     event.currentTarget.setAttribute('fill', 'none')
     aisStore.markQuestionSelected(id)
 
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    aisStore.getCourseQuestions(course?.id)
+    const startedCourse = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourse[0].id)
+    if (!startedCourse) throw new Error('Course not found!')
+    const check = {
+        "user_course_id": startedCourse.id
+    }
+    aisStore.getMistakes(check)
 }
 
 function goBack(): void {
@@ -479,11 +487,31 @@ onBeforeUnmount(() => {
     .container {
         padding: 0 4vw;
     }
+    .question {
+        padding: 14px 20px;
+    }
     .question__title {
-        padding-right: 1.5rem;
+        padding: 0;
+        font-size: 16px;
+    }
+    .container__header {
+        padding: 20px 4vw 20px 4vw;
+    }
+    .statistic__normative-point {
+        font-size: 16px;
+    }
+    .question__main {
+        flex-wrap: wrap;
+        gap: 10px;
     }
     .question__desc {
-        padding-right: 1rem;
+        padding: 0;
+    }
+    .dropper__title {
+        width: 100%;
+    }
+    .button {
+        max-width: 100%;
     }
 }
 </style>
