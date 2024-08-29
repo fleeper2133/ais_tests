@@ -35,7 +35,7 @@
                         <div class="buttons">
                             <button class="button button__enter" type="submit">Войти</button>
 
-                            <button class="button button__demo" @click="demo">Запустить демо</button>
+                            <button class="button button__demo" @click="demo" type="button">Запустить демо</button>
                         </div>
                     </form>
                 </div>
@@ -113,12 +113,12 @@ const email = ref('');
 const password = ref('');
 
 async function demo() {
+    localStorage.setItem("demo", 'true');
     const accessTokenDemo = localStorage.getItem('accessTokenDemo');
     const refreshTokenDemo = localStorage.getItem('refreshTokenDemo');
     if (accessTokenDemo && refreshTokenDemo) {
         localStorage.setItem('accessToken', accessTokenDemo)
         localStorage.setItem('refreshToken', refreshTokenDemo)
-        localStorage.setItem("demo", 'true')
         await api.getCurrentUser()
         .then(
             (response) => {
@@ -134,7 +134,8 @@ async function demo() {
 
 
     } else {
-        aisStore.demo();
+        await aisStore.demo();
+
     }
     router.push({ path: "/courses" })
 }
