@@ -17,6 +17,8 @@ class Command(BaseCommand):
                     count = 1
 
                 # Вызываем команду 'make_rotation' для каждого курса с параметрами
+                course.question_count = total_questions
+                course.save()
                 call_command('make_rotation', course=course.id, count=count)
                 #self.stdout.write(self.style.SUCCESS(f"Ротация успешно создана для курса {course.id}"))
 
