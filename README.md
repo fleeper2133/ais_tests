@@ -4,10 +4,14 @@ This template should help get you started developing with Vue 3 and TypeScript i
 
 Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
 
+Команда для переноса данных в БД 
+python manage.py parser_api
+Сразу после запускаюся ротации
+
 Команды для создания ротаций в курсах:
 1. Для всех курсов разово:
 python manage.py all_course_rotation
 
-2. Для одного курса
+2. Для одного конкретного курса (при необходимости)
 python manage.py make_rotation --course 1 --count 100
 Создаёт ротацию для курса с id 1 на 100 вопросов
