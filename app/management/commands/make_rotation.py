@@ -25,6 +25,7 @@ class Command(BaseCommand):
 
         course = Course.objects.get(id=course_id)
         course.question_count = count
+        course.save()
         
         # Извлекаем все вопросы, использованные в предыдущих ротациях
         old_questions = set(
@@ -54,6 +55,6 @@ class Command(BaseCommand):
                 question=question
             )
 
-        self.stdout.write(self.style.SUCCESS("Ротация успешно произведена"))
+        self.stdout.write(self.style.SUCCESS(f"Ротация успешно произведена для курса {course.id}"))
 
   
