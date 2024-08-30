@@ -594,6 +594,7 @@ onBeforeUnmount(() => {
     }
 }
 .dropper__list {
+    z-index: 10;
     border-radius: 0.5rem;
     width: 100%;
     position: absolute;
