@@ -131,7 +131,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         if not created:
             return Response({'detail': 'Пользователь уже проходит этот курс.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = UserCourseSerializer(user_course)
+        serializer = UserCourseSerializer(user_course, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     # Отметка курса как отложенного
