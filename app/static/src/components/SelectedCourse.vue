@@ -21,17 +21,29 @@
                         <p class="fw-bold">Ваш прогресс</p>
                         <div class="progress-bar__content">
                             <div class="statistic">
-                                <div class="statistic__column">
+                                <!-- <div class="statistic__column">
                                     <p class="fs-14 grey-text">Времени потрачено</p>
-                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId! - 1]['course_time'] }}</div>
+                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId - 1]['course_time'] }}</div>
                                 </div>
                                 <div class="statistic__column">
                                     <p class="fs-14 grey-text">Хорошо изучено</p>
-                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId! - 1]['good_memorization_count'] }}</div>
+                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId - 1]['good_memorization_count'] }}</div>
                                 </div>
                                 <div class="statistic__column">
                                     <p class="fs-14 grey-text">Плохо изучено</p>
-                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId! - 1]['bad_memorization_count'] }}</div>
+                                    <div class="statistic__value fw-bold">{{ aisStore.startedCourses[aisStore.selectedCourseId - 1]['bad_memorization_count'] }}</div>
+                                </div> -->
+                                <div class="statistic__column">
+                                    <p class="fs-14 grey-text">Времени потрачено</p>
+                                    <div class="statistic__value fw-bold">{{ showCourseStatInfo('course_time') }}</div>
+                                </div>
+                                <div class="statistic__column">
+                                    <p class="fs-14 grey-text">Хорошо изучено</p>
+                                    <div class="statistic__value fw-bold">{{ showCourseStatInfo('good_memorization_count') }}</div>
+                                </div>
+                                <div class="statistic__column">
+                                    <p class="fs-14 grey-text">Плохо изучено</p>
+                                    <div class="statistic__value fw-bold">{{ showCourseStatInfo('bad_memorization_count') }}</div>
                                 </div>
                             </div>
                             <div class="circle-big">
@@ -80,7 +92,9 @@
                                         <p class="fs-14 main-blue fw-bold">{{ difficultyText1 }}</p>
                                     </div>
                                 </div>
-                                <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы.</p>
+                                <p class="selector__subtitle grey-text">
+                                    Здесь вы сможете подготовиться к тестированию и улучшить свои знания и навыки. Наш режим обучения предназначен для того, чтобы помочь вам закрепить материал и повысить уверенность в своих силах.
+                                </p>
                             </div>
                             <div class="icon">
                                 <svg class="selector__svg" width="44" height="38" viewBox="0 0 44 38" fill="none" >
@@ -131,7 +145,9 @@
                                         <p class="fs-14 main-blue fw-bold">{{ aisStore.selectedCourse[0].testing?.['tickets'].length}}</p>
                                     </div>
                                 </div>
-                                <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний.</p>
+                                <p class="selector__subtitle grey-text">
+                                    Здесь вы сможете проверить свои знания и навыки в условиях, максимально приближенных к реальному экзамену. Наш режим тестирования предназначен для того, чтобы помочь вам оценить свою готовность и выявить области, требующие дополнительного внимания.
+                                </p>
                             </div>
                             <div class="icon">
                                 <svg class="selector__svg" width="44" height="38" viewBox="0 0 44 38" fill="none" >
@@ -155,7 +171,9 @@
                                         <p class="fs-14 main-blue fw-bold">{{ showQuestionCount() }}</p>
                                     </div>
                                 </div>
-                                <p class="selector__subtitle grey-text">Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы получить точную оценку своих знаний. Пройдите тест чтобы.</p>
+                                <p class="selector__subtitle grey-text">
+                                    Здесь вы найдете все вопросы, которые используются в режимах обучения и тестирования, вместе с правильными ответами и подробными пояснениями. Этот раздел предназначен для того, чтобы помочь вам глубже понять материал и закрепить свои знания.
+                                </p>
                             </div>
                             <div class="icon">
                                 <svg class="selector__svg" width="44" height="38" viewBox="0 0 44 38" fill="none" >
@@ -188,6 +206,11 @@ import { useStore, GenerateCheck } from "../store"
 const router = useRouter()
 const aisStore = useStore()
 
+function showCourseStatInfo(name: string) {
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourseId)
+    return course![name]
+}
+
 async function goToTickets() {
     const id = aisStore.selectedCourse[0].testing?.['id']
     
@@ -219,7 +242,8 @@ const progressStyle = computed(() => {
 });
 
 onMounted(() => {
-    const progressFromStore = aisStore.startedCourses[aisStore.selectedCourseId! - 1]['progress']
+    const course = aisStore.startedCourses.find(c => c.course === aisStore.selectedCourseId)
+    const progressFromStore = course!['progress']
     progressPercentage.value = progressFromStore
 });
 
