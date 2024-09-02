@@ -54,7 +54,7 @@ class TicketSerializer(serializers.ModelSerializer):
     def get_status(self, obj):
         user = self.context['request'].user
         user_ticket = UserTicket.objects.filter(user=user, ticket=obj).last()
-        return user_ticket.status if user_ticket else False
+        return user_ticket.status if user_ticket else 'Not started'
 
 class TestingSerializer(serializers.ModelSerializer):
     tickets = TicketSerializer(many=True, read_only=True, source='ticket_set')
