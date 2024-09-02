@@ -112,7 +112,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated and user.profile.is_demo:
+        if user.is_authenticated and user.is_demo:
             return Course.objects.filter(is_demo=True)
         return super().get_queryset()
 
