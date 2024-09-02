@@ -34,7 +34,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="allTicketsStarted" class="creator">
+                    <div v-if="allTicketsStarted && !aisStore.currentUser['is_demo']" class="creator">
                         <div class="creator__text">
                             <h1 class="white fs-18 fw-bold">Генерация нового билета</h1>
                             <div class="creator__data">
