@@ -116,7 +116,10 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Webworx Projects API",
     "DESCRIPTION": "API for Webworx Projects",
     "VERSION": "0.1.0",
-
+    "AUTHENTICATION_WHITELIST": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ],
 }
 
 SIMPLE_JWT = {

@@ -47,6 +47,9 @@ const email = computed(() => {
 
 function exit() {
     aisStore.currentUser = {}
+    aisStore.lastCourse = {}
+    aisStore.allCourses = []
+    aisStore.startedCourses = []
     aisStore.logout();
     router.push('/')
 }

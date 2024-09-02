@@ -59,7 +59,7 @@
                                     </p>
                                 </div>
                                 <p class="grey-text fs-14">Описание:</p>
-                                <p class="question__title fw-bold fs-18">{{ question['normative_documents'].text }}<span class="fw-bold fs-18 statistic__normative-point">{{ question['normative_point'] }}</span></p>
+                                <p class="question__title fw-bold fs-18">{{ question['normative_documents']?.text }}<span class="fw-bold fs-18 statistic__normative-point">{{ question['normative_point'] }}</span></p>
                             </div>
                         </div>
 

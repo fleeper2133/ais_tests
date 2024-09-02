@@ -27,7 +27,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="showLastCourseInfo" class="last-course">
+                    <div v-if="!isEmptyObject(aisStore.lastCourse)" class="last-course">
                         <p class="fs-14 grey-text">Последний курс:</p>
                         <p class="fw-bold">{{ truncatedCourseName }}</p>
                         <div class="info-text">
@@ -142,6 +142,10 @@ const aisStore = useStore()
 
 const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 const translatedDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+
+function isEmptyObject(obj) {
+    return obj && Object.keys(obj).length === 0
+}
 
 function goToCourseInfo(id: number): void {
     const course = aisStore.allCourses.filter(c => c.id === id)

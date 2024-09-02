@@ -298,9 +298,10 @@ export const useStore = defineStore("tasks", () => {
 
   function getLastCourse() {
     return api.getLastCourse()
-      .then((course) =>
-        lastCourse.value = course
-      );
+    .then((course) => {
+      if (course) lastCourse.value = course
+      else console.log('Курс не найден')
+    });
   }
 
   function markQuestionSelected(id: number) {

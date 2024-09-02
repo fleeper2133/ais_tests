@@ -45,7 +45,7 @@ class Command(BaseCommand):
         selected_questions = [q for q in questions if q.id not in old_questions]
 
         #если все вопросы уже были задействованы в ротациях
-        if len(selected_questions) >= count:
+        if len(selected_questions) < count:
             selected_questions = questions[:count]
 
         # Создаем записи в RotationQuestion

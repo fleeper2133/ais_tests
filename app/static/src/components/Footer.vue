@@ -1,10 +1,10 @@
 <template>
     <div class="footer footer-margin footer--border">
-        <p class="">2023-2024 @ ООО</p>
+        <p class="footer__date">2023-2024 @ ООО</p>
         <p class="footer__tech">Техническая поддержка:<a href="#">support@dfbg</a></p>
         <nav class="doc-links">
-            <a href="#">Условия использования</a>
-            <a href="#">Политика конфиденциальности</a>
+            <a class="footer__docs" href="#">Условия использования</a>
+            <a class="footer__docs" href="#">Политика конфиденциальности</a>
         </nav>
     </div>
 </template>
@@ -20,16 +20,38 @@
     display: flex;
     justify-content: space-between;
     padding: 1.25rem 15vw;
-    flex-wrap: wrap;
     gap: 10px;
+    width: 100%;
+    height: 60px;
+
+    @media (max-width: 1440px) {
+        flex-direction: column;
+        align-items: center;
+        height: auto;
+    }
 }
 .footer__tech {
     display: flex;
     gap: 0.625rem;
+
+    @media (max-width: 400px) {
+        flex-direction: column;
+        align-items: center;
+    }
 }
 .doc-links {
     display: flex;
     gap: 20px;
+
+    @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+}
+.footer__docs {
+    text-align: center;
 }
 .footer-margin {
     margin-top: 50px;

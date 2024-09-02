@@ -156,7 +156,6 @@ function login() {
 @import '../sass/main.scss';
 
 .content {
-    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -193,6 +192,10 @@ function login() {
 .title {
     font-size: 24px;
     max-width: 420px;
+
+    @media (max-width: 430px) {
+        font-size: 20px;
+    }
 }
 
 .paragraphs {
@@ -226,6 +229,10 @@ function login() {
     display: flex;
     flex-direction: column;
     gap: 20px;
+
+    @media (max-width: 340px) { 
+        width: auto;
+    }
 }
 
 .form__input {
@@ -255,6 +262,7 @@ function login() {
     justify-content: center;
     display: flex;
     gap: 1.25rem;
+    margin-top: 60px;
 }
 
 .app-link {
