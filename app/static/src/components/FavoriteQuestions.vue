@@ -476,6 +476,11 @@ onBeforeUnmount(() => {
     max-width: 300px;
 }
 
+.pagination {
+    display: flex;
+    justify-content: center;
+}
+
 
 
 @media (max-width: 600px) {

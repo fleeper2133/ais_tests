@@ -19,9 +19,9 @@
                         <p class="grey-text">Выберите билет</p>
                     </div>
                     <div class="tickets__list">
-                        <div v-for="(ticket, index) in ticketsInfo" @click="select(index, ticket)" class="ticket">
+                        <div v-for="(ticket, index) in paginatedItems" @click="select(index, ticket)" class="ticket">
                             <div class="ticket-content" :class="{ selected : index === selectedTicket }">
-                                <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">Билет {{ index + 1 }}</p>
+                                <p class="fw-bold fs-18" :style="`color: ${index === selectedTicket ? '#ffffff' : '#333333'};`">Билет {{ ticket.id }}</p>
                                 <div 
                                     class="ticket__progress"
                                     :style="{ backgroundColor: chooseBackgroundColor(ticket.status)}"
@@ -51,6 +51,14 @@
                         <button class="button" @click="generateCheck">Сгенерировать билет</button>
                     </div>
                 </div>
+                <Pagination
+                    v-if="totalItems > 20"
+                    class="pagination"
+                    :current-page="currentPage"
+                    :items-per-page="itemsPerPage"
+                    :total-items="totalItems"
+                    @update:currentPage="currentPage = $event"
+                />
             </div>
         </div>
         <Footer />
@@ -60,6 +68,7 @@
 <script setup lang="ts">
 import Header from './Header.vue'
 import Footer from './Footer.vue'
+import Pagination from './Pagination.vue'
 
 import { computed, onMounted, ref, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
@@ -67,6 +76,21 @@ import { useStore } from "../store"
 
 const router = useRouter()
 const aisStore = useStore()
+
+// Pagination
+
+const currentPage = ref(1)
+const itemsPerPage = 20
+const totalItems = computed(() => ticketsInfo.value.length)
+
+const paginatedItems = computed(() =>
+    ticketsInfo.value.slice(
+        (currentPage.value - 1) * itemsPerPage,
+        currentPage.value * itemsPerPage
+    )
+);
+
+// Pagination end
 
 function goBack(): void {
     router.push('/course')
@@ -122,8 +146,6 @@ async function generateCheck() {
     const id = aisStore.selectedCourse[0].testing?.id
     
     aisStore.getTestingInfo(id)
-
-    // При генерации билета, сделать обновление и его отображение
 }
 // Generate Random Ticket end
 
@@ -305,6 +327,13 @@ onBeforeUnmount(() => {
 
 .button {
     max-width: 300px;
+}
+
+.pagination {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 @media (max-width: 430px) {
