@@ -44,6 +44,8 @@ class CreateDemoUserAPIView(APIView):
 
         demo_user = CustomUser.objects.create_user(email=email, password=password)
         demo_user.save()
+        demo_user.profile.is_demo = True
+        demo_user.profile.save()
 
         user = authenticate(email=email, password=password)
         login(request, user)
