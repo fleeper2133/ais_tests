@@ -16,6 +16,7 @@ class CustomUser(AbstractUser):
         related_name='custom_user_permissions_set',  # добавляем related_name
         blank=True
     )
+    is_demo = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

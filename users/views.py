@@ -42,8 +42,9 @@ class CreateDemoUserAPIView(APIView):
         email = f'{get_random_string(10)}@example.com'
         password = get_random_string(8)
 
-        demo_user = CustomUser.objects.create_user(email=email, password=password)
+        demo_user = CustomUser.objects.create_user(email=email, password=password, is_demo=True)
         demo_user.save()
+        
 
         user = authenticate(email=email, password=password)
         login(request, user)
