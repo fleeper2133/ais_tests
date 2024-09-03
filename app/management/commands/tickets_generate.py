@@ -13,8 +13,9 @@ class Command(BaseCommand):
         total_tickets_count = 10
         total_questions_count = 20
         for course in courses:
-            testing = Testing.objects.filter(course=course).first()
-            if len(Ticket.objects.filter(testing=testing)) >= total_tickets_count:
+            testing, create = Testing.objects.get_or_create(course=course, defaults={'description':f"Testing for {course}",'price':0})
+                
+            if len(list(Ticket.objects.filter(testing=testing))) >= total_tickets_count:
                 continue
 
             questions = course.get_available_questions()
