@@ -11,6 +11,11 @@ import Mistakes from '../components/Mistakes.vue'
 import FavoriteQuestions from '../components/FavoriteQuestions.vue'
 import TicketTesting from '../components/TicketTesting.vue'
 
+import Main from '../components/landing/Main.vue'
+import Notifications from '../components/landing/Notifications.vue'
+import PersonalAccоunt from '../components/landing/PersonalAccоunt.vue'
+import SubmitApplication from '../components/landing/SubmitApplication.vue'
+
 const routes = [
     {
       path: '/',
@@ -66,6 +71,27 @@ const routes = [
       path: '/favorite-questions',
       name: 'FavoriteQuestions',
       component: FavoriteQuestions
+    },
+    // New
+    {
+      path: '/main',
+      name: 'Main',
+      component: Main
+    },
+    {
+      path: '/notification',
+      name: 'Notifications',
+      component: Notifications
+    },
+    {
+      path: '/account',
+      name: 'PersonalAccount',
+      component: PersonalAccоunt
+    },
+    {
+      path: '/application',
+      name: 'SubmitApplication',
+      component: SubmitApplication
     }
 ]
 

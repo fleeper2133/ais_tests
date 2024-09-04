@@ -7,6 +7,9 @@ import router from './router/routes'
 import ConfirmationService from 'primevue/confirmationservice';
 import { createPinia } from 'pinia';
 
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/js/bootstrap.bundle.js';
+
 import './eventBus.ts';
 import './settings.ts';
 

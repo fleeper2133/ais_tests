@@ -1,0 +1,25 @@
+$small: 450px;
+$medium: 900px;
+$large: 1240px;
+$xlarge: 1600px;
+
+$ww-purple: rgb(184, 165, 254);
+
+$ww-bg: rgba(24, 31, 42, 1);
+
+.my-test-style {
+    color: red;
+}
+
+body {
+    background: rgb(55, 55, 55);
+    background-color: $ww-bg;
+}
+
+.test {
+    color: red;
+}
+
+html {
+    scroll-behavior: smooth;
+}
