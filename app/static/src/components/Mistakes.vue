@@ -2,7 +2,7 @@
     <div class="content" @click="closeAllDroppers">
         <div>
             <Header />
-            <div class="container container__bg">
+            <div class="my-container container__bg">
                 <div class="manage margin-top link-line">
                     <button class="button-back" @click="goBack">
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -12,10 +12,10 @@
                     </button>
                 </div>
             </div>
-            <div class="container container__header">
+            <div class="my-container container__header">
                 <div class="fs-18 fw-bold">Частые ошибки</div>
             </div>
-            <div class="container">
+            <div class="my-container">
                 <div class="content__items" v-if="!aisStore.isLoading">
                     <div v-if="aisStore.allMistakes.length > 0" class="creator">
                         <div class="creator__text">
@@ -484,7 +484,7 @@ onBeforeUnmount(() => {
 
 
 @media (max-width: 600px) {
-    .container {
+    .my-container {
         padding: 0 4vw;
     }
     .question {

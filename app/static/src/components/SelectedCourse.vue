@@ -2,7 +2,7 @@
     <div class="content" @click="closeAllDroppers">
         <div>
             <Header />
-            <div class="container container__bg">
+            <div class="my-container container__bg">
                 <div class="manage link-line">
                     <button class="button-back" @click="goBack">
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -15,7 +15,7 @@
             <div class="container-name">
                 <div class="container-name__title fs-20 fw-bold">{{aisStore.selectedCourse[0].name}}</div>
             </div>
-            <div class="container container__flex">
+            <div class="my-container container__flex">
                 <div class="info">
                     <div class="progress-bar">
                         <p class="fw-bold">Ваш прогресс</p>
@@ -655,7 +655,7 @@ onBeforeUnmount(() => {
     }
 }
 @media (max-width: 600px) {
-    .container {
+    .my-container {
         padding: 0 4vw;
     }
     .info {

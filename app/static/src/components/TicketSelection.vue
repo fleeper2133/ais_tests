@@ -2,7 +2,7 @@
     <div class="content">
         <div>
             <Header />
-            <div class="container container__bg">
+            <div class="my-container container__bg">
                 <div class="manage link-line">
                     <button class="button-back" @click="goBack">
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -12,7 +12,7 @@
                     </button>
                 </div>
             </div>
-            <div class="container">
+            <div class="my-container">
                 <div class="tickets tickets--margin">
                     <div class="tickets__title">
                         <p class="fw-bold fs-20">Режим тестирования</p>
@@ -342,7 +342,7 @@ onBeforeUnmount(() => {
     }
 }
 @media (max-width: 600px) {
-    .container {
+    .my-container {
         padding: 0 4vw;
     }
 }

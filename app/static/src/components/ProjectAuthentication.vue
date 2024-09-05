@@ -1,6 +1,6 @@
 <template>
     <div class="content">
-        <div class="container container-space">
+        <div class="my-container container-space">
             <div class="general general--margin">
                 <div class="general__info">
                     <div class="logo">

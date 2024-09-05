@@ -2,7 +2,7 @@
     <div class="content">
         <div>
             <Header />
-            <div v-if="!isTestDone" class="container container__bg link-line">
+            <div v-if="!isTestDone" class="my-container container__bg link-line">
                 <router-link to="/course" @click="back">
                     <button v-if="!requiredDoneLength" class="button-back">
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -14,7 +14,7 @@
                 <p class="fw-bold">Режим обучения</p>
             </div>
             <div v-if="!isTestDone">
-                <div class="container ticket-info">
+                <div class="my-container ticket-info">
                     <div class="tickets">
                         <div 
                             @click="selectQuestion(value['number_in_check'] - 1)"
@@ -673,7 +673,7 @@ onBeforeUnmount(() => {
 // stats end
 
 @media (max-width: 600px) {
-    .container {
+    .my-container {
         padding: 0 4vw;
     }
     .ticket-list {

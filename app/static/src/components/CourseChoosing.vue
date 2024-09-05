@@ -3,7 +3,7 @@
         <div>
             <Header />
             <div class="content__gap">
-                <div class="container container__graph">
+                <div class="my-container container__graph">
                     <div class="graph">
                         <div class="graph__title fs-18">Ударный режим</div>
                         <div class="graph__info">
@@ -46,7 +46,7 @@
                         <button class="button last-course__button" @click="goToCourse">Продолжить</button>
                     </div>
                 </div>
-                <div class="container container__bg">
+                <div class="my-container container__bg">
                     <div class="tabs">
                         <div class="tabs__item" v-for="(status, statusIndex) in aisStore.courseStatuses" @click="showCourseStatus = status.id">
                             <p
@@ -59,7 +59,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="container container__courses">
+                <div class="my-container container__courses">
                     <div 
                         class="search" 
                         :style="`border: ${condition};`" 
@@ -580,7 +580,7 @@ onMounted(async () => {
     * {
         transition: .2s;
     }
-    .container {
+    .my-container {
         padding: 0 4vw;
     }
 }

@@ -2,7 +2,7 @@
     <div class="content">
         <div>
             <Header />
-            <div class="container">
+            <div class="my-container">
                 <div class="card">
                     <div class="card__text" v-for="(course, index) in currentCourse">
                         <div class="card__content">
@@ -166,7 +166,7 @@ onBeforeUnmount(() => {
     * {
         transition: .2s;
     }
-    .container {
+    .my-container {
         padding: 0 4vw;
     }
 }

@@ -12,6 +12,9 @@ import Application from './components/Application.vue';
 
 import Request from './components/Request.vue';
 
+import { useRouter } from 'vue-router';
+const router = useRouter()
+
 </script>
 <template>
     <Header />

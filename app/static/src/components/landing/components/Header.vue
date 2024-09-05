@@ -1,5 +1,8 @@
 <script setup>
 import {reactive} from 'vue';
+
+import { useRouter } from 'vue-router';
+const router = useRouter()
 </script>
 
 <template>
@@ -16,7 +19,7 @@ import {reactive} from 'vue';
         <div class="col-md-7 d-none d-lg-block menu__main">
           <div class="header__menu">
             <ul class="d-flex p-0 mb-0" style="list-style-type: none;margin-top: 2rem;">
-                <li><a href="/">Главная</a></li>
+                <li><a href="/main">Главная</a></li>
                 <li><a href="">Этапы</a></li>
                 <li><a href="#">Отзывы</a></li>
                 <li><a href="#">Требования</a></li>
@@ -27,19 +30,19 @@ import {reactive} from 'vue';
         <div class="col-md-2 d-flex justify-content-end d-none d-lg-block" style="align-items: center;">
           <div class="d-flex justify-content-between">
             <div class="d-flex" style="align-items: end;">
-              <a href="/notif">
+              <a href="/notification">
                 <img class="" src="../../../assets/images/landing/nott.svg" alt="" />
               </a>
             </div>
             <div class="" style="margin-top: 1rem;">
               <div class="app__button"style="width: 100%;">
-                  <a href="/lk">Войти</a>
+                  <a href="/account">Войти</a>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-md-9 d-flex justify-content-end ">
-          <div class="d-lg-none ">
+        <div class="col-md-9 d-flex justify-content-end">
+          <div class="d-lg-none">
                 <li class="nav-item dropdown" style="  list-style-type: none;">
                   <a class="nav-link" href="#"
                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -53,7 +56,7 @@ import {reactive} from 'vue';
                     <li><a href="#">Отзывы</a></li>
                     <li><a href="#">Требования</a></li>
                     <li><a href="#">Информация</a></li>
-                    <li><a href="/lk">Войти</a></li>
+                    <li><a href="">Войти</a></li>
                   </ul>
                 </li>
             </div>

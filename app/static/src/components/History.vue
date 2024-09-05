@@ -2,7 +2,7 @@
     <div class="content">
         <div>
             <Header />
-            <div class="container container__bg">
+            <div class="my-container container__bg">
                 <div class="manage margin-top link-line">
                     <button class="button-back" @click="goBack">
                         <svg class="button-back__arrow" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
@@ -12,10 +12,10 @@
                     </button>
                 </div>
             </div>
-            <div class="container container__header">
+            <div class="my-container container__header">
                 <div class="fs-18 fw-bold">История прохождения</div>
             </div>
-            <div class="container">
+            <div class="my-container">
                 <div class="history-list">
                     <div class="history">
                         <div 
@@ -311,7 +311,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
-    .container {
+    .my-container {
         padding-left: 4vw;
         padding-right: 4vw;
     }
