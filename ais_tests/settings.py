@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "users",
     "course",
     "usercourse",
+    "landing",
     "api",
     'django_celery_beat',
 ]

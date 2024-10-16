@@ -8,6 +8,10 @@ import TicketSelection from '../components/TicketSelection.vue'
 import Testing from '../components/Testing.vue'
 import History from '../components/History.vue'
 import Mistakes from '../components/Mistakes.vue'
+import Index from '../components/landing/Index.vue'
+import Lk from '../components/landing/Lk.vue'
+import Proposal from '../components/landing/Proposal.vue'
+import Notif from '../components/landing/Notif.vue'
 
 const routes = [
     {
@@ -54,6 +58,26 @@ const routes = [
       path: '/mistakes',
       name: 'Mistakes',
       component: Mistakes
+    },
+    {
+      path: '/landing',
+      name: 'Landing',
+      component: Index
+    },
+    {
+      path: '/lk',
+      name: 'Lk',
+      component: Lk
+    },
+    {
+      path: '/proposals',
+      name: 'Proposal',
+      component: Proposal
+    },
+    {
+      path: '/notidications',
+      name: 'Notif',
+      component: Notif
     }
 ]
 
