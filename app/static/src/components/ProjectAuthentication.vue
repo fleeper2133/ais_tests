@@ -4,7 +4,7 @@
             <div class="general general--margin">
                 <div class="general__info">
                     <div class="logo">
-                        <img src="../assets/images/logo.png" alt="logo">
+                        <img src="../assets/images/bp-logo1.svg" alt="logo" style="height: 3rem;">
                         <p class="logo__text fs-14">Автоматизированная информационная система по подготовке к экзамену
                             по профессиональной квалификации</p>
                     </div>
@@ -21,7 +21,7 @@
                 <div class="login-panel" @submit.prevent>
                     <div class="greeting">
                         <p class="fs-20 fw-bold">Добро пожаловать в </p>
-                        <img src="../assets/images/logo.png" alt="logo">
+                        <img src="../assets/images/bp-logo1.svg" alt="logo" style="height: 3rem;">
                     </div>
                     <form class="form" @submit.prevent="login">
                         <div class="form__input">

@@ -1,6 +1,6 @@
 <template>
     <div class="footer footer-margin footer--border">
-        <p class="footer__date">2023-2024 @ ООО</p>
+        <p class="footer__date">2023-2024 @ ООО “Знаю ПБ”</p>
         <p class="footer__tech">Техническая поддержка:<a href="#">support@dfbg</a></p>
         <nav class="doc-links">
             <a class="footer__docs" href="#">Условия использования</a>

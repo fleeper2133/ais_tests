@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <img class="logo" src="../assets/images/logo.png" alt="logo">
+        <img class="logo" src="../assets/images/bp-logo1.svg" alt="logo" style="height: 3rem;">
         <div class="header__content">
             <div class="header__email">
                 <p class="fw-bold">Здравствуйте</p>

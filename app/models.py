@@ -6,10 +6,10 @@ class Profile(models.Model):
     """template class for company profile"""
 
     logotype = models.FileField(
-        "Логотип организации", upload_to="upload/", blank=True, null=True, default=None
+        "Логотип большой (с текстом)", upload_to="upload/", blank=True, null=True, default=None
     )
     footer_logotype = models.FileField(
-        "Логотип для футера (необязательно)",
+        "Логотип маленький",
         upload_to="upload/",
         blank=True,
         null=True,

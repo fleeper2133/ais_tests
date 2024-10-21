@@ -3,7 +3,7 @@ import { reactive } from "vue";
 </script>
 
 <template>
-<div class="container">
+<div id="tarif" class="container">
     <h3 style="margin-top:5rem;">Тариф</h3>
     <div class="row">
         <div class="col-md-6" style="position: relative;">
@@ -30,7 +30,7 @@ import { reactive } from "vue";
 <style scoped lang="scss">
 .bgc-tarif {
     margin-top: 2rem;
-    border-radius: 10px;
+    border-radius: 0.25rem;
 padding: 1rem;
 background: rgb(125, 177, 255);
 }

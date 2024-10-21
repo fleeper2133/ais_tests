@@ -3,7 +3,7 @@ import { reactive } from "vue";
 </script>
 
 <template>
-<div class="container">
+<div id="skill" class="container">
     <h3 style="margin-top: 5rem;margin-bottom: 2rem;">Эксперт по промышленной безопасности: квалификация и полномочия</h3>
     <p class="skill__text">Эксперт по ПБ является специалистом, который оценивает опасные производственные объекты (ОПО) в своей области:</p>
     <div class="row">

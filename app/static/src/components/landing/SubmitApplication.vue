@@ -206,7 +206,7 @@ onMounted(async () => {
     }
 }
 .prop__res {
-    border-radius: 10px;
+    border-radius: 0.25rem;
     padding: 0.5rem 2rem 0.5rem 2rem;
     background: rgb(115, 54, 254);
     color: white;
@@ -252,7 +252,7 @@ onMounted(async () => {
     }
 }
 .bgc-non__cash {
-    border-radius: 10px;
+    border-radius: 0.25rem;
     padding: 1rem;
     width: 600px;
     background: rgb(224, 236, 255);
@@ -262,7 +262,7 @@ onMounted(async () => {
 }
 .bank-card {
     button {
-            border-radius: 10px;
+            border-radius: 0.25rem;
             box-shadow: 0px 0px 5.3px 0px rgba(0, 0, 0, 0.25);
             background: rgb(255, 255, 255);
             padding: 1rem;
@@ -279,7 +279,7 @@ onMounted(async () => {
 }
 .non-cash {
     button {
-        border-radius: 10px;
+        border-radius: 0.25rem;
         box-shadow: 0px 0px 5.3px 0px rgba(0, 0, 0, 0.25);
         background: rgb(255, 255, 255);
         padding: 1rem;
@@ -321,7 +321,7 @@ onMounted(async () => {
 .propp__button {
     margin-top: 5rem;
     a {
-        border-radius: 10px;
+        border-radius: 0.25rem;
         padding: 0.5rem;
         background: rgb(115, 54, 254);
         display: flex;
@@ -336,7 +336,7 @@ onMounted(async () => {
     }
 }
 .bgc-pay {
-    border-radius: 10px;
+    border-radius: 0.25rem;
     padding: 1rem;
     box-shadow: 6px 0px 5.8px 0px rgba(142, 142, 142, 0.25);
     background: linear-gradient(214.70deg, rgb(173, 215, 234) 27.564%,rgb(125, 177, 255) 98.616%);
@@ -356,7 +356,7 @@ onMounted(async () => {
 .app__button {
     margin-top: 2rem;
     margin-bottom: 5rem;
-    border-radius: 10px;
+    border-radius: 0.25rem;
     padding: 0.5rem;
     background: rgb(115, 54, 254);
     display: flex;

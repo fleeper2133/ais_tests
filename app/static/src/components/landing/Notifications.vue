@@ -63,7 +63,7 @@ import Footer from './components/Footer.vue';
     }
 }
 .notif__text__butt__erorr {
-  border-radius: 10px;
+  border-radius: 0.25rem;
   padding: 0.5rem 1rem 0.5rem 1rem;
   background: rgb(255, 78, 84);
   a {
@@ -81,7 +81,7 @@ import Footer from './components/Footer.vue';
     }
 }
 .notif__text__butt {
-  border-radius: 10px;
+  border-radius: 0.25rem;
   padding: 0.5rem 1rem 0.5rem 1rem;
   background: rgb(115, 54, 254);
   a {

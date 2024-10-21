@@ -3,7 +3,7 @@ import { reactive } from "vue";
 </script>
 
 <template>
-<div class="container">
+<div id="trebovaniya" class="container">
     <h3 class="mb-5"style="margin-top: 5rem;">Требования к претендентам на удостоверение эксперта по промышленной безопасности включают:</h3>
     <div class="row">
         <div class="col-md-6">
@@ -44,7 +44,7 @@ import { reactive } from "vue";
 
 <style scoped lang="scss">
 .req-title {
-    border-radius: 10px;
+    border-radius: 0.25rem;
 padding: 1rem;
 background: rgb(8, 106, 217);
 margin-bottom: 2rem;
@@ -58,7 +58,7 @@ a {
 }
 }
 .req-title-sec {
-    border-radius: 10px;
+    border-radius: 0.25rem;
 padding: 1rem;
 background: rgb(8, 106, 217);
 margin-bottom: 2rem;

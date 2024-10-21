@@ -135,7 +135,7 @@ import Footer from './components/Footer.vue';
 .dropdown-menu {
     box-sizing: border-box;
     border: 2px solid rgb(125, 177, 255);
-    border-radius: 10px;
+    border-radius: 0.25rem;
     box-shadow: 0px 0px 5.3px 0px rgba(0, 0, 0, 0.25);
     background: rgb(255, 255, 255);
     a {
@@ -188,7 +188,7 @@ import Footer from './components/Footer.vue';
 }
 
 .lk_bid {
-    border-radius: 10px;
+    border-radius: 0.25rem;
     padding: 0.5rem;
     box-shadow: 0px 0px 5.3px 0px rgba(99, 99, 99, 0.25);
     background: rgb(255, 255, 255);

@@ -77,7 +77,7 @@ import { reactive } from "vue";
           <a href="">Политика конфиденциальности</a>
         </div>
         <div class=" foot__year">
-          <a href="">2024 @ ООО </a>
+          <a href="">2024 @ ООО “Знаю ПБ”</a>
         </div>
       </div>
       <!-- <div class="col-md-4">

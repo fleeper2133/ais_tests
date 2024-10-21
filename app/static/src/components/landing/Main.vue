@@ -44,7 +44,7 @@ const router = useRouter()
     <Advant/>
     <Tarif/>
     <Certificate/>
-    <Application/>
+    <!-- <Application/> -->
 
     <Footer/>
 </template>
@@ -64,7 +64,7 @@ const router = useRouter()
   }
 }
 .main_page__point{
-  border-radius: 10px;
+  border-radius: 0.25rem;
 padding: 0.5rem;
 background: rgb(115, 54, 254);
 margin-bottom: 1.5rem;

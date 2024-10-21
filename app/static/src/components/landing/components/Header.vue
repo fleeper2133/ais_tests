@@ -20,10 +20,10 @@ const router = useRouter()
           <div class="header__menu">
             <ul class="d-flex p-0 mb-0 justify-content-center" style="list-style-type: none;margin-top: 2rem;">
                 <li><a href="/main">Главная</a></li>
-                <li><a href="#">Этапы</a></li>
-                <li><a href="#">Отзывы</a></li>
-                <li><a href="#">Требования</a></li>
-                <li><a href="#">Информация</a></li>
+                <li><a href="/main#stages">Этапы</a></li>
+                <li><a href="/main#trebovaniya">Требования</a></li>
+                <li><a href="/main#advantages">Преимущества</a></li>
+                <li><a href="/main#tarif">Информация</a></li>
             </ul>
           </div>
         </div>
@@ -56,11 +56,11 @@ const router = useRouter()
                       </svg>
                   </a>
                   <ul class="dropdown-menu burger p-2" aria-labelledby="it-menu-case-dropdown">
-                    <li><a class="mobile-link bold" href="#">Главная</a></li>
-                    <li><a class="mobile-link" href="#">Этапы</a></li>
-                    <li><a class="mobile-link" href="#">Отзывы</a></li>
-                    <li><a class="mobile-link" href="#">Требования</a></li>
-                    <li><a class="mobile-link" href="#">Информация</a></li>
+                    <li><a class="mobile-link bold" href="/main">Главная</a></li>
+                    <li><a class="mobile-link" href="/main#stages">Этапы</a></li>
+                    <li><a class="mobile-link" href="/main#trebovaniya">Требования</a></li>
+                    <li><a class="mobile-link" href="/main#advantages">Преимущества</a></li>
+                    <li><a class="mobile-link" href="/main#tarif">Информация</a></li>
                     <li><a class="prop-btn" href="/application">Подать заявку</a></li>
                     <li><a class="enter-btn" href="/">Войти</a></li>
                   </ul>
@@ -179,7 +179,7 @@ const router = useRouter()
     color: rgb(11, 11, 11);
     font-size: 1rem;
     text-decoration: none;
-    font-weight: 600;
+
   }
 
 }

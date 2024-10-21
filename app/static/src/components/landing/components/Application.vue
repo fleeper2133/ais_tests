@@ -54,7 +54,7 @@ background: rgb(224, 236, 255);
     margin-top: 1rem;
     a {
         width: 50%;
-        border-radius: 10px;
+        border-radius: 0.25rem;
         padding: 0.5rem;
         background: rgb(115, 54, 254);
         display: flex;
@@ -76,7 +76,7 @@ background: rgb(224, 236, 255);
         box-sizing: border-box;
         width: 100%;
         border: 2px solid rgb(224, 236, 255);
-        border-radius: 10px;
+        border-radius: 0.25rem;
         background: rgb(255, 255, 255);
         padding: 0.5rem;
         margin-bottom: 1rem;

@@ -3,7 +3,7 @@ import { reactive } from "vue";
 </script>
 
 <template>
-<div class="container">
+<div id="advantages" class="container">
     <h3 style="margin-bottom: 2rem;">
         Наши преимущества
     </h3>
@@ -71,7 +71,7 @@ import { reactive } from "vue";
 
 }
 .bgc-advent {
-    border-radius: 10px;
+    border-radius: 0.25rem;
     padding: 2rem 1rem 0 1rem;
     background: rgb(115, 54, 254);
 }

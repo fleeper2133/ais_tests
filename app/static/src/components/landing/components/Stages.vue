@@ -4,7 +4,7 @@ import { reactive } from "vue";
 
 
 <template>
-<div class="container">
+<div id="stages" class="container">
     <h3 class="d-flex justify-content-center mb-5">Этапы прохождения курса</h3>
    <div class="row">
     <div class="col-md-6">
@@ -61,7 +61,7 @@ import { reactive } from "vue";
 }
 .stages__step {
     height: 150px;
-    border-radius: 10px;
+    border-radius: 0.25rem;
     padding: 1rem;
     background: rgb(125, 177, 255);
     margin-bottom: 2rem;
@@ -91,7 +91,7 @@ import { reactive } from "vue";
 }
 .stages__button {
     a {
-        border-radius: 10px;
+        border-radius: 0.25rem;
         padding: 0.5rem;
         background: rgb(115, 54, 254);
         display: flex;
