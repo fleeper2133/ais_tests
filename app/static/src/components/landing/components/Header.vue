@@ -55,13 +55,14 @@ const router = useRouter()
                         <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
                       </svg>
                   </a>
-                  <ul class="dropdown-menu burger" aria-labelledby="it-menu-case-dropdown">
-                    <li><a href="#">Главная</a></li>
-                    <li><a href="#">Этапы</a></li>
-                    <li><a href="#">Отзывы</a></li>
-                    <li><a href="#">Требования</a></li>
-                    <li><a href="#">Информация</a></li>
-                    <li><a href="/">Войти</a></li>
+                  <ul class="dropdown-menu burger p-2" aria-labelledby="it-menu-case-dropdown">
+                    <li><a class="mobile-link bold" href="#">Главная</a></li>
+                    <li><a class="mobile-link" href="#">Этапы</a></li>
+                    <li><a class="mobile-link" href="#">Отзывы</a></li>
+                    <li><a class="mobile-link" href="#">Требования</a></li>
+                    <li><a class="mobile-link" href="#">Информация</a></li>
+                    <li><a class="prop-btn" href="/application">Подать заявку</a></li>
+                    <li><a class="enter-btn" href="/">Войти</a></li>
                   </ul>
                 </li>
             </div>
@@ -74,16 +75,19 @@ const router = useRouter()
 <style scoped lang="scss">
 
 .burger {
-  padding: 1rem 1rem 0 1rem;
   li {
     margin-bottom: 1rem;
-
+    text-align: center;
   }
-  a {
+  .mobile-link {
     margin-right: 1rem;
     color: rgb(11, 11, 11);
     font-size: 1rem;
     text-decoration: none;
+    margin-right: 0;
+  }
+
+  .bold {
     font-weight: 600;
   }
 }
@@ -108,6 +112,34 @@ const router = useRouter()
     gap: 0.5rem;
     
   }
+}
+
+.prop-btn {
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  background: #338DF4;
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-size: 1rem;
+  &:hover {
+    color: rgb(37, 42, 193);
+  }
+}
+.enter-btn {
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  background: rgb(115, 54, 254);
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  font-size: 1rem;
+  &:hover {
+    color: rgb(37, 42, 193);
+  }
+
 }
 .app__button {
     a {
