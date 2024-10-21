@@ -1,15 +1,14 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
+import { useStore } from "../../store"
 
 import { ref } from 'vue';
 
+const aisStore = useStore()
 
-const users = ['A.1 Основы промышленной безопасности', 'A.2 Основы промышленной безопасности', 'A.3 Основы промышленной безопасности'];
-const selectedUser = ref('');
-
-// const showBlock = ref(false);
+const selectedCourse = ref('');
 
 function showBlock() {
     const card = document.getElementById('card');
@@ -17,8 +16,6 @@ function showBlock() {
 
     const cardSec = document.getElementById('cardSec');
     cardSec.style.display = 'none';
-
-
 }
 
 function showBlockSec() {
@@ -27,8 +24,22 @@ function showBlockSec() {
 
     const card = document.getElementById('card');
     card.style.display = 'none';
+}
 
-} 
+function toggleSelect() {
+    const dropdown = document.getElementById('custom-select-items');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+
+function selectCourse(course) {
+    selectedCourse.value = course;
+    document.querySelector('.custom-select-selected').innerText = course.name;
+    document.getElementById('custom-select-items').style.display = 'none';
+}
+
+onMounted(async () => {
+    aisStore.getCourses()
+});
 </script>
 
 <template>
@@ -57,11 +68,15 @@ function showBlockSec() {
     </div>
     <div class="d-flex justify-content-center">
         <div class="prop__name">
-            <p class="">Выберите направление курса:</p>
-            <div>
-                <select class="drop__us" id="user-select" v-model="selectedUser">
-                <option v-for="user in users" :value="user">{{ user }}</option>
-                </select>
+            <p class="">Выберите курс:</p>
+            <div class="custom-select">
+                <div class="custom-select-selected" @click="toggleSelect">Нажмите для выбора курса</div>
+                <div class="custom-select-items mt-1" id="custom-select-items">
+                    <div v-for="course in aisStore.allCourses" :key="course.name" @click="selectCourse(course)">
+                        {{ course.name }}
+                        <hr>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -206,22 +221,32 @@ function showBlockSec() {
 }
 
 .drop__us {
-        box-sizing: border-box;
-        border: 2px solid rgb(125, 177, 255);
-        border-radius: 5px;
-        background: rgba(255, 255, 255, 0.71);
-        width: 600px;
-        padding-left: 0.5rem;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-        padding-right: 0.5rem;
-        color: rgb(0, 0, 0);
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        @media screen and (max-width: 430px) {
-        width: 100%;
-        }
+    position: relative;
+    box-sizing: border-box;
+    border: 2px solid rgb(125, 177, 255);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.71);
+    width: 600px;
+    padding-left: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-right: 0.5rem;
+    color: rgb(0, 0, 0);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    
+    @media screen and (max-width: 430px) {
+    width: 100%;
+    }
+
+    &--item {
+        position: absolute;
+        display: block;
+        max-width: 5rem;
+        text-wrap: wrap;
+        white-space-collapse: discard;
+    }
 }
 .drop__us:hover {
     border: 2px solid rgb(125, 177, 255);
@@ -491,4 +516,55 @@ background: rgb(255, 255, 255);
     }
     }
 }
+
+.custom-select {
+    position: relative;
+    width: 600px;
+    margin-bottom: 0.5rem;
+
+    @media screen and (max-width: 430px) {
+        width: 100%;
+    }
+}
+
+.custom-select-selected {
+    box-sizing: border-box;
+    border: 2px solid rgb(125, 177, 255);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.71);
+    padding: 1rem 0.5rem;
+    color: rgb(0, 0, 0);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+}
+
+.custom-select-selected:hover {
+    border: 2px solid rgb(125, 177, 255);
+}
+
+.custom-select-items {
+    position: absolute;
+    background-color: #fff;
+    border: 2px solid rgb(125, 177, 255);
+    border-radius: 5px;
+    z-index: 1;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+.custom-select-items div {
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.custom-select-items div:hover {
+    background-color: #f1f1f1;
+}
+
 </style>
