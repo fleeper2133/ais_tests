@@ -9,39 +9,44 @@ const router = useRouter()
   <div class="header__bgc">
     <div class="container">
       <div class="row">
-        <div class="col-md-3">
+        <div class="col-10 col-lg-3">
           <div class="head__img">
-            <a href="/">
-              <img class="" src="../../../assets/images/landing/logoAis.svg" alt="" />
+            <a href="/main">
+              <img class="" src="../../../assets/images/landing/bp-logo.svg" alt="" />
             </a>
           </div>
         </div>
-        <div class="col-md-7 d-none d-lg-block menu__main">
+        <div class="col-6 d-none d-lg-block menu__main">
           <div class="header__menu">
-            <ul class="d-flex p-0 mb-0" style="list-style-type: none;margin-top: 2rem;">
+            <ul class="d-flex p-0 mb-0 justify-content-center" style="list-style-type: none;margin-top: 2rem;">
                 <li><a href="/main">Главная</a></li>
-                <li><a href="">Этапы</a></li>
+                <li><a href="#">Этапы</a></li>
                 <li><a href="#">Отзывы</a></li>
                 <li><a href="#">Требования</a></li>
-                <li><a href="">Информация</a></li>
+                <li><a href="#">Информация</a></li>
             </ul>
           </div>
         </div>
-        <div class="col-md-2 d-flex justify-content-end d-none d-lg-block" style="align-items: center;">
-          <div class="d-flex justify-content-between">
-            <div class="d-flex" style="align-items: end;">
-              <a href="/notification">
+        <div class="col-md-3 d-flex justify-content-end d-none d-lg-block" style="align-items: center;">
+          <div class="d-flex justify-content-between" style="gap: 0.5rem;">
+            <div class="d-flex align-items-start align-items-xl-end mt-3 mt-xl-0">
+              <!-- <a href="/notification">
                 <img class="" src="../../../assets/images/landing/nott.svg" alt="" />
-              </a>
+              </a> -->
             </div>
-            <div class="" style="margin-top: 1rem;">
+
+            <div class="header__btns">
+              <div class="proposal__button"style="width: 100%;">
+                <a href="/application">Подать заявку</a>
+              </div>
               <div class="app__button"style="width: 100%;">
-                  <a href="/account">Войти</a>
+                <a href="/">Войти</a>
               </div>
             </div>
-          </div>
+
         </div>
-        <div class="col-md-9 d-flex justify-content-end">
+        </div>
+        <div class="col-2 d-lg-none d-flex justify-content-end">
           <div class="d-lg-none">
                 <li class="nav-item dropdown" style="  list-style-type: none;">
                   <a class="nav-link" href="#"
@@ -52,11 +57,11 @@ const router = useRouter()
                   </a>
                   <ul class="dropdown-menu burger" aria-labelledby="it-menu-case-dropdown">
                     <li><a href="#">Главная</a></li>
-                    <li><a href="">Этапы</a></li>
+                    <li><a href="#">Этапы</a></li>
                     <li><a href="#">Отзывы</a></li>
                     <li><a href="#">Требования</a></li>
                     <li><a href="#">Информация</a></li>
-                    <li><a href="">Войти</a></li>
+                    <li><a href="/">Войти</a></li>
                   </ul>
                 </li>
             </div>
@@ -83,19 +88,30 @@ const router = useRouter()
   }
 }
 .head__img {
+  display: flex;
   @media screen and (max-width: 430px) {
     margin-bottom: 1rem;
     }
   img {
+    height: 5rem;
     width: 100%;
-    @media screen and (max-width: 430px) {
-      width: 50%;
-    }
+  }
+}
+.header__btns {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+  @media screen and (max-width: 1024px) {
+    flex-direction: column;
+    gap: 0.5rem;
+    
   }
 }
 .app__button {
     a {
-        border-radius: 10px;
+        border-radius: 0.25rem;
         padding: 0.5rem;
         background: rgb(115, 54, 254);
         display: flex;
@@ -103,12 +119,28 @@ const router = useRouter()
         text-decoration: none;
         color: rgb(255, 255, 255);
         font-size: 1rem;
-        font-weight: 500;
     }
     a:hover {
       color: rgb(37, 42, 193);
     }
 }
+
+.proposal__button {
+  a {
+      border-radius: 0.25rem;
+      padding: 0.5rem;
+      background: #338DF4;
+      display: flex;
+      justify-content: center;
+      text-decoration: none;
+      color: rgb(255, 255, 255);
+      font-size: 1rem;
+  }
+  a:hover {
+    color: rgb(37, 42, 193);
+  }
+}
+
 .header__menu {
   a {
     margin-right: 1rem;
@@ -140,7 +172,7 @@ const router = useRouter()
       <div class="row g-0 ll">
         <div class="col-md-3 ">
           <a class="header__logo"href="">
-            <img class="" src="../../../assets/images/landing/logoAis.svg" alt="" />
+            <img class="" src="../../../assets/images/landing/bp-logo.svg" alt="" />
           </a>
         </div>
         <div class="col-md-6 d-none d-lg-block" style="display: flex; align-items: center;">

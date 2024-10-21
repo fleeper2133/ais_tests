@@ -58,17 +58,6 @@ function showBlockSec() {
     <div class="d-flex justify-content-center">
         <div class="prop__name">
             <p class="">Выберите направление курса:</p>
-            <!-- <div class="dropdown" >
-                <button class="btn btn-prop dropdown-toggle"type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                </button>
-                <ul class="dropdown-menu" style="" aria-labelledby="dropdownMenuButton1">
-                    <li><a class="dropdown-item" href="#">A.1 Основы промышленной безопасности</a></li>
-                    <p style="padding: 0 1rem 0 1rem ; color:  rgb(8, 106, 217);">Период обучения с 12.02.24 по 12.03.24</p>
-                    <hr>
-                    <li><a class="dropdown-item" href="#">A.1 Основы промышленной безопасности</a></li>
-                    <p style="padding: 0 1rem 0 1rem ; color:  rgb(8, 106, 217);">Период обучения с 12.02.24 по 12.03.24</p>
-                </ul>
-            </div> -->
             <div>
                 <select class="drop__us" id="user-select" v-model="selectedUser">
                 <option v-for="user in users" :value="user">{{ user }}</option>
@@ -76,8 +65,12 @@ function showBlockSec() {
             </div>
         </div>
     </div>
+    <div class="d-flex">
+        <button class="send-btn">Отправить</button>
+    </div>
 </div>
-<div class="bgc__prop">
+
+<!-- <div class="bgc__prop">
     <div class="container">
         <div class="d-flex justify-content-center">
             <h3 style="margin-bottom: 2rem;">Детали оплаты</h3>
@@ -112,9 +105,6 @@ function showBlockSec() {
                     <a href="">Итого:</a>
                 </div>
             </div>
-            <!-- <button  class="app__button"style="width: 100%;">
-                Перейти к оплате
-            </button> -->
         </div>
     </div>
     <div id="card" style="display: none;">
@@ -155,7 +145,7 @@ function showBlockSec() {
                 </div>
                 <div class="bgc-for__text">
                     <p>Поставщик:
-                        <span>ООО “Аис Пэк”</span>
+                        <span>ООО “Знаю ПБ”</span>
                     </p>
                 </div>
                 <div class="bgc-for__text">
@@ -184,7 +174,7 @@ function showBlockSec() {
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 
 
@@ -193,6 +183,27 @@ function showBlockSec() {
 
 <style scoped lang="scss">
 @import '../../sass/styles.scss';
+
+.send-btn {
+    max-width: 20rem;
+    background: #338DF4;
+    padding: 0.5rem;
+    color: rgb(255, 255, 255);
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    width: 100%;
+    margin-top: 1rem;
+    margin: auto;
+    height: 3.75rem;
+    border-radius: 0.25rem;
+    transition: 0.2s;
+
+    @media screen and (max-width: 425px) {
+        max-width: 100%;
+        
+    }
+}
 
 .drop__us {
         box-sizing: border-box;
@@ -461,7 +472,7 @@ background: rgb(255, 255, 255);
     width: 600px;
     
     p {
-        color: rgb(0, 0, 0);
+        color: rgb(87, 87, 87);
         font-size: 1rem;
         margin-bottom: 0.5rem;
         font-weight: 500;

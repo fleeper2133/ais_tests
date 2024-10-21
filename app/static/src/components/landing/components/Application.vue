@@ -5,7 +5,7 @@ import { reactive } from "vue";
 <template>
 <div class="container" style="margin-bottom: 10rem;">
     <div class="d-flex justify-content-center">
-        <h3 style="margin-top: 5rem; margin-bottom: 2rem;">Форма заявки</h3>
+        <h3 style="margin-top: 5rem; margin-bottom: 2rem;">Остались вопросы? Мы ответим</h3>
     </div>
     <div class="row ll">
         <div class="col-md-6">
@@ -16,12 +16,12 @@ import { reactive } from "vue";
         <div class="col-md-6 ">
             <div class="app__bgc">
                 <div class="app__sert" style="width: 100%;">
-                    <input class="app__sert__inp" type="text" placeholder="Введите ФИО">
-                    <input class="app__sert__inp" type="text" placeholder="Введите номер телефона">
-                    <textarea class="app__sert__inp" name="" id="" rows="1" cols="20" placeholder="Комментарий"></textarea>
+                    <input class="app__sert__inp" type="text" placeholder="Введите имя">
+                    <input class="app__sert__inp" type="text" placeholder="Номер телефона">
+                    <textarea class="app__sert__inp" name="" id="" rows="3" cols="20" placeholder="Текст вашего вопроса"></textarea>
                 </div>
                 <div class="app__button"style="width: 100%;">
-                <a href="">Записаться на подготовку</a>
+                <a href="">Отправить</a>
                 </div>
             </div>
         </div>
