@@ -50,19 +50,19 @@ onMounted(async () => {
     </div>
     <div class="d-flex justify-content-center">
         <div class="prop__name">
-            <p class="">Введите почту:</p>
-            <input  type="text" name="" id="">
-        </div>
-    </div>
-    <div class="d-flex justify-content-center">
-        <div class="prop__name">
-            <p class="">Введите номер телефона:</p>
-            <input  type="text" name="" id="">
-        </div>
-    </div>
-    <div class="d-flex justify-content-center">
-        <div class="prop__name">
             <p class="">Введите ФИО:</p>
+            <input  type="text" name="" id="">
+        </div>
+    </div>
+    <div class="d-flex justify-content-center">
+        <div class="prop__name">
+            <p class="">E-mail:</p>
+            <input  type="text" name="" id="">
+        </div>
+    </div>
+    <div class="d-flex justify-content-center">
+        <div class="prop__name">
+            <p class="">Номер телефона:</p>
             <input  type="text" name="" id="">
         </div>
     </div>
@@ -84,114 +84,6 @@ onMounted(async () => {
         <button class="send-btn">Отправить</button>
     </div>
 </div>
-
-<!-- <div class="bgc__prop">
-    <div class="container">
-        <div class="d-flex justify-content-center">
-            <h3 style="margin-bottom: 2rem;">Детали оплаты</h3>
-        </div>
-        <div class="d-flex justify-content-center">
-            <p>Назначение платежа: <span style="font-weight: 600; font-size: 1rem;">A.1 Основы промышленной безопасности</span></p>
-        </div>
-        <div class="d-flex justify-content-center">
-            <p>Стоимость курса: <span style="font-weight: 600; font-size: 1rem;">20 000₽</span></p>
-        </div>
-    </div>
-</div>
-<div class="container">
-    <div class="d-flex justify-content-center">
-        <h3 style="margin-bottom: 2rem;">Пополнение баланса</h3>
-    </div>
-    <div class="prop__pay d-flex justify-content-center">
-        <div>
-            <p class="" style="margin-bottom: 0.5rem;">Способо оплаты</p>
-            <div class="d-flex">
-                <div class="non-cash">
-                    <button @click="showBlockSec">Безналичная оплата</button>
-                </div>
-                <div class="bank-card">
-                    <button @click="showBlock">Банковская карта</button>
-                </div>
-            </div>
-            <div class="" style="margin-top: 1rem;">
-                <p style="margin-bottom: 0.5rem;">Сумма для пополнения</p>
-                <input class="prop_sum"type="text">
-                <div class="prop__total" style="margin-top:1rem;margin-bottom: 2rem;">
-                    <a href="">Итого:</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="card" style="display: none;">
-        <div class=" d-flex justify-content-center">
-            <div class="bgc-pay" style="z-index: 1;">
-                <p style="margin-bottom: 0.5rem;">Номер карты</p>
-                <input class="prop__inf__num"style="" type="text">
-
-                <p style="margin-bottom: 0.5rem; margin-top: 1rem;">Срок действия</p>
-                <input style="width: 100px;" type="text" placeholder="__/ __">
-                <input class="prop__cvv" style="width: 100px;" type="text" placeholder="CVV">
-
-                <p style="margin-bottom: 0.5rem; margin-top: 1rem;">Держатель карты</p>
-                <input class="prop__inf" type="text">
-                <div class="d-flex justify-content-center">
-                    <div class="propp__button"style="width: 70%;">
-                    <a href="">Оплатить</a>
-                    </div>
-                </div>
-            </div>
-            <div class="prop__img__right">
-                <img class="ll" style="margin-left: -1rem; z-index: 0; width: 90%; margin-top: 1rem;" src="../../assets/images/landing/prop.svg" alt="" />
-            </div>
-        </div>
-    </div>
-    <div id="cardSec" style="display: none;">
-        <div class="d-flex justify-content-center" >
-            <div class="bgc-non__cash">
-                <div class="d-flex justify-content-center prop__num-res">
-                    <p>Счет на оплату:
-                    <span>№2#######</span>
-                    </p>
-                </div>
-                <div class="bgc-for__text">
-                    <p>Дата:
-                        <span>от 22.03.24</span>
-                    </p>
-                </div>
-                <div class="bgc-for__text">
-                    <p>Поставщик:
-                        <span>ООО “Знаю ПБ”</span>
-                    </p>
-                </div>
-                <div class="bgc-for__text">
-                    <p>Получатель:
-                        <span>Иванов Иван Иванович</span>
-                    </p>
-                </div>
-                <div class="bgc-for__text">
-                    <p>Назначение платежа:
-                        <span> A.1 Основы промышленной безопасности</span>
-                    </p>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div class="prop__result">
-                        <a href="">Итого:
-                            <span>30 000₽</span>
-                        </a>
-                    </div>
-                    <div >
-                        <button class="prop__res">Оплатить</button>
-                    </div>
-                </div>
-                <div class="prop__link">
-                    <p>Перейдя по ссылке, вы сможете распечатать образец платежного поручения или оплатить счет онлайн любым удобным для вас способом.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-
 
 <Footer />
 </template>
@@ -415,10 +307,10 @@ onMounted(async () => {
     }
     input {
         border-radius: 5px;
-border: 0;
-background: rgb(255, 255, 255);
-height: 30px;
-padding-left: 0.5rem;
+        border: 0;
+        background: rgb(255, 255, 255);
+        height: 30px;
+        padding-left: 0.5rem;
     }
 }
 .app__button {
@@ -568,3 +460,114 @@ background: rgb(255, 255, 255);
 }
 
 </style>
+
+
+
+
+
+<!-- <div class="bgc__prop">
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <h3 style="margin-bottom: 2rem;">Детали оплаты</h3>
+        </div>
+        <div class="d-flex justify-content-center">
+            <p>Назначение платежа: <span style="font-weight: 600; font-size: 1rem;">A.1 Основы промышленной безопасности</span></p>
+        </div>
+        <div class="d-flex justify-content-center">
+            <p>Стоимость курса: <span style="font-weight: 600; font-size: 1rem;">20 000₽</span></p>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <h3 style="margin-bottom: 2rem;">Пополнение баланса</h3>
+    </div>
+    <div class="prop__pay d-flex justify-content-center">
+        <div>
+            <p class="" style="margin-bottom: 0.5rem;">Способо оплаты</p>
+            <div class="d-flex">
+                <div class="non-cash">
+                    <button @click="showBlockSec">Безналичная оплата</button>
+                </div>
+                <div class="bank-card">
+                    <button @click="showBlock">Банковская карта</button>
+                </div>
+            </div>
+            <div class="" style="margin-top: 1rem;">
+                <p style="margin-bottom: 0.5rem;">Сумма для пополнения</p>
+                <input class="prop_sum"type="text">
+                <div class="prop__total" style="margin-top:1rem;margin-bottom: 2rem;">
+                    <a href="">Итого:</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="card" style="display: none;">
+        <div class=" d-flex justify-content-center">
+            <div class="bgc-pay" style="z-index: 1;">
+                <p style="margin-bottom: 0.5rem;">Номер карты</p>
+                <input class="prop__inf__num"style="" type="text">
+
+                <p style="margin-bottom: 0.5rem; margin-top: 1rem;">Срок действия</p>
+                <input style="width: 100px;" type="text" placeholder="__/ __">
+                <input class="prop__cvv" style="width: 100px;" type="text" placeholder="CVV">
+
+                <p style="margin-bottom: 0.5rem; margin-top: 1rem;">Держатель карты</p>
+                <input class="prop__inf" type="text">
+                <div class="d-flex justify-content-center">
+                    <div class="propp__button"style="width: 70%;">
+                    <a href="">Оплатить</a>
+                    </div>
+                </div>
+            </div>
+            <div class="prop__img__right">
+                <img class="ll" style="margin-left: -1rem; z-index: 0; width: 90%; margin-top: 1rem;" src="../../assets/images/landing/prop.svg" alt="" />
+            </div>
+        </div>
+    </div>
+    <div id="cardSec" style="display: none;">
+        <div class="d-flex justify-content-center" >
+            <div class="bgc-non__cash">
+                <div class="d-flex justify-content-center prop__num-res">
+                    <p>Счет на оплату:
+                    <span>№2#######</span>
+                    </p>
+                </div>
+                <div class="bgc-for__text">
+                    <p>Дата:
+                        <span>от 22.03.24</span>
+                    </p>
+                </div>
+                <div class="bgc-for__text">
+                    <p>Поставщик:
+                        <span>ООО “Знаю ПБ”</span>
+                    </p>
+                </div>
+                <div class="bgc-for__text">
+                    <p>Получатель:
+                        <span>Иванов Иван Иванович</span>
+                    </p>
+                </div>
+                <div class="bgc-for__text">
+                    <p>Назначение платежа:
+                        <span> A.1 Основы промышленной безопасности</span>
+                    </p>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div class="prop__result">
+                        <a href="">Итого:
+                            <span>30 000₽</span>
+                        </a>
+                    </div>
+                    <div >
+                        <button class="prop__res">Оплатить</button>
+                    </div>
+                </div>
+                <div class="prop__link">
+                    <p>Перейдя по ссылке, вы сможете распечатать образец платежного поручения или оплатить счет онлайн любым удобным для вас способом.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
