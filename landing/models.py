@@ -6,8 +6,8 @@ class Proposal(models.Model):
     email = models.EmailField("Электронная почта")
     phone = models.CharField("Номер телефона", max_length=20)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Курс")
-    created_at = models.DateTimeField("Дата создания", auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField("Дата создания", auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField("Дата последнего обновления", auto_now=True, null=True, blank=True)
     is_checked = models.BooleanField("Обработана", default=False)
 
     def __str__(self):

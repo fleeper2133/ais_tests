@@ -1,14 +1,18 @@
 <script setup>
-import { reactive, onMounted } from "vue";
+import { reactive, onMounted, ref } from "vue";
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
 import { useStore } from "../../store"
 
-import { ref } from 'vue';
-
 const aisStore = useStore()
 
 const selectedCourse = ref('');
+const formData = reactive({
+  fio: '',
+  email: '',
+  phone: '',
+  course: null
+});
 
 function showBlock() {
     const card = document.getElementById('card');
@@ -33,12 +37,48 @@ function toggleSelect() {
 
 function selectCourse(course) {
     selectedCourse.value = course;
+    formData.course = course;
     document.querySelector('.custom-select-selected').innerText = course.name;
     document.getElementById('custom-select-items').style.display = 'none';
 }
 
+function submitForm() {
+    if (!formData.fio || !formData.email || !formData.phone || !formData.course) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+    }
+
+    // Регулярное выражение для проверки номера телефона
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(formData.phone)) {
+        alert('Пожалуйста, введите корректный номер телефона');
+        return;
+    }
+
+    const proposalData = {
+        fio: formData.fio,
+        email: formData.email,
+        phone: formData.phone,
+        course: formData.course.id,
+        is_checked: false
+    };
+
+    aisStore.setProposal(proposalData).then(() => {
+        alert('Заявка успешно отправлена');
+        // Очистка формы после успешной отправки
+        formData.fio = '';
+        formData.email = '';
+        formData.phone = '';
+        formData.course = null;
+        selectedCourse.value = '';
+        document.querySelector('.custom-select-selected').innerText = 'Нажмите для выбора курса';
+    }).catch(error => {
+        alert('Произошла ошибка при отправке заявки. Пожалуйста, заполните все поля корректно и повторите попытку.');
+    });
+}
+
 onMounted(async () => {
-    aisStore.getCourses()
+    await aisStore.getCourses();
 });
 </script>
 
@@ -51,26 +91,26 @@ onMounted(async () => {
     <div class="d-flex justify-content-center">
         <div class="prop__name">
             <p class="">Введите ФИО:</p>
-            <input  type="text" name="" id="">
+            <input v-model="formData.fio" type="text" name="" id="">
         </div>
     </div>
     <div class="d-flex justify-content-center">
         <div class="prop__name">
             <p class="">E-mail:</p>
-            <input  type="text" name="" id="">
+            <input v-model="formData.email" type="email" name="" id="">
         </div>
     </div>
     <div class="d-flex justify-content-center">
         <div class="prop__name">
             <p class="">Номер телефона:</p>
-            <input  type="text" name="" id="">
+            <input v-model="formData.phone" type="tel" name="" id="">
         </div>
     </div>
     <div class="d-flex justify-content-center">
         <div class="prop__name">
             <p class="">Выберите курс:</p>
             <div class="custom-select">
-                <div class="custom-select-selected" @click="toggleSelect">Нажмите для выбора курса</div>
+                <div class="custom-select-selected" @click="toggleSelect">{{ selectedCourse.value ? selectedCourse.value.name : 'Нажмите для выбора курса' }}</div>
                 <div class="custom-select-items mt-1" id="custom-select-items">
                     <div v-for="course in aisStore.allCourses" :key="course.name" @click="selectCourse(course)">
                         {{ course.name }}
@@ -81,12 +121,12 @@ onMounted(async () => {
         </div>
     </div>
     <div class="d-flex">
-        <button class="send-btn">Отправить</button>
+        <button class="send-btn" @click="submitForm">Отправить</button>
     </div>
 </div>
-
 <Footer />
 </template>
+
 
 <style scoped lang="scss">
 @import '../../sass/styles.scss';

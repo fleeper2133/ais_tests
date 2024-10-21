@@ -3,6 +3,16 @@ import { api } from "../api/base"
 import { defineStore } from "pinia"
 import router from "./router/routes"
 
+export interface Proposal {
+  id: number
+  fio: string
+  email: string
+  phone: string
+  course: Course
+  created_at?: string
+  updated_at?: string
+  is_checked: boolean
+}
 
 export interface Login {
   email: string
@@ -127,6 +137,7 @@ export interface Schedule {
 export const useStore = defineStore("tasks", () => {
 
   // Variables
+  const allProposals = ref<Proposal[]>([])
   const currentUser = ref({})
   const allCourses = ref<Course[]>([])
   const selectedCourseId = ref<number | undefined>(undefined)
@@ -160,6 +171,17 @@ export const useStore = defineStore("tasks", () => {
   ])
 
   // Variables end
+
+  function getProposals() {
+    return api.getProposals()
+      .then((proposals: Proposal[]) => {
+        allProposals.value = proposals;
+      })
+  }
+
+  function setProposal(proposalData: Proposal) {
+    return api.setProposal(proposalData)
+  }
 
 
   function getCurrentUser() {
@@ -394,6 +416,9 @@ export const useStore = defineStore("tasks", () => {
 
 
   return {
+    getProposals,
+    allProposals,
+    setProposal,
     allCourses,
     selectedCourseId,
     selectedCourse,

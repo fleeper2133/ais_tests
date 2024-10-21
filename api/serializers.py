@@ -2,6 +2,7 @@ from rest_framework import serializers
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion, UserDays
 from app.models import Profile
+from landing.models import Proposal
 
 class UserDaysSerializer(serializers.ModelSerializer):
     class Meta:
@@ -251,4 +252,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['logotype', 'footer_logotype', 'short_name', 'direction',  'full_name', 'intro', 'phone', 'email', 'address', 'req', 'policy', 'terms']
-        
+
+
+class ProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Proposal
+        fields = ['id', 'fio', 'email', 'phone', 'course', 'created_at', 'updated_at', 'is_checked']

@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import permissions
 from users.models import CustomUser
+from landing.models import Proposal
 from course.models import Qualification, Block, NormativeDocument, Course, Testing, Ticket, Question, Varient, QuestionList, LearningMaterial, Rotation, RotationQuestion
 from app.models import Profile
-from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer
+from .serializers import QualificationSerializer, BlockSerializer, NormativeDocumentSerializer, QuestionDetailSerializer, CourseSerializer, TestingSerializer, TicketSerializer, QuestionSerializer, VarientSerializer, QuestionListSerializer, LearningMaterialSerializer, ProposalSerializer
 from usercourse.models import UserCourse, TaskQuestion, UserQuestion, UserTicket, UserAnswer, UserAnswerItem, QuestionTicket, UserCheckSkills, UserCheckSkillsQuestion
 from .serializers import UserCourseSerializer, TaskQuestionSerializer, UserQuestionSerializer, UserTicketSerializer, UserAnswerSerializer, UserAnswerItemSerializer, QuestionTicketSerializer, UserCheckSkillsSerializer, UserCheckSkillsQuestionSerializer, UserQuestionStatisticSerializer
 import random
@@ -1024,3 +1025,8 @@ class UserCheckSkillsQuestionViewSet(viewsets.ModelViewSet):
             return Response(questions_serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'detail': f'Произошла ошибка при обработке ответа: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class ProposalViewSet(viewsets.ModelViewSet):
+    queryset = Proposal.objects.all()
+    serializer_class = ProposalSerializer

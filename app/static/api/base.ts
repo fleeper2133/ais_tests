@@ -55,6 +55,14 @@ class ApiClient {
     return response.data;
   }
 
+  // Заявки на обучение
+  async getProposals() {
+    return this.get('/api/proposals/')
+  }
+  async setProposal(body) {
+    return this.post('/api/proposals/', body)
+  }
+
 
   async getCurrentUser() {
     return this.get('/users/api/current_user/')
