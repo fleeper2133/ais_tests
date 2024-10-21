@@ -9,14 +9,14 @@ import logging
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project.settings")
 django.setup()
-HOST = "https://bp-cok.webworx.ru/api-exams/"
+HOST = "https://cok.oaontc.ru/api-exams/"
 URLS = {
     "questions": HOST + "questions/",
     "qualifications": HOST + "qualifications/",
     "blocks": HOST + "blocks/",
     "ndocuments": HOST + "ndocuments/",
 }
-TOKEN = "7ed52887f5c6447bbaf51242e96b4a4a78d4111a"
+TOKEN = "7cdebf87f1cc0f3be9e4c894fea0013530d27e5e"
 HEADERS = {"Authorization": f"Token {TOKEN}"}
 
 

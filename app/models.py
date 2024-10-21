@@ -1,6 +1,7 @@
 from django.db import models
 from ckeditor_uploader.fields import RichTextUploadingField
 
+
 class Profile(models.Model):
     """template class for company profile"""
 
@@ -43,7 +44,8 @@ class Profile(models.Model):
         "Главный телефон организации",
         max_length=200,
         blank=True,
-        null=True, default=None
+        null=True,
+        default=None,
     )
 
     email = models.TextField(
@@ -55,6 +57,12 @@ class Profile(models.Model):
     )
 
     req = RichTextUploadingField(verbose_name="Реквизиты организации")
+
+    policy = RichTextUploadingField(
+        "Политика конфиденциальности", null=True, blank=True
+    )
+
+    terms = RichTextUploadingField("Условия использования", null=True, blank=True)
 
     class Meta:
         verbose_name = "Профиль компании"

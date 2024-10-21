@@ -14,7 +14,7 @@ import Footer from './components/Footer.vue';
     <div class="row">
         <div class="col-lg-2 col-md-3">
             <div class="lk_bid">
-                <a href="/proposal">Подать заявку</a>
+                <a href="/application">Подать заявку</a>
             </div>
         </div>
     </div>
