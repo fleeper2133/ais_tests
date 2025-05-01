@@ -40,10 +40,10 @@ import { reactive } from "vue";
         </div>
     </div>
     <div class="col-md-6">
-        <div class="main-for"style="">
+        <!-- <div class="main-for"style="">
             <a class="stages__step__program" href="">Программа разработана на основании нормативно-правовых актов, нормативных и
                  методических документов, используемых при составлении вопросов тестирования в Ростехнадзоре.</a>
-        </div>
+        </div> -->
         <div class="stages__button">
             <a href="">Записаться на подготовку</a>
         </div>

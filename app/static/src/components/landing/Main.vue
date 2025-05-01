@@ -39,7 +39,7 @@ const router = useRouter()
       </div>
     </div>
     <Stages/>
-    <Request/>
+    <!-- <Request/> -->
     <Skill/>
     <Advant/>
     <Tarif/>
